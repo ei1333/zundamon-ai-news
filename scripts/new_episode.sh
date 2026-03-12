@@ -41,9 +41,24 @@ if [ -e "$EPISODE_TARGET" ]; then
 fi
 
 mkdir -p "$REPO_ROOT/episodes"
-cp "$EPISODE_TEMPLATE" "$EPISODE_TARGET"
-sed -i "s/YYYY-MM-DD/$DATE/g" "$EPISODE_TARGET"
-sed -i "s/title: 新しいAIニュース回/title: $TITLE/g" "$EPISODE_TARGET"
+python3 - "$EPISODE_TEMPLATE" "$EPISODE_TARGET" "$DATE" "$TITLE" <<'PY'
+from pathlib import Path
+import re
+import sys
+
+template_path = Path(sys.argv[1])
+target_path = Path(sys.argv[2])
+date = sys.argv[3]
+title = sys.argv[4]
+
+text = template_path.read_text(encoding='utf-8')
+text = text.replace('YYYY-MM-DD', date)
+text, count = re.subn(r'^#\s+.*$', f'# {title}', text, count=1, flags=re.MULTILINE)
+if count != 1:
+    raise SystemExit('Template title heading not found')
+
+target_path.write_text(text, encoding='utf-8')
+PY
 
 python3 "$REPO_ROOT/scripts/render_episode.py" "$DATE"
 python3 "$REPO_ROOT/scripts/update_index.py" "$DATE"
