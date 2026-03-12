@@ -13,6 +13,8 @@ def render_html(date: str, header: dict, items: list[dict]) -> str:
     summary = html.escape(header['summary'])
     intro = html.escape(header['intro'])
     closing = html.escape(header['closing'])
+    page_title = html.escape(f'{date} | ずんだもん1分AIニュース')
+    page_url = html.escape(f'https://ei1333.github.io/zundamon-ai-news/days/{date}.html', quote=True)
     audio_file = html.escape(f'sample-news-{date}.wav')
 
     item_html = []
@@ -33,7 +35,16 @@ def render_html(date: str, header: dict, items: list[dict]) -> str:
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{date} | ずんだもん1分AIニュース</title>
+    <title>{page_title}</title>
+    <meta name="description" content="{summary}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="{page_title}" />
+    <meta property="og:description" content="{summary}" />
+    <meta property="og:url" content="{page_url}" />
+    <meta property="og:site_name" content="ずんだもん1分AIニュース" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="{page_title}" />
+    <meta name="twitter:description" content="{summary}" />
     <link rel="stylesheet" href="../assets/style.css" />
   </head>
   <body>
