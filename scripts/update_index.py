@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import html
-import re
 import sys
 
 from episode_utils import ROOT, parse_episode_summary
@@ -42,6 +41,17 @@ def build_latest_cards(episodes: list[dict[str, object]]) -> str:
     return '\n'.join(cards)
 
 
+def replace_between_markers(text: str, start_marker: str, end_marker: str, replacement: str) -> str:
+    start = text.find(start_marker)
+    end = text.find(end_marker)
+    if start == -1 or end == -1 or end < start:
+        raise SystemExit(f'Missing marker pair: {start_marker} / {end_marker}')
+    after_start = start + len(start_marker)
+    line_start = text.rfind('\n', 0, end) + 1
+    closing_indent = text[line_start:end]
+    return text[:after_start] + '\n' + replacement + '\n' + closing_indent + text[end:]
+
+
 def update_index(target_date: str | None = None) -> None:
     episodes = list_episodes()
     if not episodes:
@@ -57,17 +67,13 @@ def update_index(target_date: str | None = None) -> None:
     index_path = ROOT / 'index.html'
     text = index_path.read_text(encoding='utf-8')
 
-    lead_pattern = r'<p class="lead">.*?</p>'
     lead_block = (
-        '<p class="lead">\n'
+        '        <p class="lead">\n'
         '          公開情報をもとに独自要約したAIニュースを、ずんだもんの声で1分前後にまとめてお届けするページです。\n'
         '        </p>'
     )
-    text, count = re.subn(lead_pattern, lead_block, text, count=1, flags=re.DOTALL)
-    if count != 1:
-        raise SystemExit('Could not update lead text in index.html')
+    text = replace_between_markers(text, '<!-- INDEX_LEAD_START -->', '<!-- INDEX_LEAD_END -->', lead_block)
 
-    latest_pattern = r'<section class="card featured-card">.*?</section>'
     featured_tags = ''.join(
         f'            <span class="episode-tag {item["category_class"]}">{html.escape(str(item["category_label"]))}</span>\n'
         for item in latest['items']
@@ -76,7 +82,7 @@ def update_index(target_date: str | None = None) -> None:
         f'            <li>{html.escape(str(item["headline"]))}</li>' for item in latest['items']
     )
     latest_block = (
-        f'<section class="card featured-card">\n'
+        f'      <section class="card featured-card">\n'
         f'        <div class="featured-copy">\n'
         f'          <p class="eyebrow">Latest Episode</p>\n'
         f'          <h2>最新回</h2>\n'
@@ -109,48 +115,31 @@ def update_index(target_date: str | None = None) -> None:
         f'        </div>\n'
         f'      </section>'
     )
-    text, count = re.subn(latest_pattern, latest_block, text, count=1, flags=re.DOTALL)
-    if count != 1:
-        raise SystemExit('Could not update latest card in index.html')
+    text = replace_between_markers(text, '<!-- FEATURED_EPISODE_START -->', '<!-- FEATURED_EPISODE_END -->', latest_block)
 
-    latest_three_pattern = r'<section class="card">\s*<h2>最近の回</h2>\s*<div class="episode-grid">\n.*?\s*</div>\s*</section>'
     latest_three_block = (
-        '<section class="card">\n'
+        '      <section class="card">\n'
         '        <h2>最近の回</h2>\n'
         '        <div class="episode-grid">\n'
         f'{build_latest_cards(episodes)}\n'
         '        </div>\n'
         '      </section>'
     )
-    text, count = re.subn(latest_three_pattern, latest_three_block, text, count=1, flags=re.DOTALL)
-    if count != 1:
-        raise SystemExit('Could not rebuild latest 3 episodes in index.html')
+    text = replace_between_markers(text, '<!-- RECENT_EPISODES_START -->', '<!-- RECENT_EPISODES_END -->', latest_three_block)
 
-    backnumber_pattern = r'<section class="card">\s*<h2>バックナンバー</h2>\s*<ul>\n.*?\s*</ul>\s*</section>'
     entries = ''.join(
         f'          <li><a href="days/{html.escape(episode["date"])}.html">{html.escape(episode["date"])} | {html.escape(episode["title"])} </a></li>\n'
         for episode in episodes
     ).rstrip()
     backnumber_block = (
-        '<section class="card">\n'
+        '      <section class="card">\n'
         '        <h2>バックナンバー</h2>\n'
         '        <ul>\n'
         f'{entries}\n'
         '        </ul>\n'
         '      </section>'
     )
-    text, count = re.subn(
-        backnumber_pattern,
-        backnumber_block,
-        text,
-        count=1,
-        flags=re.DOTALL,
-    )
-    if count != 1:
-        raise SystemExit('Could not rebuild backnumber list in index.html')
-
-    trial_section_pattern = r'\n\s*<section class="card">\s*<h2>この試作で確認したいこと</h2>.*?</section>'
-    text = re.sub(trial_section_pattern, '', text, count=1, flags=re.DOTALL)
+    text = replace_between_markers(text, '<!-- BACKNUMBER_START -->', '<!-- BACKNUMBER_END -->', backnumber_block)
 
     index_path.write_text(text, encoding='utf-8')
 
