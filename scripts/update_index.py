@@ -17,15 +17,30 @@ def extract_section(text: str, heading: str) -> str:
     return match.group(1).strip()
 
 
+def extract_subsection(text: str, heading: str) -> str:
+    pattern = rf'^### {re.escape(heading)}\n(.*?)(?=^### |\Z)'
+    match = re.search(pattern, text, flags=re.MULTILINE | re.DOTALL)
+    if not match:
+        raise SystemExit(f'Missing subsection: {heading}')
+    return match.group(1).strip()
+
+
 def parse_episode(path: Path) -> dict[str, str]:
     text = path.read_text(encoding='utf-8').strip()
     lines = text.splitlines()
     if not lines or not lines[0].startswith('# '):
         raise SystemExit('Episode file must start with a # title')
+
+    headlines = []
+    for idx in range(1, 4):
+        item_block = extract_section(text, f'Item {idx}')
+        headlines.append(extract_subsection(item_block, 'Headline'))
+
     return {
         'date': path.stem,
         'title': lines[0][2:].strip(),
         'summary': extract_section(text, 'Summary'),
+        'headlines': headlines,
     }
 
 
@@ -40,11 +55,17 @@ def build_latest_cards(episodes: list[dict[str, str]]) -> str:
         date = html.escape(episode['date'])
         title = html.escape(episode['title'])
         summary = html.escape(episode['summary'])
+        headlines = '\n'.join(
+            f'              <li>{html.escape(headline)}</li>' for headline in episode['headlines']
+        )
         cards.append(
             '          <article class="episode-card">\n'
             f'            <p class="episode-date">{date}</p>\n'
             f'            <h3><a href="days/{date}.html">{title}</a></h3>\n'
             f'            <p class="episode-summary">{summary}</p>\n'
+            '            <ul class="episode-headlines">\n'
+            f'{headlines}\n'
+            '            </ul>\n'
             '          </article>'
         )
     return '\n'.join(cards)

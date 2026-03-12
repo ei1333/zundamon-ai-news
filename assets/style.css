@@ -127,9 +127,20 @@ h3 {
 }
 
 .episode-summary {
-  margin: 0;
+  margin: 0 0 12px;
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+.episode-headlines {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.episode-headlines li + li {
+  margin-top: 4px;
 }
 
 a {
