@@ -1,0 +1,69 @@
+name: Publish site
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Prepare gh-pages worktree
+        run: |
+          set -euo pipefail
+
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            git fetch origin gh-pages
+            git worktree add /tmp/gh-pages origin/gh-pages
+          else
+            git switch --orphan gh-pages
+            git commit --allow-empty -m "Initialize gh-pages"
+            git push origin gh-pages
+            git switch main
+            git fetch origin gh-pages
+            git worktree add /tmp/gh-pages origin/gh-pages
+          fi
+
+      - name: Copy public files
+        run: |
+          set -euo pipefail
+
+          find /tmp/gh-pages -mindepth 1 -maxdepth 1 \
+            ! -name '.git' \
+            -exec rm -rf {} +
+
+          cp index.html /tmp/gh-pages/index.html
+          cp -R assets /tmp/gh-pages/assets
+          cp -R days /tmp/gh-pages/days
+          rm -f /tmp/gh-pages/days/_template.html
+
+      - name: Commit and push if changed
+        run: |
+          set -euo pipefail
+
+          cd /tmp/gh-pages
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No changes to publish"
+            exit 0
+          fi
+
+          git commit -m "Publish site from main"
+          git push origin HEAD:gh-pages

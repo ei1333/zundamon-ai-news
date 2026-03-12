@@ -26,8 +26,9 @@
 - `days/_template.html` - 次回以降のページ作成テンプレ
 - `assets/audio/` - 音声ファイル配置場所
 - `assets/style.css` - 共通スタイル
-- `scripts/publish.sh` - `main` の公開物を `gh-pages` へ反映するスクリプト
+- `scripts/publish.sh` - `main` の公開物を `gh-pages` へ反映するローカル用スクリプト
 - `scripts/new_episode.sh` - 新しい日付ページと index の導線を作るスクリプト
+- `.github/workflows/publish.yml` - `main` への push を `gh-pages` 公開へ反映する GitHub Actions
 
 ## Daily Workflow
 
@@ -107,7 +108,13 @@ git push origin main
 
 ### 7. 公開する
 
-`main` の公開物を `gh-pages` に反映します。
+基本は `main` に push すると GitHub Actions が自動で `gh-pages` を更新します。
+
+```bash
+git push origin main
+```
+
+ローカルで手動反映したい場合は、補助的に次も使えます。
 
 ```bash
 ./scripts/publish.sh
@@ -118,7 +125,8 @@ git push origin main
 - `gh-pages` 側には `README.md` や `days/_template.html` を出さない
 - GitHub Pages の公開元は `gh-pages` branch に切り替える前提
 - 環境依存の絶対パスは README に固定で書かない
-- 将来は GitHub Actions で `publish.sh` 相当を自動化してもよい
+- GitHub Actions に `contents: write` 権限が必要
+- `main` への push 後、Actions タブで publish workflow の成功を確認できる
 
 ## Next Ideas
 
