@@ -27,6 +27,7 @@
 - `assets/audio/` - 音声ファイル配置場所
 - `assets/style.css` - 共通スタイル
 - `scripts/publish.sh` - `main` の公開物を `gh-pages` へ反映するスクリプト
+- `scripts/new_episode.sh` - 新しい日付ページと index の導線を作るスクリプト
 
 ## Daily Workflow
 
@@ -40,20 +41,25 @@
 
 ### 2. 日別ページを作る
 
-テンプレートをコピーして日付を差し替えます。
+生成スクリプトで日付ページと index の導線を作ります。
 
 ```bash
 cd /path/to/zundamon-ai-news
-cp days/_template.html days/2026-03-13.html
+./scripts/new_episode.sh 2026-03-13 "AI規制・研究・半導体"
 ```
 
-置換する主な項目:
+これで次の変更が入ります。
 
-- `YYYY-MM-DD`
-- 音声ファイル名
+- `days/2026-03-13.html` をテンプレから生成
+- `index.html` の最新回リンクを更新
+- `index.html` のバックナンバー先頭に新規回を追加
+
+そのあと手で埋める主な項目:
+
 - 見出し3本
 - 要約本文
 - 出典リンク
+- 必要に応じてトップ文言
 
 ### 3. 読み上げ台本を作る
 
