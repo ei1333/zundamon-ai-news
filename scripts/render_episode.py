@@ -42,9 +42,12 @@ def render_html(date: str, header: dict, items: list[dict]) -> str:
     <meta property="og:description" content="{summary}" />
     <meta property="og:url" content="{page_url}" />
     <meta property="og:site_name" content="ずんだもん1分AIニュース" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://ei1333.github.io/zundamon-ai-news/assets/ogp.svg" />
+    <meta property="og:image:alt" content="ずんだもん1分AIニュースのOGP画像" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{page_title}" />
     <meta name="twitter:description" content="{summary}" />
+    <meta name="twitter:image" content="https://ei1333.github.io/zundamon-ai-news/assets/ogp.svg" />
     <link rel="stylesheet" href="../assets/style.css" />
   </head>
   <body>
