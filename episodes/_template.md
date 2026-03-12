@@ -20,7 +20,7 @@ YYYY-MM-DD 時点の公開情報をもとに構成した回です。音声は VO
 [Source 1](https://example.com/source-1)
 
 ### Script
-1本目、ニュース見出し1なのだ。ここに読み上げ用の要約を入れるのだ。
+
 
 ## Item 2
 ### Headline
@@ -33,7 +33,7 @@ YYYY-MM-DD 時点の公開情報をもとに構成した回です。音声は VO
 [Source 2](https://example.com/source-2)
 
 ### Script
-2本目、ニュース見出し2なのだ。ここに読み上げ用の要約を入れるのだ。
+
 
 ## Item 3
 ### Headline
@@ -46,7 +46,7 @@ YYYY-MM-DD 時点の公開情報をもとに構成した回です。音声は VO
 [Source 3](https://example.com/source-3)
 
 ### Script
-3本目、ニュース見出し3なのだ。ここに読み上げ用の要約を入れるのだ。
+
 
 ## Script Closing
 今日のひとことなのだ。ここに締めのひとことを入れるのだ。

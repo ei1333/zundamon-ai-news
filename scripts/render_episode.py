@@ -17,11 +17,13 @@ def extract_section(text: str, heading: str) -> str:
     return match.group(1).strip()
 
 
-def extract_subsection(text: str, heading: str) -> str:
+def extract_subsection(text: str, heading: str, required: bool = True) -> str:
     pattern = rf'^### {re.escape(heading)}\n(.*?)(?=^### |\Z)'
     match = re.search(pattern, text, flags=re.MULTILINE | re.DOTALL)
     if not match:
-        raise SystemExit(f"Missing subsection: {heading}")
+        if required:
+            raise SystemExit(f"Missing subsection: {heading}")
+        return ''
     return match.group(1).strip()
 
 
@@ -44,6 +46,11 @@ def parse_source_block(text: str) -> dict[str, str]:
     raise SystemExit('Source section must contain [Name](URL) or - Name: / - URL:')
 
 
+def auto_script(headline: str, summary: str, idx: int) -> str:
+    summary = re.sub(r'\s+', ' ', summary).strip()
+    return f"{idx}本目なのだ。{headline}なのだ。{summary}"
+
+
 def parse_episode(path: Path):
     text = path.read_text(encoding='utf-8').strip()
     first_line = text.splitlines()[0].strip() if text.splitlines() else ''
@@ -62,10 +69,13 @@ def parse_episode(path: Path):
     items: list[dict[str, str]] = []
     for idx in range(1, 4):
         item_block = extract_section(text, f'Item {idx}')
+        headline = extract_subsection(item_block, 'Headline')
+        summary = extract_subsection(item_block, 'Summary')
+        script = extract_subsection(item_block, 'Script', required=False)
         item = {
-            'Headline': extract_subsection(item_block, 'Headline'),
-            'Summary': extract_subsection(item_block, 'Summary'),
-            'Script': extract_subsection(item_block, 'Script'),
+            'Headline': headline,
+            'Summary': summary,
+            'Script': script or auto_script(headline, summary, idx),
         }
         item.update(parse_source_block(extract_subsection(item_block, 'Source')))
         items.append(item)

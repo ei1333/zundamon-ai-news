@@ -75,7 +75,7 @@ cd /path/to/zundamon-ai-news
   - `### Headline`
   - `### Summary`
   - `### Source` （`[媒体名](URL)` で書ける）
-  - `### Script`
+  - `### Script` （空でも可。空欄なら Summary から仮生成）
 - `## Script Closing`
 - `## Closing`
 
@@ -91,6 +91,8 @@ cd /path/to/zundamon-ai-news
 ### 4. HTML と台本を再生成する
 
 原稿を編集したら、HTML と台本を再生成します。
+
+`### Script` を空欄にした項目は、`### Headline` と `### Summary` を使って仮の読み上げ文を自動生成します。
 
 ```bash
 ./scripts/render_episode.py 2026-03-13
