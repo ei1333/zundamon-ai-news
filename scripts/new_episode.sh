@@ -46,47 +46,8 @@ sed -i "s/YYYY-MM-DD/$DATE/g" "$EPISODE_TARGET"
 sed -i "s/title: 新しいAIニュース回/title: $TITLE/g" "$EPISODE_TARGET"
 
 python3 "$REPO_ROOT/scripts/render_episode.py" "$DATE"
+python3 "$REPO_ROOT/scripts/update_index.py" "$DATE"
 
-INDEX="$REPO_ROOT/index.html"
-BACKUP="$INDEX.bak"
-cp "$INDEX" "$BACKUP"
-
-python3 - <<'PY' "$INDEX" "$DATE" "$TITLE"
-from pathlib import Path
-import sys
-
-index_path = Path(sys.argv[1])
-date = sys.argv[2]
-title = sys.argv[3]
-text = index_path.read_text()
-
-latest_pattern = '<section class="card">\n        <h2>最新サンプル</h2>'
-latest_start = text.find(latest_pattern)
-if latest_start == -1:
-    raise SystemExit('Could not find latest sample section in index.html')
-
-latest_end = text.find('</section>', latest_start)
-if latest_end == -1:
-    raise SystemExit('Could not find end of latest sample section in index.html')
-latest_end += len('</section>')
-
-latest_block = f'''<section class="card">\n        <h2>最新サンプル</h2>\n        <p>{date} の回です。</p>\n        <p><a class="button" href="days/{date}.html">最新回を見る</a></p>\n      </section>'''
-text = text[:latest_start] + latest_block + text[latest_end:]
-
-marker = '        <ul>\n'
-entry = f'          <li><a href="days/{date}.html">{date} | {title}</a></li>\n'
-
-if entry not in text:
-    pos = text.find(marker)
-    if pos == -1:
-        raise SystemExit('Could not find backnumber list in index.html')
-    pos += len(marker)
-    text = text[:pos] + entry + text[pos:]
-
-index_path.write_text(text)
-PY
-
-rm -f "$BACKUP"
 mkdir -p "$REPO_ROOT/assets/audio"
 
 cat <<EOF
