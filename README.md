@@ -66,15 +66,20 @@ cd /path/to/zundamon-ai-news
 
 ### 3. 原稿を埋める
 
-`episodes/YYYY-MM-DD.md` に以下をまとめて書きます。
+`episodes/YYYY-MM-DD.md` は、見出しベースの書きやすい書式です。
 
-- 回タイトル
-- イントロ
-- ニュース3本の見出し
-- 要約本文
-- 出典名とURL
-- 読み上げ用台本
-- 締めのひとこと
+- `# タイトル`
+- `## Summary`
+- `## Intro`
+- `## Item 1` 〜 `## Item 3`
+  - `### Headline`
+  - `### Summary`
+  - `### Source`
+  - `### Script`
+- `## Script Closing`
+- `## Closing`
+
+つまり、`key: value` を並べるより普通の Markdown に近い感覚で書けるようにしています。
 
 ### 4. HTML と台本を再生成する
 
