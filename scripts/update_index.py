@@ -97,12 +97,20 @@ def update_index(target_date: str | None = None) -> None:
     if count != 1:
         raise SystemExit('Could not update lead text in index.html')
 
-    latest_pattern = r'<section class="card">\s*<h2>最新サンプル</h2>\s*<p>.*?</p>\s*<p><a class="button" href="days/.*?\.html">.*?</a></p>\s*</section>'
+    latest_pattern = r'<section class="card featured-card">.*?</section>'
     latest_block = (
-        f'<section class="card">\n'
-        f'        <h2>最新サンプル</h2>\n'
-        f'        <p>{html.escape(latest["date"])} の回です。</p>\n'
-        f'        <p><a class="button" href="days/{html.escape(latest["date"])}.html">最新回を見る</a></p>\n'
+        f'<section class="card featured-card">\n'
+        f'        <div class="featured-copy">\n'
+        f'          <p class="eyebrow">Latest Episode</p>\n'
+        f'          <h2>最新サンプル</h2>\n'
+        f'          <p>{html.escape(latest["date"])} の回です。</p>\n'
+        f'          <p><a class="button" href="days/{html.escape(latest["date"])}.html">最新回を見る</a></p>\n'
+        f'        </div>\n'
+        f'        <div class="featured-visual" aria-hidden="true">\n'
+        f'          <div class="featured-screen">\n'
+        f'            <span>AI NEWS</span>\n'
+        f'          </div>\n'
+        f'        </div>\n'
         f'      </section>'
     )
     text, count = re.subn(latest_pattern, latest_block, text, count=1, flags=re.DOTALL)
