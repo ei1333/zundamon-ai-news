@@ -16,6 +16,9 @@ YYYY-MM-DD 時点の公開情報をもとに構成した回です。音声は VO
 ### Summary
 ここに要約を書く。2〜3文で短く、何が起きたかと意味が伝わるようにまとめる。
 
+### Category
+透明性
+
 ### Source
 [Source 1](https://example.com/source-1)
 
@@ -29,6 +32,9 @@ YYYY-MM-DD 時点の公開情報をもとに構成した回です。音声は VO
 ### Summary
 ここに要約を書く。安全性、実用性、市場動向など、異なる角度の話題を混ぜると収まりが良い。
 
+### Category
+研究
+
 ### Source
 [Source 2](https://example.com/source-2)
 
@@ -41,6 +47,9 @@ YYYY-MM-DD 時点の公開情報をもとに構成した回です。音声は VO
 
 ### Summary
 ここに要約を書く。1分音声に合わせるなら、3本で全体250〜350字程度が目安。
+
+### Category
+インフラ
 
 ### Source
 [Source 3](https://example.com/source-3)

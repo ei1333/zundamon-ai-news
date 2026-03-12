@@ -76,12 +76,15 @@ cd /path/to/zundamon-ai-news
 - `## Item 1` 〜 `## Item 3`
   - `### Headline`
   - `### Summary`
+  - `### Category` （任意。例: `透明性` / `研究` / `インフラ` / `安全性` / `市場`）
   - `### Source` （`[媒体名](URL)` で書ける）
   - `### Script` （空でも可。空欄なら Summary から仮生成）
 - `## Script Closing`
 - `## Closing`
 
 つまり、`key: value` を並べるより普通の Markdown に近い感覚で書けるようにしています。
+
+`### Category` を省略した場合は、当面は 1本目=透明性 / 2本目=研究 / 3本目=インフラ の既定値を使います。
 
 特に `### Source` は次のように 1 行で書けます。
 

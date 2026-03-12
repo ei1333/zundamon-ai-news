@@ -71,10 +71,12 @@ def parse_episode(path: Path):
         item_block = extract_section(text, f'Item {idx}')
         headline = extract_subsection(item_block, 'Headline')
         summary = extract_subsection(item_block, 'Summary')
+        category = extract_subsection(item_block, 'Category', required=False)
         script = extract_subsection(item_block, 'Script', required=False)
         item = {
             'Headline': headline,
             'Summary': summary,
+            'Category': category,
             'Script': script or auto_script(headline, summary, idx),
         }
         item.update(parse_source_block(extract_subsection(item_block, 'Source')))

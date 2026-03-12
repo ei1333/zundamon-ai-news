@@ -25,6 +25,24 @@ def extract_subsection(text: str, heading: str) -> str:
     return match.group(1).strip()
 
 
+def normalize_category(label: str) -> tuple[str, str]:
+    normalized = label.strip().lower()
+    mapping = {
+        '透明性': ('透明性', 'category-transparency'),
+        'transparency': ('透明性', 'category-transparency'),
+        '研究': ('研究', 'category-research'),
+        'research': ('研究', 'category-research'),
+        'インフラ': ('インフラ', 'category-infra'),
+        'infra': ('インフラ', 'category-infra'),
+        'infrastructure': ('インフラ', 'category-infra'),
+        '安全性': ('安全性', 'category-safety'),
+        'safety': ('安全性', 'category-safety'),
+        '市場': ('市場', 'category-market'),
+        'market': ('市場', 'category-market'),
+    }
+    return mapping.get(normalized, (label.strip() or 'AI', 'category-general'))
+
+
 def default_category(idx: int) -> tuple[str, str]:
     mapping = {
         1: ('透明性', 'category-transparency'),
@@ -43,7 +61,10 @@ def parse_episode(path: Path) -> dict[str, object]:
     items = []
     for idx in range(1, 4):
         item_block = extract_section(text, f'Item {idx}')
-        category_label, category_class = default_category(idx)
+        category_text = extract_subsection(item_block, 'Category') if '### Category' in item_block else ''
+        category_label, category_class = normalize_category(category_text)
+        if not category_text:
+            category_label, category_class = default_category(idx)
         items.append({
             'headline': extract_subsection(item_block, 'Headline'),
             'category_label': category_label,
@@ -144,8 +165,12 @@ def update_index(target_date: str | None = None) -> None:
         f'          </ul>\n'
         f'          <p class="featured-actions">\n'
         f'            <a class="button" href="days/{html.escape(str(latest["date"]))}.html">最新回を見る</a>\n'
-        f'            <a class="button button-subtle" href="assets/audio/sample-news-{html.escape(str(latest["date"]))}.wav">音声を再生</a>\n'
+        f'            <a class="button button-subtle button-audio" href="assets/audio/sample-news-{html.escape(str(latest["date"]))}.wav"><span class="button-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="img" focusable="false"><circle cx="12" cy="12" r="10"></circle><path d="M10 8.5v7l6-3.5z"></path></svg></span><span>音声を再生</span></a>\n'
         f'          </p>\n'
+        f'          <audio class="featured-audio" controls preload="none">\n'
+        f'            <source src="assets/audio/sample-news-{html.escape(str(latest["date"]))}.wav" type="audio/wav" />\n'
+        f'            お使いのブラウザは audio 要素に対応していません。\n'
+        f'          </audio>\n'
         f'        </div>\n'
         f'        <div class="featured-visual" aria-hidden="true">\n'
         f'          <div class="featured-badge">ON AIR</div>\n'
