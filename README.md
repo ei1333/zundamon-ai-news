@@ -74,12 +74,19 @@ cd /path/to/zundamon-ai-news
 - `## Item 1` 〜 `## Item 3`
   - `### Headline`
   - `### Summary`
-  - `### Source`
+  - `### Source` （`[媒体名](URL)` で書ける）
   - `### Script`
 - `## Script Closing`
 - `## Closing`
 
 つまり、`key: value` を並べるより普通の Markdown に近い感覚で書けるようにしています。
+
+特に `### Source` は次のように 1 行で書けます。
+
+```md
+### Source
+[媒体名](https://example.com/article)
+```
 
 ### 4. HTML と台本を再生成する
 

@@ -17,8 +17,7 @@ YYYY-MM-DD 時点の公開情報をもとに構成した回です。音声は VO
 ここに要約を書く。2〜3文で短く、何が起きたかと意味が伝わるようにまとめる。
 
 ### Source
-- Name: Source 1
-- URL: https://example.com/source-1
+[Source 1](https://example.com/source-1)
 
 ### Script
 1本目、ニュース見出し1なのだ。ここに読み上げ用の要約を入れるのだ。
@@ -31,8 +30,7 @@ YYYY-MM-DD 時点の公開情報をもとに構成した回です。音声は VO
 ここに要約を書く。安全性、実用性、市場動向など、異なる角度の話題を混ぜると収まりが良い。
 
 ### Source
-- Name: Source 2
-- URL: https://example.com/source-2
+[Source 2](https://example.com/source-2)
 
 ### Script
 2本目、ニュース見出し2なのだ。ここに読み上げ用の要約を入れるのだ。
@@ -45,8 +43,7 @@ YYYY-MM-DD 時点の公開情報をもとに構成した回です。音声は VO
 ここに要約を書く。1分音声に合わせるなら、3本で全体250〜350字程度が目安。
 
 ### Source
-- Name: Source 3
-- URL: https://example.com/source-3
+[Source 3](https://example.com/source-3)
 
 ### Script
 3本目、ニュース見出し3なのだ。ここに読み上げ用の要約を入れるのだ。

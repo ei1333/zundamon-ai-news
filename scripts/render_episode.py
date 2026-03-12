@@ -26,14 +26,22 @@ def extract_subsection(text: str, heading: str) -> str:
 
 
 def parse_source_block(text: str) -> dict[str, str]:
+    markdown_link = re.search(r'\[([^\]]+)\]\((https?://[^\)]+)\)', text)
+    if markdown_link:
+        return {
+            'SourceName': markdown_link.group(1).strip(),
+            'SourceURL': markdown_link.group(2).strip(),
+        }
+
     name_match = re.search(r'^- Name:\s*(.+)$', text, flags=re.MULTILINE)
     url_match = re.search(r'^- URL:\s*(.+)$', text, flags=re.MULTILINE)
-    if not name_match or not url_match:
-        raise SystemExit('Source section must contain - Name: and - URL:')
-    return {
-        'SourceName': name_match.group(1).strip(),
-        'SourceURL': url_match.group(1).strip(),
-    }
+    if name_match and url_match:
+        return {
+            'SourceName': name_match.group(1).strip(),
+            'SourceURL': url_match.group(1).strip(),
+        }
+
+    raise SystemExit('Source section must contain [Name](URL) or - Name: / - URL:')
 
 
 def parse_episode(path: Path):
