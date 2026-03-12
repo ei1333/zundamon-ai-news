@@ -200,14 +200,22 @@ def update_index(target_date: str | None = None) -> None:
     if count != 1:
         raise SystemExit('Could not rebuild latest 3 episodes in index.html')
 
-    backnumber_pattern = r'(<section class="card">\s*<h2>バックナンバー</h2>\s*<ul>\n)(.*?)(\s*</ul>\s*</section>)'
+    backnumber_pattern = r'<section class="card">\s*<h2>バックナンバー</h2>\s*<ul>\n.*?\s*</ul>\s*</section>'
     entries = ''.join(
         f'          <li><a href="days/{html.escape(episode["date"])}.html">{html.escape(episode["date"])} | {html.escape(episode["title"])} </a></li>\n'
         for episode in episodes
     ).rstrip()
+    backnumber_block = (
+        '<section class="card">\n'
+        '        <h2>バックナンバー</h2>\n'
+        '        <ul>\n'
+        f'{entries}\n'
+        '        </ul>\n'
+        '      </section>'
+    )
     text, count = re.subn(
         backnumber_pattern,
-        lambda m: f'{m.group(1)}{entries}{m.group(3)}',
+        backnumber_block,
         text,
         count=1,
         flags=re.DOTALL,
