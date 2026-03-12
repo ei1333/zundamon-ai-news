@@ -204,7 +204,7 @@ def update_index(target_date: str | None = None) -> None:
     entries = ''.join(
         f'          <li><a href="days/{html.escape(episode["date"])}.html">{html.escape(episode["date"])} | {html.escape(episode["title"])} </a></li>\n'
         for episode in episodes
-    )
+    ).rstrip()
     text, count = re.subn(
         backnumber_pattern,
         lambda m: f'{m.group(1)}{entries}{m.group(3)}',
