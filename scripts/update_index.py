@@ -32,9 +32,14 @@ def update_index(date: str) -> None:
     index_path = ROOT / 'index.html'
     text = index_path.read_text(encoding='utf-8')
 
-    lead_pattern = r'(<p class="lead">\s*公開情報をもとに独自要約したAIニュースを、ずんだもんの声で1分前後にまとめる試作ページです。\s*)(.*?)(\s*</p>)'
-    lead_replacement = rf'\1{date} の回では、{episode["summary"]}\3'
-    text, count = re.subn(lead_pattern, lead_replacement, text, flags=re.DOTALL)
+    lead_pattern = r'<p class="lead">.*?</p>'
+    lead_block = (
+        f'<p class="lead">\n'
+        f'          公開情報をもとに独自要約したAIニュースを、ずんだもんの声で1分前後にまとめる試作ページです。\n'
+        f'          {episode["summary"]}\n'
+        f'        </p>'
+    )
+    text, count = re.subn(lead_pattern, lead_block, text, count=1, flags=re.DOTALL)
     if count != 1:
         raise SystemExit('Could not update lead text in index.html')
 
