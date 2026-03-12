@@ -31,7 +31,8 @@
 - `scripts_text/YYYY-MM-DD.txt` - episode 原稿から生成される読み上げ台本
 - `assets/audio/` - 音声ファイル配置場所
 - `assets/style.css` - 共通スタイル
-- `scripts/new_episode.sh` - 新しい原稿ファイルを作り、初回レンダリングと index 更新を行うスクリプト
+- `scripts/new_episode.sh` - `new_episode.py` を呼ぶ薄いラッパー
+- `scripts/new_episode.py` - 新しい原稿ファイルを安全に作り、初回レンダリングを行うスクリプト（`--no-index` 対応）
 - `scripts/render_episode.py` - episode 原稿から HTML と台本テキストを生成するスクリプト
 - `scripts/update_index.py` - episode 一覧から index の最新回表示・最新3回カード・説明文・バックナンバーを再構築するスクリプト
 - `scripts/render_audio.sh` - 生成済み台本テキストから音声を生成するスクリプト
@@ -56,6 +57,12 @@
 ```bash
 cd /path/to/zundamon-ai-news
 ./scripts/new_episode.sh 2026-03-13 "AI規制・研究・半導体"
+```
+
+index 更新をあとでやりたいときは、次も使えるめう。
+
+```bash
+./scripts/new_episode.sh --no-index 2026-03-13 "AI規制・研究・半導体"
 ```
 
 これで次の変更が入ります。
