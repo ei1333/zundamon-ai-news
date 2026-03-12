@@ -71,6 +71,11 @@ h3 {
   font-weight: 700;
 }
 
+.featured-actions .button {
+  padding: 9px 14px;
+  font-size: 0.95rem;
+}
+
 .button:hover {
   background: var(--accent-dark);
 }
@@ -389,13 +394,19 @@ a {
   }
 
   .featured-headlines {
-    order: 6;
+    order: 4;
     font-size: 0.84rem;
     margin-bottom: 12px;
   }
 
-  .featured-actions {
+  .featured-audio {
     order: 5;
+    margin-top: 6px;
+    margin-bottom: 6px;
+  }
+
+  .featured-actions {
+    order: 6;
     flex-direction: column;
     align-items: stretch;
   }
@@ -404,12 +415,8 @@ a {
     width: 100%;
     justify-content: center;
     text-align: center;
-  }
-
-  .featured-audio {
-    order: 4;
-    margin-top: 10px;
-    margin-bottom: 4px;
+    font-size: 0.9rem;
+    padding: 8px 14px;
   }
 
   .featured-visual {
