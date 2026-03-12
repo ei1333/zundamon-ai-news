@@ -98,17 +98,26 @@ def update_index(target_date: str | None = None) -> None:
         raise SystemExit('Could not update lead text in index.html')
 
     latest_pattern = r'<section class="card featured-card">.*?</section>'
+    featured_headlines = '\n'.join(
+        f'            <li>{html.escape(headline)}</li>' for headline in latest['headlines']
+    )
     latest_block = (
         f'<section class="card featured-card">\n'
         f'        <div class="featured-copy">\n'
         f'          <p class="eyebrow">Latest Episode</p>\n'
         f'          <h2>最新サンプル</h2>\n'
         f'          <p>{html.escape(latest["date"])} の回です。</p>\n'
+        f'          <ul class="featured-headlines">\n'
+        f'{featured_headlines}\n'
+        f'          </ul>\n'
         f'          <p><a class="button" href="days/{html.escape(latest["date"])}.html">最新回を見る</a></p>\n'
         f'        </div>\n'
         f'        <div class="featured-visual" aria-hidden="true">\n'
+        f'          <div class="featured-badge">ON AIR</div>\n'
         f'          <div class="featured-screen">\n'
-        f'            <span>AI NEWS</span>\n'
+        f'            <p class="featured-screen-date">{html.escape(latest["date"])}</p>\n'
+        f'            <p class="featured-screen-title">{html.escape(latest["title"])}</p>\n'
+        f'            <div class="featured-wave"></div>\n'
         f'          </div>\n'
         f'        </div>\n'
         f'      </section>'
