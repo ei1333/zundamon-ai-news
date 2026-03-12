@@ -402,13 +402,14 @@ a {
   .featured-audio {
     order: 5;
     margin-top: 6px;
-    margin-bottom: 6px;
+    margin-bottom: 10px;
   }
 
   .featured-actions {
     order: 6;
     flex-direction: column;
     align-items: stretch;
+    margin-bottom: 0;
   }
 
   .featured-actions .button {
