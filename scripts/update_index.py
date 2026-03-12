@@ -156,7 +156,6 @@ def update_index(target_date: str | None = None) -> None:
         f'            <span class="featured-duration">▶ 1 min</span>\n'
         f'            <span class="featured-date-label">{html.escape(latest["date"])} </span>\n'
         f'          </div>\n'
-        f'          <p>{html.escape(str(latest["date"]))} の回です。</p>\n'
         f'          <div class="episode-tags">\n'
         f'{featured_tags}'
         f'          </div>\n'
