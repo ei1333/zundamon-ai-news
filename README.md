@@ -19,17 +19,20 @@
 - VOICEVOX を使ったローカル音声生成フローを確認済み
 - `gh-pages` を公開専用ブランチとして作成済み
 - `main` への push で GitHub Actions が公開反映する構成に変更済み
+- 1つの episode ソースから HTML と台本を生成する構成に変更済み
 
 ## Files on `main`
 
 - `index.html` - トップページ
-- `days/2026-03-12.html` - 現在の公開サンプル
-- `days/_template.html` - 日別HTMLページのテンプレ
-- `scripts_text/_template.txt` - 読み上げ台本のテンプレ
+- `episodes/_template.md` - エピソード原稿のテンプレ
+- `episodes/YYYY-MM-DD.md` - 日々の入力元になる原稿
+- `days/YYYY-MM-DD.html` - episode 原稿から生成される公開ページ
+- `scripts_text/YYYY-MM-DD.txt` - episode 原稿から生成される読み上げ台本
 - `assets/audio/` - 音声ファイル配置場所
 - `assets/style.css` - 共通スタイル
-- `scripts/new_episode.sh` - 新しい日付ページ・台本・index導線を作るスクリプト
-- `scripts/render_audio.sh` - 台本テキストから音声を生成するスクリプト
+- `scripts/new_episode.sh` - 新しい原稿ファイルを作り、初回レンダリングと index 更新を行うスクリプト
+- `scripts/render_episode.py` - episode 原稿から HTML と台本テキストを生成するスクリプト
+- `scripts/render_audio.sh` - 生成済み台本テキストから音声を生成するスクリプト
 - `scripts/validate.sh` - 公開前にテンプレ置換漏れや音声参照切れを確認するスクリプト
 - `scripts/publish.sh` - `main` の公開物を `gh-pages` へ反映するローカル用スクリプト
 - `.github/workflows/publish.yml` - `main` への push を `gh-pages` 公開へ反映する GitHub Actions
@@ -44,9 +47,9 @@
 - 安全性 / 実利用
 - 半導体 / インフラ / 市場
 
-### 2. 日別ページと台本を作る
+### 2. 原稿ファイルを作る
 
-生成スクリプトで日付ページ、台本、index の導線を作ります。
+生成スクリプトで原稿、初回HTML、初回台本、index の導線を作ります。
 
 ```bash
 cd /path/to/zundamon-ai-news
@@ -55,30 +58,33 @@ cd /path/to/zundamon-ai-news
 
 これで次の変更が入ります。
 
-- `days/2026-03-13.html` をテンプレから生成
-- `scripts_text/2026-03-13.txt` を台本テンプレから生成
+- `episodes/2026-03-13.md` をテンプレから生成
+- `days/2026-03-13.html` を初回レンダリング
+- `scripts_text/2026-03-13.txt` を初回レンダリング
 - `index.html` の最新回リンクを更新
 - `index.html` のバックナンバー先頭に新規回を追加
 
-そのあと手で埋める主な項目:
+### 3. 原稿を埋める
 
-- HTML側の見出し3本
-- HTML側の要約本文
-- 出典リンク
-- 台本テキスト
-- 必要に応じてトップ文言
+`episodes/YYYY-MM-DD.md` に以下をまとめて書きます。
 
-### 3. 読み上げ台本を整える
+- 回タイトル
+- イントロ
+- ニュース3本の見出し
+- 要約本文
+- 出典名とURL
+- 読み上げ用台本
+- 締めのひとこと
 
-目安:
+### 4. HTML と台本を再生成する
 
-- 1分前後
-- 3本構成
-- 最後にひとことまとめ
+原稿を編集したら、HTML と台本を再生成します。
 
-台本は `scripts_text/YYYY-MM-DD.txt` に保存します。
+```bash
+./scripts/render_episode.py 2026-03-13
+```
 
-### 4. VOICEVOX で音声を生成する
+### 5. VOICEVOX で音声を生成する
 
 VOICEVOX helper は環境に合わせて指定します。
 
@@ -101,7 +107,7 @@ VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_t
 ./scripts/render_audio.sh 2026-03-13 zundamon
 ```
 
-### 5. 内容を確認する
+### 6. 内容を確認する
 
 - トップページの最新回リンク
 - バックナンバー一覧
@@ -114,7 +120,7 @@ VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_t
 ./scripts/validate.sh
 ```
 
-### 6. `main` に保存する
+### 7. `main` に保存する
 
 ```bash
 git add .
@@ -122,7 +128,7 @@ git commit -m "Add daily AI news for 2026-03-13"
 git push origin main
 ```
 
-### 7. 公開する
+### 8. 公開する
 
 基本は `main` に push すると GitHub Actions が自動で `gh-pages` を更新します。
 
@@ -138,8 +144,8 @@ git push origin main
 
 ## Notes
 
-- `gh-pages` 側には `README.md` や `days/_template.html` を出さない
-- `gh-pages` 側には `scripts_text/` も出さない
+- `gh-pages` 側には `README.md` やテンプレファイルを出さない
+- `gh-pages` 側には `episodes/` や `scripts_text/` を出さない
 - GitHub Pages の公開元は `gh-pages` branch に切り替える前提
 - 環境依存の絶対パスは README に固定で書かない
 - GitHub Actions に `contents: write` 権限が必要
@@ -147,8 +153,8 @@ git push origin main
 
 ## Next Ideas
 
-- HTML と台本の情報源を1つに寄せる
+- episode 原稿の書式をもっと書きやすくする
 - 出典URLからHTML断片を生成
-- 公開前チェックを Actions に追加
+- 公開前チェックをさらに増やす
 - index のバックナンバー更新をさらに自動化
 - ニュース番組っぽい UI に寄せる

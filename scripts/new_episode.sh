@@ -27,38 +27,25 @@ if ! [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
 fi
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-HTML_TEMPLATE="$REPO_ROOT/days/_template.html"
-HTML_TARGET="$REPO_ROOT/days/$DATE.html"
-SCRIPT_TEMPLATE="$REPO_ROOT/scripts_text/_template.txt"
-SCRIPT_TARGET="$REPO_ROOT/scripts_text/$DATE.txt"
-AUDIO_FILE="sample-news-$DATE.wav"
+EPISODE_TEMPLATE="$REPO_ROOT/episodes/_template.md"
+EPISODE_TARGET="$REPO_ROOT/episodes/$DATE.md"
 
-if [ ! -f "$HTML_TEMPLATE" ]; then
-  echo "HTML template not found: $HTML_TEMPLATE" >&2
+if [ ! -f "$EPISODE_TEMPLATE" ]; then
+  echo "Episode template not found: $EPISODE_TEMPLATE" >&2
   exit 1
 fi
 
-if [ ! -f "$SCRIPT_TEMPLATE" ]; then
-  echo "Script template not found: $SCRIPT_TEMPLATE" >&2
+if [ -e "$EPISODE_TARGET" ]; then
+  echo "Target already exists: $EPISODE_TARGET" >&2
   exit 1
 fi
 
-if [ -e "$HTML_TARGET" ]; then
-  echo "Target already exists: $HTML_TARGET" >&2
-  exit 1
-fi
+mkdir -p "$REPO_ROOT/episodes"
+cp "$EPISODE_TEMPLATE" "$EPISODE_TARGET"
+sed -i "s/YYYY-MM-DD/$DATE/g" "$EPISODE_TARGET"
+sed -i "s/title: 新しいAIニュース回/title: $TITLE/g" "$EPISODE_TARGET"
 
-if [ -e "$SCRIPT_TARGET" ]; then
-  echo "Target already exists: $SCRIPT_TARGET" >&2
-  exit 1
-fi
-
-cp "$HTML_TEMPLATE" "$HTML_TARGET"
-sed -i "s/YYYY-MM-DD/$DATE/g" "$HTML_TARGET"
-
-mkdir -p "$REPO_ROOT/scripts_text"
-cp "$SCRIPT_TEMPLATE" "$SCRIPT_TARGET"
-sed -i "s/YYYY-MM-DD/$DATE/g" "$SCRIPT_TARGET"
+python3 "$REPO_ROOT/scripts/render_episode.py" "$DATE"
 
 INDEX="$REPO_ROOT/index.html"
 BACKUP="$INDEX.bak"
@@ -104,12 +91,13 @@ mkdir -p "$REPO_ROOT/assets/audio"
 
 cat <<EOF
 Created:
+- episodes/$DATE.md
 - days/$DATE.html
 - scripts_text/$DATE.txt
 
 Next steps:
-1. Edit days/$DATE.html
-2. Edit scripts_text/$DATE.txt
+1. Edit episodes/$DATE.md
+2. Re-render: ./scripts/render_episode.py $DATE
 3. Render audio: ./scripts/render_audio.sh $DATE
 4. Review index.html
 5. git add . && git commit && git push origin main
