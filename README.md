@@ -43,7 +43,7 @@
 テンプレートをコピーして日付を差し替えます。
 
 ```bash
-cd /home/ei1333hobby/zundamon-ai-news
+cd /path/to/zundamon-ai-news
 cp days/_template.html days/2026-03-13.html
 ```
 
@@ -65,20 +65,26 @@ cp days/_template.html days/2026-03-13.html
 
 ### 4. VOICEVOX で音声を生成する
 
-VOICEVOX helper:
-
-- Script: `/home/ei1333hobby/.openclaw/workspace/voicevox_tts.sh`
-- Docs: `/home/ei1333hobby/.openclaw/workspace/docs/voicevox.md`
+VOICEVOX helper は環境に合わせて指定します。
 
 例:
 
+- `VOICEVOX_TTS_SCRIPT=~/path/to/voicevox_tts.sh`
+- もしくは `VOICEVOX_TTS_SCRIPT=${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_tts.sh}`
+
+実行例:
+
 ```bash
+cd /path/to/zundamon-ai-news
 mkdir -p assets/audio
-/home/ei1333hobby/.openclaw/workspace/voicevox_tts.sh \
+VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_tts.sh}"
+"$VOICEVOX_TTS_SCRIPT" \
   zundamon \
   "こんにちはなのだ。ずんだもん一分エーアイニュース、三月十三日版なのだ。" \
   assets/audio/sample-news-2026-03-13.wav
 ```
+
+必要なら README とは別に、ローカル専用メモとして環境依存パスを管理すると安全です。
 
 ### 5. トップページを更新する
 
@@ -105,6 +111,7 @@ git push origin main
 
 - `gh-pages` 側には `README.md` や `days/_template.html` を出さない
 - GitHub Pages の公開元は `gh-pages` branch に切り替える前提
+- 環境依存の絶対パスは README に固定で書かない
 - 将来は GitHub Actions で `publish.sh` 相当を自動化してもよい
 
 ## Next Ideas
