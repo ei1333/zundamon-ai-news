@@ -1,0 +1,39 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7FFF8"/>
+      <stop offset="1" stop-color="#ECF7FF"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="112" y1="112" x2="1010" y2="518" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2F9E44"/>
+      <stop offset="1" stop-color="#64C97A"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#1B2230"/>
+      <stop offset="1" stop-color="#26354A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" rx="32" fill="url(#bg)"/>
+  <circle cx="1080" cy="96" r="78" fill="#DDF7E3"/>
+  <circle cx="120" cy="534" r="88" fill="#DDEEFF"/>
+  <rect x="72" y="72" width="1056" height="486" rx="28" fill="#FFFFFF" stroke="#E5E7EF" stroke-width="2"/>
+  <rect x="112" y="112" width="976" height="406" rx="24" fill="url(#accent)"/>
+  <rect x="614" y="150" width="420" height="330" rx="22" fill="url(#screen)"/>
+  <rect x="650" y="188" width="112" height="30" rx="15" fill="#FF6B4A"/>
+  <text x="706" y="208" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">ON AIR</text>
+  <text x="160" y="190" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="800" fill="#E9FFF0">Daily AI Audio Brief</text>
+  <text x="160" y="284" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="800" fill="#FFFFFF">ずんだもん</text>
+  <text x="160" y="362" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="800" fill="#FFFFFF">1分AIニュース</text>
+  <text x="160" y="430" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="600" fill="#F3FFF6">AIニュースを、ずんだもんの声で</text>
+  <text x="160" y="468" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="600" fill="#F3FFF6">1分前後にまとめてお届け</text>
+  <rect x="650" y="246" width="188" height="34" rx="17" fill="#3B82F6" fill-opacity="0.18"/>
+  <rect x="852" y="246" width="128" height="34" rx="17" fill="#A855F7" fill-opacity="0.18"/>
+  <rect x="650" y="294" width="156" height="34" rx="17" fill="#2F9E44" fill-opacity="0.2"/>
+  <text x="674" y="268" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#DCEBFF">透明性</text>
+  <text x="877" y="268" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#F2DEFF">研究</text>
+  <text x="674" y="316" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#E2FFE7">インフラ</text>
+  <rect x="650" y="356" width="340" height="10" rx="5" fill="#8DB3D9" fill-opacity="0.30"/>
+  <rect x="650" y="388" width="292" height="10" rx="5" fill="#8DB3D9" fill-opacity="0.24"/>
+  <rect x="650" y="420" width="228" height="10" rx="5" fill="#8DB3D9" fill-opacity="0.18"/>
+  <path d="M694 468C724 430 754 506 784 468C814 430 844 506 874 468C904 430 934 506 964 468" stroke="#8CF0A0" stroke-width="10" stroke-linecap="round"/>
+</svg>
