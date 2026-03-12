@@ -4,84 +4,13 @@ from __future__ import annotations
 import html
 import re
 import sys
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-
-
-def extract_section(text: str, heading: str) -> str:
-    pattern = rf'^## {re.escape(heading)}\n(.*?)(?=^## |\Z)'
-    match = re.search(pattern, text, flags=re.MULTILINE | re.DOTALL)
-    if not match:
-        raise SystemExit(f'Missing section: {heading}')
-    return match.group(1).strip()
-
-
-def extract_subsection(text: str, heading: str) -> str:
-    pattern = rf'^### {re.escape(heading)}\n(.*?)(?=^### |\Z)'
-    match = re.search(pattern, text, flags=re.MULTILINE | re.DOTALL)
-    if not match:
-        raise SystemExit(f'Missing subsection: {heading}')
-    return match.group(1).strip()
-
-
-def normalize_category(label: str) -> tuple[str, str]:
-    normalized = label.strip().lower()
-    mapping = {
-        '透明性': ('透明性', 'category-transparency'),
-        'transparency': ('透明性', 'category-transparency'),
-        '研究': ('研究', 'category-research'),
-        'research': ('研究', 'category-research'),
-        'インフラ': ('インフラ', 'category-infra'),
-        'infra': ('インフラ', 'category-infra'),
-        'infrastructure': ('インフラ', 'category-infra'),
-        '安全性': ('安全性', 'category-safety'),
-        'safety': ('安全性', 'category-safety'),
-        '市場': ('市場', 'category-market'),
-        'market': ('市場', 'category-market'),
-    }
-    return mapping.get(normalized, (label.strip() or 'AI', 'category-general'))
-
-
-def default_category(idx: int) -> tuple[str, str]:
-    mapping = {
-        1: ('透明性', 'category-transparency'),
-        2: ('研究', 'category-research'),
-        3: ('インフラ', 'category-infra'),
-    }
-    return mapping.get(idx, ('AI', 'category-general'))
-
-
-def parse_episode(path: Path) -> dict[str, object]:
-    text = path.read_text(encoding='utf-8').strip()
-    lines = text.splitlines()
-    if not lines or not lines[0].startswith('# '):
-        raise SystemExit('Episode file must start with a # title')
-
-    items = []
-    for idx in range(1, 4):
-        item_block = extract_section(text, f'Item {idx}')
-        category_text = extract_subsection(item_block, 'Category') if '### Category' in item_block else ''
-        category_label, category_class = normalize_category(category_text)
-        if not category_text:
-            category_label, category_class = default_category(idx)
-        items.append({
-            'headline': extract_subsection(item_block, 'Headline'),
-            'category_label': category_label,
-            'category_class': category_class,
-        })
-
-    return {
-        'date': path.stem,
-        'title': lines[0][2:].strip(),
-        'summary': extract_section(text, 'Summary'),
-        'items': items,
-    }
+from episode_utils import ROOT, parse_episode_summary
 
 
 def list_episodes() -> list[dict[str, str]]:
     paths = sorted((ROOT / 'episodes').glob('*.md'), key=lambda p: p.stem, reverse=True)
-    return [parse_episode(path) for path in paths if path.name != '_template.md']
+    return [parse_episode_summary(path) for path in paths if path.name != '_template.md']
 
 
 def build_latest_cards(episodes: list[dict[str, object]]) -> str:
@@ -130,10 +59,9 @@ def update_index(target_date: str | None = None) -> None:
 
     lead_pattern = r'<p class="lead">.*?</p>'
     lead_block = (
-        f'<p class="lead">\n'
-        f'          公開情報をもとに独自要約したAIニュースを、ずんだもんの声で1分前後にまとめる試作ページです。\n'
-        f'          {html.escape(latest["summary"])}\n'
-        f'        </p>'
+        '<p class="lead">\n'
+        '          公開情報をもとに独自要約したAIニュースを、ずんだもんの声で1分前後にまとめてお届けするページです。\n'
+        '        </p>'
     )
     text, count = re.subn(lead_pattern, lead_block, text, count=1, flags=re.DOTALL)
     if count != 1:
@@ -151,7 +79,7 @@ def update_index(target_date: str | None = None) -> None:
         f'<section class="card featured-card">\n'
         f'        <div class="featured-copy">\n'
         f'          <p class="eyebrow">Latest Episode</p>\n'
-        f'          <h2>最新サンプル</h2>\n'
+        f'          <h2>最新回</h2>\n'
         f'          <div class="featured-meta">\n'
         f'            <span class="featured-duration">▶ 1 min</span>\n'
         f'            <span class="featured-date-label">{html.escape(latest["date"])} </span>\n'
