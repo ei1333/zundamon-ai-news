@@ -32,7 +32,7 @@
 - `assets/style.css` - 共通スタイル
 - `scripts/new_episode.sh` - 新しい原稿ファイルを作り、初回レンダリングと index 更新を行うスクリプト
 - `scripts/render_episode.py` - episode 原稿から HTML と台本テキストを生成するスクリプト
-- `scripts/update_index.py` - episode 一覧から index の最新回表示・説明文・バックナンバーを再構築するスクリプト
+- `scripts/update_index.py` - episode 一覧から index の最新回表示・最新3回カード・説明文・バックナンバーを再構築するスクリプト
 - `scripts/render_audio.sh` - 生成済み台本テキストから音声を生成するスクリプト
 - `scripts/validate.sh` - 公開前にテンプレ置換漏れや音声参照切れを確認するスクリプト
 - `scripts/publish.sh` - `main` の公開物を `gh-pages` へ反映するローカル用スクリプト
@@ -100,7 +100,7 @@ cd /path/to/zundamon-ai-news
 ./scripts/render_episode.py 2026-03-13
 ```
 
-トップページの最新回表示・説明文・バックナンバーを episode 一覧から再構築したいときは、これも使えます。
+トップページの最新回表示・最新3回カード・説明文・バックナンバーを episode 一覧から再構築したいときは、これも使えます。
 
 ```bash
 ./scripts/update_index.py

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import html
 import re
 import sys
 from pathlib import Path
@@ -29,12 +30,24 @@ def parse_episode(path: Path) -> dict[str, str]:
 
 
 def list_episodes() -> list[dict[str, str]]:
-    paths = sorted(
-        (ROOT / 'episodes').glob('*.md'),
-        key=lambda p: p.stem,
-        reverse=True,
-    )
+    paths = sorted((ROOT / 'episodes').glob('*.md'), key=lambda p: p.stem, reverse=True)
     return [parse_episode(path) for path in paths if path.name != '_template.md']
+
+
+def build_latest_cards(episodes: list[dict[str, str]]) -> str:
+    cards = []
+    for episode in episodes[:3]:
+        date = html.escape(episode['date'])
+        title = html.escape(episode['title'])
+        summary = html.escape(episode['summary'])
+        cards.append(
+            '          <article class="episode-card">\n'
+            f'            <p class="episode-date">{date}</p>\n'
+            f'            <h3><a href="days/{date}.html">{title}</a></h3>\n'
+            f'            <p class="episode-summary">{summary}</p>\n'
+            '          </article>'
+        )
+    return '\n'.join(cards)
 
 
 def update_index(target_date: str | None = None) -> None:
@@ -56,7 +69,7 @@ def update_index(target_date: str | None = None) -> None:
     lead_block = (
         f'<p class="lead">\n'
         f'          公開情報をもとに独自要約したAIニュースを、ずんだもんの声で1分前後にまとめる試作ページです。\n'
-        f'          {latest["summary"]}\n'
+        f'          {html.escape(latest["summary"])}\n'
         f'        </p>'
     )
     text, count = re.subn(lead_pattern, lead_block, text, count=1, flags=re.DOTALL)
@@ -67,17 +80,30 @@ def update_index(target_date: str | None = None) -> None:
     latest_block = (
         f'<section class="card">\n'
         f'        <h2>最新サンプル</h2>\n'
-        f'        <p>{latest["date"]} の回です。</p>\n'
-        f'        <p><a class="button" href="days/{latest["date"]}.html">最新回を見る</a></p>\n'
+        f'        <p>{html.escape(latest["date"])} の回です。</p>\n'
+        f'        <p><a class="button" href="days/{html.escape(latest["date"])}.html">最新回を見る</a></p>\n'
         f'      </section>'
     )
     text, count = re.subn(latest_pattern, latest_block, text, count=1, flags=re.DOTALL)
     if count != 1:
         raise SystemExit('Could not update latest card in index.html')
 
+    latest_three_pattern = r'<section class="card">\s*<h2>最新3回</h2>\s*<div class="episode-grid">\n.*?\s*</div>\s*</section>'
+    latest_three_block = (
+        '<section class="card">\n'
+        '        <h2>最新3回</h2>\n'
+        '        <div class="episode-grid">\n'
+        f'{build_latest_cards(episodes)}\n'
+        '        </div>\n'
+        '      </section>'
+    )
+    text, count = re.subn(latest_three_pattern, latest_three_block, text, count=1, flags=re.DOTALL)
+    if count != 1:
+        raise SystemExit('Could not rebuild latest 3 episodes in index.html')
+
     backnumber_pattern = r'(<section class="card">\s*<h2>バックナンバー</h2>\s*<ul>\n)(.*?)(\s*</ul>\s*</section>)'
     entries = ''.join(
-        f'          <li><a href="days/{episode["date"]}.html">{episode["date"]} | {episode["title"]}</a></li>\n'
+        f'          <li><a href="days/{html.escape(episode["date"])}.html">{html.escape(episode["date"])} | {html.escape(episode["title"])} </a></li>\n'
         for episode in episodes
     )
     text, count = re.subn(

@@ -92,6 +92,46 @@ h3 {
   border-top: 1px solid var(--border);
 }
 
+.episode-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.episode-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbf8 100%);
+}
+
+.episode-card h3 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.episode-card h3 a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.episode-card h3 a:hover {
+  color: var(--accent-dark);
+}
+
+.episode-date {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.episode-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 a {
   color: var(--accent-dark);
 }
