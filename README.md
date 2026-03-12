@@ -2,19 +2,31 @@
 
 ずんだもん音声で短いAIニュースを届ける静的サイトの試作リポジトリです。
 
+## Branch Structure
+
+- `main` - 作業用ブランチ
+  - テンプレ
+  - README
+  - scripts
+  - 将来の自動化用ファイル
+- `gh-pages` - 公開用ブランチ
+  - GitHub Pages に載せる静的ファイルだけを置く
+
 ## Status
 
 - GitHub Pages での公開確認用プロトタイプ
 - 2026-03-12 の実ニュース入りサンプルを公開済み
 - VOICEVOX を使ったローカル音声生成フローを確認済み
+- `gh-pages` を公開専用ブランチとして作成済み
 
-## Files
+## Files on `main`
 
 - `index.html` - トップページ
 - `days/2026-03-12.html` - 現在の公開サンプル
 - `days/_template.html` - 次回以降のページ作成テンプレ
 - `assets/audio/` - 音声ファイル配置場所
 - `assets/style.css` - 共通スタイル
+- `scripts/publish.sh` - `main` の公開物を `gh-pages` へ反映するスクリプト
 
 ## Daily Workflow
 
@@ -73,13 +85,27 @@ mkdir -p assets/audio
 - 最新回リンク
 - バックナンバー一覧
 
-### 6. 公開する
+### 6. `main` に保存する
 
 ```bash
 git add .
 git commit -m "Add daily AI news for 2026-03-13"
-git push
+git push origin main
 ```
+
+### 7. 公開する
+
+`main` の公開物を `gh-pages` に反映します。
+
+```bash
+./scripts/publish.sh
+```
+
+## Notes
+
+- `gh-pages` 側には `README.md` や `days/_template.html` を出さない
+- GitHub Pages の公開元は `gh-pages` branch に切り替える前提
+- 将来は GitHub Actions で `publish.sh` 相当を自動化してもよい
 
 ## Next Ideas
 
@@ -87,3 +113,4 @@ git push
 - 台本テンプレを別ファイル化
 - 出典URLからHTML断片を生成
 - index のバックナンバー更新を自動化
+- GitHub Actions で `main` → `gh-pages` 公開を自動化
