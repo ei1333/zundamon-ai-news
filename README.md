@@ -168,6 +168,10 @@ git push origin main
 ./scripts/publish.sh
 ```
 
+## Credits
+
+- 音声: VOICEVOX:ずんだもん
+
 ## Notes
 
 - `gh-pages` 側には `README.md` やテンプレファイルを出さない
