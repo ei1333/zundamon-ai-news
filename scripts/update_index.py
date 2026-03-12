@@ -221,6 +221,9 @@ def update_index(target_date: str | None = None) -> None:
     if count != 1:
         raise SystemExit('Could not rebuild backnumber list in index.html')
 
+    trial_section_pattern = r'\n\s*<section class="card">\s*<h2>この試作で確認したいこと</h2>.*?</section>'
+    text = re.sub(trial_section_pattern, '', text, count=1, flags=re.DOTALL)
+
     index_path.write_text(text, encoding='utf-8')
 
 
