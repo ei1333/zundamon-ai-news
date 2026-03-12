@@ -75,38 +75,6 @@ h3 {
   background: var(--accent-dark);
 }
 
-.button-subtle {
-  background: rgba(47, 158, 68, 0.12);
-  color: var(--accent-dark);
-}
-
-.button-subtle:hover {
-  background: rgba(47, 158, 68, 0.2);
-}
-
-.button-audio {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-
-.button-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  background: rgba(47, 158, 68, 0.18);
-  flex: 0 0 22px;
-}
-
-.button-icon svg {
-  width: 12px;
-  height: 12px;
-  fill: currentColor;
-}
 
 .audio {
   width: 100%;
