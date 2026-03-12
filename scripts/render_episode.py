@@ -51,6 +51,34 @@ def auto_script(headline: str, summary: str, idx: int) -> str:
     return f"{idx}本目なのだ。{headline}なのだ。{summary}"
 
 
+def normalize_category(label: str, idx: int) -> tuple[str, str]:
+    mapping = {
+        '透明性': ('透明性', 'category-transparency'),
+        'transparency': ('透明性', 'category-transparency'),
+        '研究': ('研究', 'category-research'),
+        'research': ('研究', 'category-research'),
+        'インフラ': ('インフラ', 'category-infra'),
+        'infra': ('インフラ', 'category-infra'),
+        'infrastructure': ('インフラ', 'category-infra'),
+        '安全性': ('安全性', 'category-safety'),
+        'safety': ('安全性', 'category-safety'),
+        '市場': ('市場', 'category-market'),
+        'market': ('市場', 'category-market'),
+    }
+    normalized = label.strip().lower()
+    if normalized in mapping:
+        return mapping[normalized]
+
+    defaults = {
+        1: ('透明性', 'category-transparency'),
+        2: ('研究', 'category-research'),
+        3: ('インフラ', 'category-infra'),
+    }
+    if not label.strip():
+        return defaults.get(idx, ('AI', 'category-general'))
+    return (label.strip(), 'category-general')
+
+
 def parse_episode(path: Path):
     text = path.read_text(encoding='utf-8').strip()
     first_line = text.splitlines()[0].strip() if text.splitlines() else ''
@@ -72,11 +100,13 @@ def parse_episode(path: Path):
         headline = extract_subsection(item_block, 'Headline')
         summary = extract_subsection(item_block, 'Summary')
         category = extract_subsection(item_block, 'Category', required=False)
+        category_label, category_class = normalize_category(category, idx)
         script = extract_subsection(item_block, 'Script', required=False)
         item = {
             'Headline': headline,
             'Summary': summary,
-            'Category': category,
+            'Category': category_label,
+            'CategoryClass': category_class,
             'Script': script or auto_script(headline, summary, idx),
         }
         item.update(parse_source_block(extract_subsection(item_block, 'Source')))
@@ -98,8 +128,10 @@ def render_html(date: str, header: dict, items: list[dict]) -> str:
         summary_text = html.escape(item['Summary'])
         source_name = html.escape(item['SourceName'])
         source_url = html.escape(item['SourceURL'], quote=True)
+        category = html.escape(item['Category'])
+        category_class = html.escape(item['CategoryClass'])
         item_html.append(
-            f'''          <li>\n            <h3>{headline}</h3>\n            <p>{summary_text}</p>\n            <p>出典: <a href="{source_url}">{source_name}</a></p>\n          </li>'''
+            f'''          <li>\n            <div class="episode-tags">\n              <span class="episode-tag {category_class}">{category}</span>\n            </div>\n            <h3>{headline}</h3>\n            <p>{summary_text}</p>\n            <p>出典: <a href="{source_url}">{source_name}</a></p>\n          </li>'''
         )
 
     items_joined = '\n'.join(item_html)

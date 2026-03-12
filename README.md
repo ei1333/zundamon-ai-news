@@ -136,7 +136,7 @@ VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_t
 
 - トップページの最新回リンク
 - バックナンバー一覧
-- 日別ページ本文
+- 日別ページ本文（Category 表示も含む）
 - 音声ファイルの配置
 
 必要ならローカルでも公開前チェックを実行できます。
