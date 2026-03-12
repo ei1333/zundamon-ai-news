@@ -86,7 +86,7 @@ def list_episodes() -> list[dict[str, str]]:
 
 def build_latest_cards(episodes: list[dict[str, object]]) -> str:
     cards = []
-    for episode in episodes[:3]:
+    for episode in episodes[1:3]:
         date = html.escape(str(episode['date']))
         title = html.escape(str(episode['title']))
         summary = html.escape(str(episode['summary']))
@@ -185,10 +185,10 @@ def update_index(target_date: str | None = None) -> None:
     if count != 1:
         raise SystemExit('Could not update latest card in index.html')
 
-    latest_three_pattern = r'<section class="card">\s*<h2>最新3回</h2>\s*<div class="episode-grid">\n.*?\s*</div>\s*</section>'
+    latest_three_pattern = r'<section class="card">\s*<h2>最近の回</h2>\s*<div class="episode-grid">\n.*?\s*</div>\s*</section>'
     latest_three_block = (
         '<section class="card">\n'
-        '        <h2>最新3回</h2>\n'
+        '        <h2>最近の回</h2>\n'
         '        <div class="episode-grid">\n'
         f'{build_latest_cards(episodes)}\n'
         '        </div>\n'
