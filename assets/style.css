@@ -75,6 +75,15 @@ h3 {
   background: var(--accent-dark);
 }
 
+.button-subtle {
+  background: rgba(47, 158, 68, 0.12);
+  color: var(--accent-dark);
+}
+
+.button-subtle:hover {
+  background: rgba(47, 158, 68, 0.2);
+}
+
 .audio {
   width: 100%;
   margin-top: 12px;
@@ -130,6 +139,49 @@ h3 {
 .featured-date-label {
   color: #247a35;
   background: rgba(47, 158, 68, 0.12);
+}
+
+.featured-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+}
+
+.episode-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.episode-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.category-transparency {
+  background: rgba(59, 130, 246, 0.12);
+  color: #2557b7;
+}
+
+.category-research {
+  background: rgba(168, 85, 247, 0.12);
+  color: #7a34c2;
+}
+
+.category-infra {
+  background: rgba(47, 158, 68, 0.12);
+  color: #247a35;
+}
+
+.category-general {
+  background: rgba(91, 100, 117, 0.12);
+  color: #4b5563;
 }
 
 .featured-headlines {
@@ -190,11 +242,26 @@ h3 {
   border-radius: 12px;
 }
 
+.featured-logo,
 .featured-screen-date,
 .featured-screen-title {
   position: relative;
   z-index: 1;
   margin: 0;
+}
+
+.featured-logo {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #1f5c2a;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.featured-logo span {
+  font-size: 0.88rem;
+  letter-spacing: 0.06em;
 }
 
 .featured-screen-date {
@@ -284,5 +351,10 @@ a {
 @media (max-width: 720px) {
   .featured-card {
     grid-template-columns: 1fr;
+  }
+
+  .featured-actions {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
