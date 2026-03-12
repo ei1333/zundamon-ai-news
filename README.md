@@ -30,6 +30,7 @@
 - `assets/style.css` - 共通スタイル
 - `scripts/new_episode.sh` - 新しい日付ページ・台本・index導線を作るスクリプト
 - `scripts/render_audio.sh` - 台本テキストから音声を生成するスクリプト
+- `scripts/validate.sh` - 公開前にテンプレ置換漏れや音声参照切れを確認するスクリプト
 - `scripts/publish.sh` - `main` の公開物を `gh-pages` へ反映するローカル用スクリプト
 - `.github/workflows/publish.yml` - `main` への push を `gh-pages` 公開へ反映する GitHub Actions
 
@@ -106,6 +107,12 @@ VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_t
 - バックナンバー一覧
 - 日別ページ本文
 - 音声ファイルの配置
+
+必要ならローカルでも公開前チェックを実行できます。
+
+```bash
+./scripts/validate.sh
+```
 
 ### 6. `main` に保存する
 

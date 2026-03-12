@@ -24,6 +24,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      - name: Validate site contents
+        run: |
+          chmod +x scripts/validate.sh
+          ./scripts/validate.sh
+
       - name: Prepare gh-pages worktree
         run: |
           set -euo pipefail
