@@ -165,7 +165,6 @@ def update_index(target_date: str | None = None) -> None:
         f'          </ul>\n'
         f'          <div class="featured-actions">\n'
         f'            <a class="button" href="days/{html.escape(str(latest["date"]))}.html">最新回を見る</a>\n'
-        f'            <a class="button button-subtle button-audio" href="assets/audio/sample-news-{html.escape(str(latest["date"]))}.wav"><span class="button-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="img" focusable="false"><path d="M9 7.5v9l7-4.5z"></path></svg></span><span>音声を再生</span></a>\n'
         f'          </div>\n'
         f'          <audio class="featured-audio" controls preload="none">\n'
         f'            <source src="assets/audio/sample-news-{html.escape(str(latest["date"]))}.wav" type="audio/wav" />\n'
