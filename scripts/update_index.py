@@ -25,22 +25,36 @@ def extract_subsection(text: str, heading: str) -> str:
     return match.group(1).strip()
 
 
-def parse_episode(path: Path) -> dict[str, str]:
+def default_category(idx: int) -> tuple[str, str]:
+    mapping = {
+        1: ('透明性', 'category-transparency'),
+        2: ('研究', 'category-research'),
+        3: ('インフラ', 'category-infra'),
+    }
+    return mapping.get(idx, ('AI', 'category-general'))
+
+
+def parse_episode(path: Path) -> dict[str, object]:
     text = path.read_text(encoding='utf-8').strip()
     lines = text.splitlines()
     if not lines or not lines[0].startswith('# '):
         raise SystemExit('Episode file must start with a # title')
 
-    headlines = []
+    items = []
     for idx in range(1, 4):
         item_block = extract_section(text, f'Item {idx}')
-        headlines.append(extract_subsection(item_block, 'Headline'))
+        category_label, category_class = default_category(idx)
+        items.append({
+            'headline': extract_subsection(item_block, 'Headline'),
+            'category_label': category_label,
+            'category_class': category_class,
+        })
 
     return {
         'date': path.stem,
         'title': lines[0][2:].strip(),
         'summary': extract_section(text, 'Summary'),
-        'headlines': headlines,
+        'items': items,
     }
 
 
@@ -49,19 +63,26 @@ def list_episodes() -> list[dict[str, str]]:
     return [parse_episode(path) for path in paths if path.name != '_template.md']
 
 
-def build_latest_cards(episodes: list[dict[str, str]]) -> str:
+def build_latest_cards(episodes: list[dict[str, object]]) -> str:
     cards = []
     for episode in episodes[:3]:
-        date = html.escape(episode['date'])
-        title = html.escape(episode['title'])
-        summary = html.escape(episode['summary'])
+        date = html.escape(str(episode['date']))
+        title = html.escape(str(episode['title']))
+        summary = html.escape(str(episode['summary']))
+        tags = ''.join(
+            f'              <span class="episode-tag {item["category_class"]}">{html.escape(str(item["category_label"]))}</span>\n'
+            for item in episode['items']
+        )
         headlines = '\n'.join(
-            f'              <li>{html.escape(headline)}</li>' for headline in episode['headlines']
+            f'              <li>{html.escape(str(item["headline"]))}</li>' for item in episode['items']
         )
         cards.append(
             '          <article class="episode-card">\n'
             f'            <p class="episode-date">{date}</p>\n'
             f'            <h3><a href="days/{date}.html">{title}</a></h3>\n'
+            '            <div class="episode-tags">\n'
+            f'{tags}'
+            '            </div>\n'
             f'            <p class="episode-summary">{summary}</p>\n'
             '            <ul class="episode-headlines">\n'
             f'{headlines}\n'
@@ -98,8 +119,12 @@ def update_index(target_date: str | None = None) -> None:
         raise SystemExit('Could not update lead text in index.html')
 
     latest_pattern = r'<section class="card featured-card">.*?</section>'
+    featured_tags = ''.join(
+        f'            <span class="episode-tag {item["category_class"]}">{html.escape(str(item["category_label"]))}</span>\n'
+        for item in latest['items']
+    )
     featured_headlines = '\n'.join(
-        f'            <li>{html.escape(headline)}</li>' for headline in latest['headlines']
+        f'            <li>{html.escape(str(item["headline"]))}</li>' for item in latest['items']
     )
     latest_block = (
         f'<section class="card featured-card">\n'
@@ -110,17 +135,24 @@ def update_index(target_date: str | None = None) -> None:
         f'            <span class="featured-duration">▶ 1 min</span>\n'
         f'            <span class="featured-date-label">{html.escape(latest["date"])} </span>\n'
         f'          </div>\n'
-        f'          <p>{html.escape(latest["date"])} の回です。</p>\n'
+        f'          <p>{html.escape(str(latest["date"]))} の回です。</p>\n'
+        f'          <div class="episode-tags">\n'
+        f'{featured_tags}'
+        f'          </div>\n'
         f'          <ul class="featured-headlines">\n'
         f'{featured_headlines}\n'
         f'          </ul>\n'
-        f'          <p><a class="button" href="days/{html.escape(latest["date"])}.html">最新回を見る</a></p>\n'
+        f'          <p class="featured-actions">\n'
+        f'            <a class="button" href="days/{html.escape(str(latest["date"]))}.html">最新回を見る</a>\n'
+        f'            <a class="button button-subtle" href="assets/audio/sample-news-{html.escape(str(latest["date"]))}.wav">音声を再生</a>\n'
+        f'          </p>\n'
         f'        </div>\n'
         f'        <div class="featured-visual" aria-hidden="true">\n'
         f'          <div class="featured-badge">ON AIR</div>\n'
         f'          <div class="featured-screen">\n'
-        f'            <p class="featured-screen-date">{html.escape(latest["date"])}</p>\n'
-        f'            <p class="featured-screen-title">{html.escape(latest["title"])}</p>\n'
+        f'            <div class="featured-logo">ずんだもん<span>1分AIニュース</span></div>\n'
+        f'            <p class="featured-screen-date">{html.escape(str(latest["date"]))}</p>\n'
+        f'            <p class="featured-screen-title">{html.escape(str(latest["title"]))}</p>\n'
         f'            <div class="featured-wave"></div>\n'
         f'          </div>\n'
         f'        </div>\n'
