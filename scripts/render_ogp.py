@@ -20,9 +20,9 @@ ACCENT_CARD = (112, 112, 1088, 518, 24)
 SCREEN_CARD = (614, 150, 1034, 480, 22)
 ON_AIR_BOX = (650, 188, 762, 218, 15)
 CHIPS = [
-    ((650, 246, 838, 280, 17), (59, 130, 246, 46), '透明性', (674, 258), (220, 235, 255, 255)),
-    ((852, 246, 980, 280, 17), (168, 85, 247, 46), '研究', (877, 258), (242, 222, 255, 255)),
-    ((650, 294, 806, 328, 17), (47, 158, 68, 51), 'インフラ', (674, 306), (226, 255, 231, 255)),
+    ((650, 246, 838, 280, 17), (59, 130, 246, 46), '透明性', (674, 256), (220, 235, 255, 255)),
+    ((852, 246, 980, 280, 17), (168, 85, 247, 46), '研究', (877, 256), (242, 222, 255, 255)),
+    ((650, 294, 806, 328, 17), (47, 158, 68, 51), 'インフラ', (674, 304), (226, 255, 231, 255)),
 ]
 BARS = [
     ((650, 356, 990, 366, 5), (141, 179, 217, 76)),
@@ -249,7 +249,7 @@ def render_ogp(*, out_path: Path, text_nodes: list[tuple], multiline_blocks: lis
     for box, fill in BARS:
         rounded_box(draw, box[:4], box[4], fill=fill)
 
-    draw_text_anchor(draw, (706, 199), 'ON AIR', load_font(16, bold=True), (255, 255, 255, 255), 'middle')
+    draw_text_anchor(draw, (706, 197), 'ON AIR', load_font(16, bold=True), (255, 255, 255, 255), 'middle')
     for text, xy, size, bold, fill, anchor in text_nodes:
         draw_text_anchor(draw, xy, text, load_font(size, bold=bold), fill, anchor)
     for lines, xy, size, bold, fill, line_gap in multiline_blocks or []:
