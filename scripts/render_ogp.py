@@ -163,15 +163,23 @@ def trim_text(text: str, max_chars: int) -> str:
 
 
 
-def fit_text(text: str, max_chars: int, max_width: int, font) -> str:
-    text = trim_text(text, max_chars)
+def clean_trailing_text(text: str) -> str:
+    return text.rstrip(' 、。・,.;:!！?？…')
+
+
+
+def fit_text(text: str, max_chars: int, max_width: int, font, *, ellipsis: bool = True) -> str:
+    text = trim_text(text, max_chars) if ellipsis else ' '.join(text.split())[:max_chars].rstrip()
     probe = ImageDraw.Draw(Image.new('RGB', (1, 1)))
     while text:
         bbox = text_bbox(probe, text, font)
         if bbox[2] - bbox[0] <= max_width:
-            return text
-        text = text[:-2].rstrip() + '…'
-    return '…'
+            return clean_trailing_text(text)
+        if ellipsis:
+            text = text[:-2].rstrip() + '…'
+        else:
+            text = text[:-1].rstrip()
+    return ''
 
 
 
@@ -272,7 +280,7 @@ def main() -> None:
         title_font_size = 40
         title_font = load_font(title_font_size, bold=True)
         title_lines = split_title_lines(trim_text(args.title or 'ずんだもん1分AIニュース', 28), title_font, max_width=410)
-        summary = fit_text(args.summary or '公開情報をもとに独自要約したAIニュースをお届け', 44, 410, load_font(26, bold=True))
+        summary = fit_text(args.summary or '公開情報をもとに独自要約したAIニュースをお届け', 44, 410, load_font(26, bold=True), ellipsis=False)
 
         text_nodes = [
             ('Daily Episode', (160, 186), 26, True, (233, 255, 240, 255), 'la'),
