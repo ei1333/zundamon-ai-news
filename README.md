@@ -37,6 +37,9 @@
 - `scripts/update_index.py` - episode 一覧から index を全生成するスクリプト
 - `scripts/templates/day.html` - 日別ページ用テンプレート
 - `scripts/templates/index.html` - トップページ用テンプレート
+- `scripts/templates/index_featured.html` - トップの最新回セクション用テンプレート
+- `scripts/templates/index_recent_card.html` - 最近の回カード用テンプレート
+- `scripts/templates/index_backnumber_item.html` - バックナンバー項目用テンプレート
 - `scripts/render_audio.sh` - 生成済み台本テキストから音声を生成するスクリプト
 - `scripts/validate.sh` - 公開前にテンプレ置換漏れや音声参照切れを確認するスクリプト
 - `scripts/publish.sh` - `main` の公開物を `gh-pages` へ反映するローカル用スクリプト

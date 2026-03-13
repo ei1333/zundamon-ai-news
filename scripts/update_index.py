@@ -27,75 +27,42 @@ def render_headlines(items: list[dict[str, object]], indent: str) -> str:
 
 
 def build_featured_html(episode: dict[str, object]) -> str:
-    date = escape_text(episode['date'])
-    title = escape_text(episode['title'])
-    tags = render_episode_tags(episode['items'], '            ')
-    headlines = render_headlines(episode['items'], '            ')
-    return (
-        '      <section class="card featured-card">\n'
-        '        <div class="featured-copy">\n'
-        '          <p class="eyebrow">Latest Episode</p>\n'
-        '          <h2>最新回</h2>\n'
-        '          <div class="featured-meta">\n'
-        '            <span class="featured-duration">▶ 1 min</span>\n'
-        f'            <span class="featured-date-label">{date} </span>\n'
-        '          </div>\n'
-        '          <div class="episode-tags">\n'
-        f'{tags}'
-        '          </div>\n'
-        '          <ul class="featured-headlines">\n'
-        f'{headlines}\n'
-        '          </ul>\n'
-        '          <audio class="featured-audio" controls preload="none">\n'
-        f'            <source src="assets/audio/sample-news-{escape_attr(episode["date"])}.wav" type="audio/wav" />\n'
-        '            お使いのブラウザは audio 要素に対応していません。\n'
-        '          </audio>\n'
-        '          <div class="featured-actions">\n'
-        f'            <a class="button" href="days/{escape_attr(episode["date"])}.html">最新回を見る</a>\n'
-        '          </div>\n'
-        '        </div>\n'
-        '        <div class="featured-visual" aria-hidden="true">\n'
-        '          <div class="featured-badge">ON AIR</div>\n'
-        '          <div class="featured-screen">\n'
-        '            <div class="featured-logo">ずんだもん<span>1分AIニュース</span></div>\n'
-        f'            <p class="featured-screen-date">{date}</p>\n'
-        f'            <p class="featured-screen-title">{title}</p>\n'
-        '            <div class="featured-wave"></div>\n'
-        '          </div>\n'
-        '        </div>\n'
-        '      </section>'
+    return load_template('index_featured.html').format(
+        date=escape_text(episode['date']),
+        date_attr=escape_attr(episode['date']),
+        title=escape_text(episode['title']),
+        tags_html=render_episode_tags(episode['items'], '            ').rstrip(),
+        headlines_html=render_headlines(episode['items'], '            '),
     )
 
 
 
 def build_recent_html(episodes: list[dict[str, object]]) -> str:
     cards = []
+    template = load_template('index_recent_card.html')
     for episode in episodes[1:3]:
-        date = escape_text(episode['date'])
-        title = escape_text(episode['title'])
-        summary = escape_text(episode['summary'])
-        tags = render_episode_tags(episode['items'], '              ')
-        headlines = render_headlines(episode['items'], '              ')
         cards.append(
-            '          <article class="episode-card">\n'
-            f'            <p class="episode-date">{date}</p>\n'
-            f'            <h3><a href="days/{escape_attr(episode["date"])}.html">{title}</a></h3>\n'
-            '            <div class="episode-tags">\n'
-            f'{tags}'
-            '            </div>\n'
-            f'            <p class="episode-summary">{summary}</p>\n'
-            '            <ul class="episode-headlines">\n'
-            f'{headlines}\n'
-            '            </ul>\n'
-            '          </article>'
+            template.format(
+                date=escape_text(episode['date']),
+                date_attr=escape_attr(episode['date']),
+                title=escape_text(episode['title']),
+                summary=escape_text(episode['summary']),
+                tags_html=render_episode_tags(episode['items'], '              ').rstrip(),
+                headlines_html=render_headlines(episode['items'], '              '),
+            ).rstrip()
         )
     return '\n'.join(cards)
 
 
 
 def build_backnumber_html(episodes: list[dict[str, object]]) -> str:
+    template = load_template('index_backnumber_item.html')
     return ''.join(
-        f'          <li><a href="days/{escape_attr(episode["date"])}.html">{escape_text(episode["date"])} | {escape_text(episode["title"])} </a></li>\n'
+        template.format(
+            date=escape_text(episode['date']),
+            date_attr=escape_attr(episode['date']),
+            title=escape_text(episode['title']),
+        )
         for episode in episodes
     ).rstrip()
 
