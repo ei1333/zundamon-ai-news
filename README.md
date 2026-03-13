@@ -153,6 +153,9 @@ python3 scripts/draft_from_urls.py --theme shogi --stdout 2026-03-13 \
 - 簡潔な `Summary`
 - 読み上げ向きの `Script`
 
+特に `Script` では、表示の美しさより読み上げやすさを優先します。
+将棋テーマでは `叡王戦` → `えいおうせん` のように、難しい語をひらがなへ開く方針です。
+
 返ってきた Markdown を `episodes/YYYY-MM-DD.md` に保存します。
 
 ## Episode Format
