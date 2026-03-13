@@ -62,6 +62,7 @@ pip install -r requirements.txt
 - `assets/ogp-YYYY-MM-DD.png` - 日別ページ用 OGP 画像
 - `scripts/new_episode.sh` - `new_episode.py` を呼ぶ薄いラッパー
 - `scripts/new_episode.py` - 新しい原稿ファイル作成 + 初回レンダリング（`--no-index` 対応）
+- `scripts/draft_from_urls.py` - 記事URL 3本から episode 原稿の下書きを生成
 - `scripts/render_episode.py` - 原稿から HTML / 台本 / 日別 OGP を生成
 - `scripts/update_index.py` - episode 一覧から `index.html` を再構築
 - `scripts/render_audio.sh` - 生成済み台本テキストから音声を生成
@@ -106,7 +107,36 @@ cd /path/to/zundamon-ai-news
 - `scripts_text/2026-03-13.txt`
 - 必要に応じて `index.html` の最新回・バックナンバー導線
 
-### 3. 原稿を埋める
+### 3. URL から下書きを作る（任意）
+
+出典URLが先にある場合は、3本まとめて原稿下書きを作れます。
+
+```bash
+python3 scripts/draft_from_urls.py 2026-03-13 \
+  "https://example.com/a" \
+  "https://example.com/b" \
+  "https://example.com/c"
+```
+
+既存ファイルを上書きしたくないので、`episodes/YYYY-MM-DD.md` がすでにある場合は停止します。
+
+まず内容を標準出力だけで見たい場合は `--stdout` も使えます。
+
+```bash
+python3 scripts/draft_from_urls.py --stdout 2026-03-13 \
+  "https://example.com/a" \
+  "https://example.com/b" \
+  "https://example.com/c"
+```
+
+このスクリプトは各URLから次を拾って下書き化します。
+
+- 記事タイトル
+- 説明文候補
+- 媒体名
+- カテゴリ仮推定
+
+### 4. 原稿を埋める
 
 `episodes/YYYY-MM-DD.md` は Markdown 見出しベースです。
 
@@ -135,7 +165,7 @@ cd /path/to/zundamon-ai-news
 [媒体名](https://example.com/article)
 ```
 
-### 4. 日次ビルドを一発で回す
+### 5. 日次ビルドを一発で回す
 
 普段はまずこのコマンドを使うのが最短です。
 
@@ -156,7 +186,7 @@ cd /path/to/zundamon-ai-news
 - `./scripts/render_audio.sh 2026-03-13 zundamon`
 - `./scripts/validate.sh`
 
-### 5. HTML / 台本 / 日別 OGP を個別に再生成する
+### 6. HTML / 台本 / 日別 OGP を個別に再生成する
 
 原稿を編集したあとに個別確認したい場合は、従来どおり単体実行もできます。
 
@@ -172,7 +202,7 @@ python3 scripts/render_episode.py 2026-03-13
 
 `### Script` が空欄の項目は、`### Headline` と `### Summary` を使って仮の読み上げ文を自動生成します。
 
-### 6. トップページを再構築する
+### 7. トップページを再構築する
 
 トップページの最新回表示・最近の回・説明文・バックナンバーを更新したい場合は次を実行します。
 
@@ -180,7 +210,7 @@ python3 scripts/render_episode.py 2026-03-13
 python3 scripts/update_index.py
 ```
 
-### 7. VOICEVOX で音声を生成する
+### 8. VOICEVOX で音声を生成する
 
 VOICEVOX helper は環境に合わせて指定します。
 
@@ -203,7 +233,7 @@ VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_t
 ./scripts/render_audio.sh 2026-03-13 zundamon
 ```
 
-### 8. 確認する
+### 9. 確認する
 
 最低限、次を確認します。
 
@@ -229,7 +259,7 @@ VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_t
 - 日別ページの audio / OGP / OGP メタ情報の整合
 - OGP で詰まりやすい長すぎタイトルやトピック過多の warning
 
-### 9. OGP を個別に再生成する
+### 10. OGP を個別に再生成する
 
 トップページ用 OGP:
 
@@ -245,7 +275,7 @@ python3 scripts/render_ogp.py --date 2026-03-13 --title "AI規制・研究・半
 
 日別 OGP のタイトルは `・` ごとのトピック単位で2行に分配し、収まりきらない場合は末尾トピックごと省略します。
 
-### 10. `main` に保存する
+### 11. `main` に保存する
 
 ```bash
 git add .
@@ -253,7 +283,7 @@ git commit -m "Add daily AI news for 2026-03-13"
 git push origin main
 ```
 
-### 11. 公開する
+### 12. 公開する
 
 通常は `main` に push すれば GitHub Actions が `gh-pages` を更新します。
 
