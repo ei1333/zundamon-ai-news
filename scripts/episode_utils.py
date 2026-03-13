@@ -169,6 +169,31 @@ def build_head_html(*, title: str, description: str, url: str, stylesheet_href: 
 
 
 
+def build_tag_spans(items: list[dict[str, object]], *, indent: str, category_key: str, class_key: str) -> str:
+    template = load_template('partial_tag.html')
+    return ''.join(
+        template.format(
+            indent=indent,
+            category_class=escape_attr(item[class_key]),
+            category_label=escape_text(item[category_key]),
+        )
+        for item in items
+    ).rstrip()
+
+
+
+def build_headline_items(items: list[dict[str, object]], *, indent: str, headline_key: str) -> str:
+    template = load_template('partial_headline_item.html')
+    return ''.join(
+        template.format(
+            indent=indent,
+            headline=escape_text(item[headline_key]),
+        )
+        for item in items
+    ).rstrip()
+
+
+
 def parse_episode_summary(path: Path) -> dict[str, object]:
     header, items = parse_episode_full(path)
     return {

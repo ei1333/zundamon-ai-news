@@ -4,7 +4,15 @@ from __future__ import annotations
 import re
 import sys
 
-from episode_utils import ROOT, build_head_html, escape_attr, escape_text, load_template, parse_episode_full
+from episode_utils import (
+    ROOT,
+    build_head_html,
+    build_tag_spans,
+    escape_attr,
+    escape_text,
+    load_template,
+    parse_episode_full,
+)
 
 
 def render_html(date: str, header: dict, items: list[dict]) -> str:
@@ -13,11 +21,11 @@ def render_html(date: str, header: dict, items: list[dict]) -> str:
         item_html.append(
             '          <li>\n'
             '            <div class="episode-tags">\n'
-            f'              <span class="episode-tag {escape_attr(item["CategoryClass"])}">{escape_text(item["Category"])}</span>\n'
+            f'{build_tag_spans([item], indent="              ", category_key="Category", class_key="CategoryClass")}\n'
             '            </div>\n'
             f'            <h3>{escape_text(item["Headline"])}</h3>\n'
             f'            <p>{escape_text(item["Summary"])}</p>\n'
-            f'            <p>出典: <a href="{escape_attr(item["SourceURL"])}">{escape_text(item["SourceName"])}</a></p>\n'
+            f'            <p>出典: <a href="{escape_attr(item["SourceURL"])}">{escape_text(item["SourceName"])} </a></p>\n'
             '          </li>'
         )
 

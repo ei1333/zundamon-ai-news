@@ -3,26 +3,21 @@ from __future__ import annotations
 
 import sys
 
-from episode_utils import ROOT, build_head_html, escape_attr, escape_text, load_template, parse_episode_summary
+from episode_utils import (
+    ROOT,
+    build_head_html,
+    build_headline_items,
+    build_tag_spans,
+    escape_attr,
+    escape_text,
+    load_template,
+    parse_episode_summary,
+)
 
 
 def list_episodes() -> list[dict[str, str]]:
     paths = sorted((ROOT / 'episodes').glob('*.md'), key=lambda p: p.stem, reverse=True)
     return [parse_episode_summary(path) for path in paths if path.name != '_template.md']
-
-
-def render_episode_tags(items: list[dict[str, object]], indent: str) -> str:
-    return ''.join(
-        f'{indent}<span class="episode-tag {escape_attr(item["category_class"])}">{escape_text(item["category_label"])}</span>\n'
-        for item in items
-    )
-
-
-
-def render_headlines(items: list[dict[str, object]], indent: str) -> str:
-    return '\n'.join(
-        f'{indent}<li>{escape_text(item["headline"])}</li>' for item in items
-    )
 
 
 
@@ -31,8 +26,12 @@ def build_featured_html(episode: dict[str, object]) -> str:
         date=escape_text(episode['date']),
         date_attr=escape_attr(episode['date']),
         title=escape_text(episode['title']),
-        tags_html=render_episode_tags(episode['items'], '            ').rstrip(),
-        headlines_html=render_headlines(episode['items'], '            '),
+        tags_html=build_tag_spans(
+            episode['items'], indent='            ', category_key='category_label', class_key='category_class'
+        ),
+        headlines_html=build_headline_items(
+            episode['items'], indent='            ', headline_key='headline'
+        ),
     )
 
 
@@ -47,8 +46,12 @@ def build_recent_html(episodes: list[dict[str, object]]) -> str:
                 date_attr=escape_attr(episode['date']),
                 title=escape_text(episode['title']),
                 summary=escape_text(episode['summary']),
-                tags_html=render_episode_tags(episode['items'], '              ').rstrip(),
-                headlines_html=render_headlines(episode['items'], '              '),
+                tags_html=build_tag_spans(
+                    episode['items'], indent='              ', category_key='category_label', class_key='category_class'
+                ),
+                headlines_html=build_headline_items(
+                    episode['items'], indent='              ', headline_key='headline'
+                ),
             ).rstrip()
         )
     return '\n'.join(cards)
