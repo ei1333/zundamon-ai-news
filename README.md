@@ -65,6 +65,7 @@ pip install -r requirements.txt
 - `scripts/render_episode.py` - 原稿から HTML / 台本 / 日別 OGP を生成
 - `scripts/update_index.py` - episode 一覧から `index.html` を再構築
 - `scripts/render_audio.sh` - 生成済み台本テキストから音声を生成
+- `scripts/build_episode.sh` - 日別ビルドを一発で回す（HTML / 台本 / index / 音声 / validate）
 - `scripts/render_ogp.py` - Pillow でトップ OGP と日別 OGP を生成
 - `scripts/validate.sh` - テンプレ置換漏れや音声参照切れを確認
 - `scripts/publish.sh` - `main` の公開物を `gh-pages` に反映するローカル用スクリプト
@@ -134,9 +135,30 @@ cd /path/to/zundamon-ai-news
 [媒体名](https://example.com/article)
 ```
 
-### 4. HTML / 台本 / 日別 OGP を再生成する
+### 4. 日次ビルドを一発で回す
 
-原稿を編集したら、生成物を更新します。
+普段はまずこのコマンドを使うのが最短です。
+
+```bash
+./scripts/build_episode.sh 2026-03-13
+```
+
+話者を変えたい場合:
+
+```bash
+./scripts/build_episode.sh 2026-03-13 zundamon
+```
+
+このコマンドは内部で次を順に実行します。
+
+- `python3 scripts/render_episode.py 2026-03-13`
+- `python3 scripts/update_index.py`
+- `./scripts/render_audio.sh 2026-03-13 zundamon`
+- `./scripts/validate.sh`
+
+### 5. HTML / 台本 / 日別 OGP を個別に再生成する
+
+原稿を編集したあとに個別確認したい場合は、従来どおり単体実行もできます。
 
 ```bash
 python3 scripts/render_episode.py 2026-03-13
@@ -150,7 +172,7 @@ python3 scripts/render_episode.py 2026-03-13
 
 `### Script` が空欄の項目は、`### Headline` と `### Summary` を使って仮の読み上げ文を自動生成します。
 
-### 5. トップページを再構築する
+### 6. トップページを再構築する
 
 トップページの最新回表示・最近の回・説明文・バックナンバーを更新したい場合は次を実行します。
 
@@ -158,7 +180,7 @@ python3 scripts/render_episode.py 2026-03-13
 python3 scripts/update_index.py
 ```
 
-### 6. VOICEVOX で音声を生成する
+### 7. VOICEVOX で音声を生成する
 
 VOICEVOX helper は環境に合わせて指定します。
 
@@ -181,7 +203,7 @@ VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_t
 ./scripts/render_audio.sh 2026-03-13 zundamon
 ```
 
-### 7. 確認する
+### 8. 確認する
 
 最低限、次を確認します。
 
@@ -198,7 +220,7 @@ VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_t
 ./scripts/validate.sh
 ```
 
-### 8. OGP を個別に再生成する
+### 9. OGP を個別に再生成する
 
 トップページ用 OGP:
 
@@ -214,7 +236,7 @@ python3 scripts/render_ogp.py --date 2026-03-13 --title "AI規制・研究・半
 
 日別 OGP のタイトルは `・` ごとのトピック単位で2行に分配し、収まりきらない場合は末尾トピックごと省略します。
 
-### 9. `main` に保存する
+### 10. `main` に保存する
 
 ```bash
 git add .
@@ -222,7 +244,7 @@ git commit -m "Add daily AI news for 2026-03-13"
 git push origin main
 ```
 
-### 10. 公開する
+### 11. 公開する
 
 通常は `main` に push すれば GitHub Actions が `gh-pages` を更新します。
 
@@ -242,10 +264,7 @@ git push origin main
 
 ```bash
 ./scripts/new_episode.sh 2026-03-13 "AI規制・研究・半導体"
-python3 scripts/render_episode.py 2026-03-13
-python3 scripts/update_index.py
-./scripts/render_audio.sh 2026-03-13 zundamon
-./scripts/validate.sh
+./scripts/build_episode.sh 2026-03-13 zundamon
 git add .
 git commit -m "Add daily AI news for 2026-03-13"
 git push origin main
