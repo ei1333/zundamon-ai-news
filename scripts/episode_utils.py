@@ -109,6 +109,11 @@ def normalize_category(label: str, idx: int | None = None, *, theme_name: str = 
 @lru_cache(maxsize=None)
 def detect_episode_theme(path: Path) -> str:
     text = path.read_text(encoding='utf-8')
+    explicit_theme = extract_section(text, 'Theme') if re.search(r'^## Theme\n', text, flags=re.MULTILINE) else ''
+    normalized_theme = explicit_theme.strip().lower()
+    if normalized_theme:
+        return normalized_theme
+
     lowered = text.lower()
     shogi_keywords = [
         '将棋', '叡王', '王将', '王位', '王座', '名人', '棋王', '棋聖', '竜王',
@@ -262,6 +267,9 @@ def build_episode_template_text(date: str, *, title: str | None = None, theme_na
 
     lines = [
         f'# {resolved_title}',
+        '',
+        '## Theme',
+        theme_name,
         '',
         '## Summary',
         template.get('summary', 'YYYY-MM-DD の回です。').replace('YYYY-MM-DD', date),
