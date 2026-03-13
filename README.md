@@ -74,6 +74,7 @@ pip install -r requirements.txt
 - `scripts/validate.sh` - テンプレ置換漏れ、生成物欠落、空ファイル、最新回導線ずれ、HTML 参照崩れなどを確認
 - `scripts/publish.sh` - `main` の公開物を `gh-pages` に反映するローカル用スクリプト
 - `scripts/templates/` - 日別ページ / トップページ / partial 類のテンプレート群
+- `prompts/episode_rewrite_prompt.md` - 下書きを生成AIで公開用原稿へ整えるためのプロンプト雛形
 - `.github/workflows/publish.yml` - `main` への push を公開反映する GitHub Actions
 
 ## Daily Workflow
@@ -164,7 +165,21 @@ python3 scripts/draft_from_urls.py --theme default --stdout 2026-03-13 \
 - カテゴリベースの episode タイトル案
 - URL取得失敗時の slug ベース簡易フォールバック
 
-### 4. 原稿を埋める
+### 4. 生成AIで原稿を整える（推奨）
+
+URL から作った下書きは、そのまま公開するより **生成AIで headline / summary / script を整える** 運用を推奨します。
+
+プロンプト雛形は次にあります。
+
+- `prompts/episode_rewrite_prompt.md`
+
+典型フロー:
+
+1. `draft_from_urls.py --stdout ...` で下書きを出す
+2. その下書きを `prompts/episode_rewrite_prompt.md` の素材欄へ入れる
+3. 返ってきた Markdown を `episodes/YYYY-MM-DD.md` に保存する
+
+### 5. 原稿を埋める
 
 `episodes/YYYY-MM-DD.md` は Markdown 見出しベースです。
 
