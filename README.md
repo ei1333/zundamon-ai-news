@@ -51,7 +51,7 @@ pip install -r requirements.txt
 ## Main Files
 
 - `index.html` - トップページ
-- `episodes/_template.md` - エピソード原稿テンプレート
+- `episodes/_template.md` - 旧テンプレート参考用（新規作成は theme 設定から生成）
 - `episodes/YYYY-MM-DD.md` - 日々の入力元になる原稿
 - `days/YYYY-MM-DD.html` - 原稿から生成される公開ページ
 - `scripts_text/YYYY-MM-DD.txt` - 原稿から生成される読み上げ台本
@@ -62,7 +62,8 @@ pip install -r requirements.txt
 - `assets/ogp-YYYY-MM-DD.png` - 日別ページ用 OGP 画像
 - `scripts/new_episode.sh` - `new_episode.py` を呼ぶ薄いラッパー
 - `scripts/new_episode.py` - 新しい原稿ファイル作成 + 初回レンダリング（`--no-index` 対応）
-- `config/theme.json` - サイト名・説明・カテゴリなどのテーマ設定
+- `config/theme.json` - 既定テーマ設定
+- `config/themes/default.json` - 将来の複数テーマ対応を見据えた既定テーマ複製
 - `scripts/draft_from_urls.py` - 記事URL 3本から episode 原稿の下書きを生成
 - `scripts/render_episode.py` - 原稿から HTML / 台本 / 日別 OGP を生成
 - `scripts/update_index.py` - episode 一覧から `index.html` を再構築
@@ -88,7 +89,7 @@ pip install -r requirements.txt
 
 ### 2. 新しい episode を作る
 
-まずは新しい日付の原稿ひな形を作ります。
+まずは新しい日付の原稿ひな形を作ります。新規作成時の既定文言は theme 設定から生成されます。
 
 ```bash
 cd /path/to/zundamon-ai-news
@@ -99,6 +100,12 @@ cd /path/to/zundamon-ai-news
 
 ```bash
 ./scripts/new_episode.sh --no-index 2026-03-13 "AI規制・研究・半導体"
+```
+
+将来のテーマ切替を見据えて、theme 名も指定できます。
+
+```bash
+./scripts/new_episode.sh --theme default 2026-03-13 "AI規制・研究・半導体"
 ```
 
 これで主に次が作られます。

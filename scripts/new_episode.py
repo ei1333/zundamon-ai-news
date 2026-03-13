@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+from episode_utils import ROOT, build_episode_template_text, load_theme
 
 
 def validate_date(date: str) -> str:
@@ -20,17 +20,11 @@ def run(cmd: list[str]) -> None:
     subprocess.run(cmd, check=True)
 
 
-def create_episode_from_template(template_path: Path, target_path: Path, date: str, title: str) -> None:
-    if not template_path.exists():
-        raise SystemExit(f'Episode template not found: {template_path}')
+def create_episode_from_template(target_path: Path, date: str, title: str, theme_name: str) -> None:
     if target_path.exists():
         raise SystemExit(f'Target already exists: {target_path}')
 
-    text = template_path.read_text(encoding='utf-8')
-    text = text.replace('YYYY-MM-DD', date)
-    text, count = re.subn(r'^#\s+.*$', f'# {title}', text, count=1, flags=re.MULTILINE)
-    if count != 1:
-        raise SystemExit('Template title heading not found')
+    text = build_episode_template_text(date, title=title, theme_name=theme_name)
     target_path.write_text(text, encoding='utf-8')
 
 
@@ -39,11 +33,16 @@ def parse_args() -> argparse.Namespace:
         description='Create a new episode source file and initial rendered outputs.'
     )
     parser.add_argument('date', help='Episode date in YYYY-MM-DD format')
-    parser.add_argument('title', nargs='?', default='新しいAIニュース回', help='Episode title')
+    parser.add_argument('title', nargs='?', help='Episode title')
     parser.add_argument(
         '--no-index',
         action='store_true',
         help='Skip updating index.html after creating the episode',
+    )
+    parser.add_argument(
+        '--theme',
+        default='default',
+        help='Theme name. Uses config/theme.json for default, or config/themes/<name>.json',
     )
     return parser.parse_args()
 
@@ -51,7 +50,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     date = validate_date(args.date)
-    title = args.title
+    theme_name = args.theme
+    theme = load_theme(theme_name)
+    title = args.title or theme.get('episode_template', {}).get('default_title', '新しいニュース回')
 
     episodes_dir = ROOT / 'episodes'
     days_dir = ROOT / 'days'
@@ -63,10 +64,9 @@ def main() -> None:
     scripts_text_dir.mkdir(exist_ok=True)
     audio_dir.mkdir(parents=True, exist_ok=True)
 
-    template_path = episodes_dir / '_template.md'
     episode_path = episodes_dir / f'{date}.md'
 
-    create_episode_from_template(template_path, episode_path, date, title)
+    create_episode_from_template(episode_path, date, title, theme_name)
     run([sys.executable, str(ROOT / 'scripts' / 'render_episode.py'), date])
     if not args.no_index:
         run([sys.executable, str(ROOT / 'scripts' / 'update_index.py'), date])

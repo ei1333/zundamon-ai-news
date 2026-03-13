@@ -10,12 +10,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 
-@lru_cache(maxsize=1)
-def load_theme() -> dict:
-    path = ROOT / 'config' / 'theme.json'
-    if not path.exists():
-        raise SystemExit(f'Theme config not found: {path}')
-    return json.loads(path.read_text(encoding='utf-8'))
+@lru_cache(maxsize=None)
+def load_theme(theme_name: str = 'default') -> dict:
+    candidates = []
+    if theme_name == 'default':
+        candidates.append(ROOT / 'config' / 'theme.json')
+    candidates.append(ROOT / 'config' / 'themes' / f'{theme_name}.json')
+
+    for path in candidates:
+        if path.exists():
+            return json.loads(path.read_text(encoding='utf-8'))
+
+    searched = ', '.join(str(path) for path in candidates)
+    raise SystemExit(f'Theme config not found. Searched: {searched}')
 
 
 @lru_cache(maxsize=1)
@@ -227,3 +234,63 @@ def parse_episode_summary(path: Path) -> dict[str, object]:
             for item in items
         ],
     }
+
+
+
+def build_episode_template_text(date: str, *, title: str | None = None, theme_name: str = 'default') -> str:
+    theme = load_theme(theme_name)
+    template = theme.get('episode_template', {})
+    resolved_title = title or template.get('default_title', '新しいニュース回')
+    category_labels = theme.get('draft', {}).get('default_categories', ['トピック1', 'トピック2', 'トピック3'])
+    category_labels = (category_labels + ['トピック1', 'トピック2', 'トピック3'])[:3]
+
+    lines = [
+        f'# {resolved_title}',
+        '',
+        '## Summary',
+        template.get('summary', 'YYYY-MM-DD の回です。').replace('YYYY-MM-DD', date),
+        '',
+        '## Intro',
+        template.get('intro', 'YYYY-MM-DD 時点の公開情報をもとに構成した回です。').replace('YYYY-MM-DD', date),
+        '',
+        '## Script Intro',
+        template.get('script_intro', 'YYYY-MM-DD版なのだ。').replace('YYYY-MM-DD', date),
+        '',
+    ]
+
+    item_summary_defaults = [
+        'ここに要約を書く。2〜3文で短く、何が起きたかと意味が伝わるようにまとめる。',
+        'ここに要約を書く。異なる角度の話題を混ぜると収まりが良い。',
+        'ここに要約を書く。1分音声に合わせるなら、3本で全体250〜350字程度が目安。',
+    ]
+
+    for idx in range(1, 4):
+        lines += [
+            f'## Item {idx}',
+            '### Headline',
+            f'ニュース見出し{idx}',
+            '',
+            '### Summary',
+            item_summary_defaults[idx - 1],
+            '',
+            '### Category',
+            category_labels[idx - 1],
+            '',
+            '### Source',
+            f'[Source {idx}](https://example.com/source-{idx})',
+            '',
+            '### Script',
+            '',
+            '',
+            '',
+        ]
+
+    lines += [
+        '## Script Closing',
+        template.get('script_closing', '今日のひとことなのだ。ここに締めのひとことを入れるのだ。'),
+        '',
+        '## Closing',
+        template.get('closing', '※ 詳細は各出典をご確認ください。'),
+        '',
+    ]
+    return '\n'.join(lines)
