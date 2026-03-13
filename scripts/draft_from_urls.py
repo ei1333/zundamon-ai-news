@@ -244,7 +244,9 @@ def maybe_shorten_headline(title: str, theme_name: str, *, description: str = ''
         return patched
 
     if '女流王位戦' in combined and ('挑戦権' in combined or '挑戦者決定戦' in combined):
-        winner = re.search(r'([一-龠ぁ-んァ-ヶA-Za-z]+女流(?:[一-龠ぁ-んァ-ヶA-Za-z]+)?(?:二段|初段|三段|四段|五段|六段)|[一-龠ぁ-んァ-ヶA-Za-z]+(?:女流二段|女流初段|女流三段|女流四段|女流五段|女流六段))', combined)
+        cleaned = re.sub(r'^日本将棋連盟の', '', combined)
+        cleaned = re.sub(r'VS.*$', '', cleaned, flags=re.IGNORECASE)
+        winner = re.search(r'([一-龠ぁ-んァ-ヶA-Za-z]+女流(?:[一-龠ぁ-んァ-ヶA-Za-z]+)?(?:二段|初段|三段|四段|五段|六段)|[一-龠ぁ-んァ-ヶA-Za-z]+(?:女流二段|女流初段|女流三段|女流四段|女流五段|女流六段))', cleaned)
         if winner:
             return f'女流王位戦 {winner.group(1)}が挑戦権'
 
