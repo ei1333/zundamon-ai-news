@@ -75,6 +75,7 @@ pip install -r requirements.txt
 - `scripts/publish.sh` - `main` の公開物を `gh-pages` に反映するローカル用スクリプト
 - `scripts/templates/` - 日別ページ / トップページ / partial 類のテンプレート群
 - `prompts/episode_rewrite_prompt.md` - 下書きを生成AIで公開用原稿へ整えるためのプロンプト雛形
+- `examples/shogi_rewrite_example.md` - 将棋ニュース下書き → 生成AI整形の最小サンプル
 - `.github/workflows/publish.yml` - `main` への push を公開反映する GitHub Actions
 
 ## Daily Workflow
@@ -169,9 +170,10 @@ python3 scripts/draft_from_urls.py --theme default --stdout 2026-03-13 \
 
 URL から作った下書きは、そのまま公開するより **生成AIで headline / summary / script を整える** 運用を推奨します。
 
-プロンプト雛形は次にあります。
+プロンプト雛形とサンプルは次にあります。
 
 - `prompts/episode_rewrite_prompt.md`
+- `examples/shogi_rewrite_example.md`
 
 典型フロー:
 
