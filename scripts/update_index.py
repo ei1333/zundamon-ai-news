@@ -28,6 +28,7 @@ def build_featured_html(episode: dict[str, object]) -> str:
         date_attr=escape_attr(episode['date']),
         title=escape_text(episode['title']),
         theme_label=escape_text(episode['theme_label']),
+        theme_name_attr=escape_attr(episode['theme_name']),
         tags_html=build_tag_spans(
             episode['items'], indent='            ', category_key='category_label', class_key='category_class'
         ),
@@ -49,6 +50,7 @@ def build_recent_html(episodes: list[dict[str, object]]) -> str:
                 title=escape_text(episode['title']),
                 summary=escape_text(episode['summary']),
                 theme_label=escape_text(episode['theme_label']),
+                theme_name_attr=escape_attr(episode['theme_name']),
                 tags_html=build_tag_spans(
                     episode['items'], indent='              ', category_key='category_label', class_key='category_class'
                 ),
@@ -68,9 +70,23 @@ def build_backnumber_html(episodes: list[dict[str, object]]) -> str:
             date=escape_text(episode['date']),
             date_attr=escape_attr(episode['date']),
             title=escape_text(episode['title']),
+            theme_label=escape_text(episode['theme_label']),
+            theme_name_attr=escape_attr(episode['theme_name']),
         )
         for episode in episodes
     ).rstrip()
+
+
+
+def build_theme_filters_html(episodes: list[dict[str, object]]) -> str:
+    labels = {'all': 'すべて', 'ai': 'AIニュース', 'shogi': '将棋ニュース'}
+    ordered = ['all'] + [theme for theme in ['ai', 'shogi'] if any(ep['theme_name'] == theme for ep in episodes)]
+    parts = []
+    for theme in ordered:
+        parts.append(
+            f'          <button class="theme-filter-button" type="button" data-theme-filter="{escape_attr(theme)}" aria-pressed="false">{escape_text(labels[theme])}</button>'
+        )
+    return '\n'.join(parts)
 
 
 
@@ -101,6 +117,7 @@ def update_index(target_date: str | None = None, *, site_theme_name: str = 'ai')
         hero_title=escape_text(theme['hero']['title']),
         hero_lead=escape_text(theme['hero']['lead']),
         featured_html=build_featured_html(latest),
+        theme_filters_html=build_theme_filters_html(episodes),
         recent_heading=escape_text(theme['index']['recent_heading']),
         recent_html=build_recent_html(episodes),
         backnumber_heading=escape_text(theme['index']['backnumber_heading']),

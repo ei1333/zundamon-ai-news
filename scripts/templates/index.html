@@ -15,16 +15,23 @@
 
       {featured_html}
 
-      <section class="card">
+      <section class="card filter-card">
+        <h2>テーマで絞り込み</h2>
+        <div class="theme-filters" role="group" aria-label="テーマで絞り込み">
+{theme_filters_html}
+        </div>
+      </section>
+
+      <section class="card" data-filter-section="recent">
         <h2>{recent_heading}</h2>
         <div class="episode-grid">
 {recent_html}
         </div>
       </section>
 
-      <section class="card">
+      <section class="card" data-filter-section="backnumber">
         <h2>{backnumber_heading}</h2>
-        <ul>
+        <ul class="backnumber-list">
 {backnumber_html}
         </ul>
       </section>
@@ -35,5 +42,30 @@
       </section>
 
     </main>
+    <script>
+      (() => {{
+        const buttons = [...document.querySelectorAll('[data-theme-filter]')];
+        const cards = [...document.querySelectorAll('[data-episode-theme]')];
+        if (!buttons.length || !cards.length) return;
+
+        const applyFilter = (theme) => {{
+          for (const button of buttons) {{
+            const active = button.dataset.themeFilter === theme;
+            button.setAttribute('aria-pressed', active ? 'true' : 'false');
+            button.classList.toggle('is-active', active);
+          }}
+          for (const card of cards) {{
+            const visible = theme === 'all' || card.dataset.episodeTheme === theme;
+            card.hidden = !visible;
+          }}
+        }};
+
+        for (const button of buttons) {{
+          button.addEventListener('click', () => applyFilter(button.dataset.themeFilter || 'all'));
+        }}
+
+        applyFilter('all');
+      }})();
+    </script>
   </body>
 </html>
