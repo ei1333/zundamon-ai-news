@@ -36,8 +36,8 @@ WAVE_SEGMENTS = [
     ((784, 468), (814, 430), (844, 506), (874, 468)),
     ((874, 468), (904, 430), (934, 506), (964, 468)),
 ]
-def default_text_nodes() -> list[tuple]:
-    theme = load_theme()
+def default_text_nodes(theme_name: str = 'default') -> list[tuple]:
+    theme = load_theme(theme_name)
     nodes = theme.get('ogp', {}).get('default_text_nodes', [])
     return [
         (node[0], tuple(node[1]), node[2], node[3], tuple(node[4]), node[5])
@@ -261,6 +261,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('--date', help='Episode date in YYYY-MM-DD format')
     parser.add_argument('--title', help='Episode title for per-episode OGP')
     parser.add_argument('--summary', help='Episode summary for per-episode OGP')
+    parser.add_argument('--theme', default='default', help='Theme name from config/themes/<name>.json')
     return parser.parse_args()
 
 
@@ -268,7 +269,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
-    theme = load_theme()
+    theme = load_theme(args.theme)
 
     if args.date:
         date = args.date
@@ -286,7 +287,7 @@ def main() -> None:
         render_ogp(out_path=ROOT / 'assets' / f'ogp-{date}.png', text_nodes=text_nodes, multiline_blocks=multiline_blocks)
         return
 
-    render_ogp(out_path=ROOT / 'assets' / 'ogp.png', text_nodes=default_text_nodes())
+    render_ogp(out_path=ROOT / 'assets' / 'ogp.png', text_nodes=default_text_nodes(args.theme))
 
 
 if __name__ == '__main__':

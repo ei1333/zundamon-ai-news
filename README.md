@@ -63,7 +63,7 @@ pip install -r requirements.txt
 - `scripts/new_episode.sh` - `new_episode.py` を呼ぶ薄いラッパー
 - `scripts/new_episode.py` - 新しい原稿ファイル作成 + 初回レンダリング（`--no-index` 対応）
 - `config/themes/default.json` - 既定テーマ設定（canonical）
-- `config/theme.json` - 互換用の既定テーマ参照
+- `config/theme.json` - 互換用の既定テーマ参照（将来的に廃止予定）
 - `scripts/draft_from_urls.py` - 記事URL 3本から episode 原稿の下書きを生成
 - `scripts/render_episode.py` - 原稿から HTML / 台本 / 日別 OGP を生成
 - `scripts/update_index.py` - episode 一覧から `index.html` を再構築
@@ -120,7 +120,7 @@ cd /path/to/zundamon-ai-news
 出典URLが先にある場合は、3本まとめて原稿下書きを作れます。
 
 ```bash
-python3 scripts/draft_from_urls.py 2026-03-13 \
+python3 scripts/draft_from_urls.py --theme default 2026-03-13 \
   "https://example.com/a" \
   "https://example.com/b" \
   "https://example.com/c"
@@ -131,7 +131,7 @@ python3 scripts/draft_from_urls.py 2026-03-13 \
 まず内容を標準出力だけで見たい場合は `--stdout` も使えます。
 
 ```bash
-python3 scripts/draft_from_urls.py --stdout 2026-03-13 \
+python3 scripts/draft_from_urls.py --theme default --stdout 2026-03-13 \
   "https://example.com/a" \
   "https://example.com/b" \
   "https://example.com/c"
@@ -277,10 +277,16 @@ VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_t
 python3 scripts/render_ogp.py
 ```
 
+テーマを明示したい場合:
+
+```bash
+python3 scripts/render_ogp.py --theme default
+```
+
 日別ページ用 OGP:
 
 ```bash
-python3 scripts/render_ogp.py --date 2026-03-13 --title "AI規制・研究・半導体"
+python3 scripts/render_ogp.py --theme default --date 2026-03-13 --title "AI規制・研究・半導体"
 ```
 
 日別 OGP のタイトルは `・` ごとのトピック単位で2行に分配し、収まりきらない場合は末尾トピックごと省略します。

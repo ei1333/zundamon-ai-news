@@ -15,15 +15,7 @@ from episode_utils import load_theme
 
 ROOT = Path(__file__).resolve().parent.parent
 
-THEME = load_theme()
-DRAFT_THEME = THEME.get('draft', {})
 USER_AGENT = 'zundamon-ai-news/0.1 (+https://ei1333.github.io/zundamon-ai-news/)'
-DEFAULT_CATEGORIES = DRAFT_THEME.get('default_categories', ['透明性', '研究', 'インフラ'])
-
-CATEGORY_RULES = [
-    (rule['label'], rule.get('keywords', []))
-    for rule in DRAFT_THEME.get('category_rules', [])
-]
 
 
 def fetch_url(url: str) -> str:
@@ -35,7 +27,7 @@ def fetch_url(url: str) -> str:
 
 
 
-def fallback_from_url(url: str, fallback_category: str, reason: str) -> dict[str, str]:
+def fallback_from_url(url: str, fallback_category: str, reason: str, draft_theme: dict[str, object]) -> dict[str, str]:
     parsed = urllib.parse.urlparse(url)
     slug = parsed.path.rstrip('/').split('/')[-1] or parsed.netloc
     slug = urllib.parse.unquote(slug)
@@ -46,7 +38,7 @@ def fallback_from_url(url: str, fallback_category: str, reason: str) -> dict[str
     site_name = parsed.netloc.removeprefix('www.') or 'source'
     return {
         'headline': headline,
-        'summary': DRAFT_THEME.get('fallback_summary', 'URL からの自動取得に失敗したため、元記事を開いて要約を補ってください。({reason})').format(reason=reason),
+        'summary': str(draft_theme.get('fallback_summary', 'URL からの自動取得に失敗したため、元記事を開いて要約を補ってください。({reason})')).format(reason=reason),
         'source_name': site_name,
         'url': url,
         'category': fallback_category,
@@ -190,16 +182,16 @@ def normalize_summary(text: str) -> str:
 
 
 
-def infer_category(title: str, description: str, fallback: str) -> str:
+def infer_category(title: str, description: str, fallback: str, category_rules: list[tuple[str, list[str]]]) -> str:
     haystack = f'{title} {description}'.lower()
-    for category, keywords in CATEGORY_RULES:
+    for category, keywords in category_rules:
         if any(keyword in haystack for keyword in keywords):
             return category
     return fallback
 
 
 
-def pick_episode_title(items: list[dict[str, str]]) -> str:
+def pick_episode_title(items: list[dict[str, str]], draft_theme: dict[str, object]) -> str:
     keywords = []
     seen = set()
     for item in items[:3]:
@@ -215,12 +207,12 @@ def pick_episode_title(items: list[dict[str, str]]) -> str:
             seen.add(headline)
 
     title = '・'.join(keywords[:3]).strip()
-    return title or DRAFT_THEME.get('title_fallback', '新しいAIニュース回')
+    return title or str(draft_theme.get('title_fallback', '新しいAIニュース回'))
 
 
 
-def build_episode_text(date: str, items: list[dict[str, str]], title: str | None = None) -> str:
-    resolved_title = title or pick_episode_title(items)
+def build_episode_text(date: str, items: list[dict[str, str]], draft_theme: dict[str, object], title: str | None = None) -> str:
+    resolved_title = title or pick_episode_title(items, draft_theme)
     summary = f'{date} の回では、' + '、'.join(item['headline'] for item in items[:3]) + 'の3本を掲載しています。'
     lines = [
         f'# {resolved_title}',
@@ -229,10 +221,10 @@ def build_episode_text(date: str, items: list[dict[str, str]], title: str | None
         summary,
         '',
         '## Intro',
-        DRAFT_THEME.get('intro', '{date} 時点の公開情報をもとに構成した下書きです。内容を確認して整えてください。').format(date=date),
+        str(draft_theme.get('intro', '{date} 時点の公開情報をもとに構成した下書きです。内容を確認して整えてください。')).format(date=date),
         '',
         '## Script Intro',
-        DRAFT_THEME.get('script_intro', 'ずんだもん1分AIニュース、{date}版なのだ。').format(date=date),
+        str(draft_theme.get('script_intro', 'ずんだもん1分AIニュース、{date}版なのだ。')).format(date=date),
         '',
     ]
     for idx, item in enumerate(items, start=1):
@@ -256,10 +248,10 @@ def build_episode_text(date: str, items: list[dict[str, str]], title: str | None
         ]
     lines += [
         '## Script Closing',
-        DRAFT_THEME.get('script_closing', '以上、今日のAIニュースまとめなのだ。気になる話題は出典も見てみるのだ。'),
+        str(draft_theme.get('script_closing', '以上、今日のAIニュースまとめなのだ。気になる話題は出典も見てみるのだ。')),
         '',
         '## Closing',
-        DRAFT_THEME.get('closing', '※ この記事は公開情報をもとにした短い要約です。詳細は各出典をご確認ください。'),
+        str(draft_theme.get('closing', '※ この記事は公開情報をもとにした短い要約です。詳細は各出典をご確認ください。')),
         '',
     ]
     return '\n'.join(lines)
@@ -271,6 +263,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('date', help='Episode date in YYYY-MM-DD format')
     parser.add_argument('urls', nargs=3, help='Three source article URLs')
     parser.add_argument('--title', help='Override episode title')
+    parser.add_argument('--theme', default='default', help='Theme name from config/themes/<name>.json')
     parser.add_argument('--stdout', action='store_true', help='Print the draft instead of writing episodes/YYYY-MM-DD.md')
     return parser.parse_args()
 
@@ -281,9 +274,17 @@ def main() -> None:
     if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', args.date):
         raise SystemExit('Expected YYYY-MM-DD')
 
+    theme = load_theme(args.theme)
+    draft_theme = theme.get('draft', {})
+    default_categories = list(draft_theme.get('default_categories', ['透明性', '研究', 'インフラ']))
+    category_rules = [
+        (str(rule['label']), list(rule.get('keywords', [])))
+        for rule in draft_theme.get('category_rules', [])
+    ]
+
     items: list[dict[str, str]] = []
     for idx, url in enumerate(args.urls, start=1):
-        fallback_category = DEFAULT_CATEGORIES[idx - 1]
+        fallback_category = default_categories[idx - 1]
         try:
             html_text = fetch_url(url)
             title = extract_title(html_text)
@@ -295,13 +296,13 @@ def main() -> None:
                     'summary': description,
                     'source_name': site_name,
                     'url': url,
-                    'category': infer_category(title, description, fallback_category),
+                    'category': infer_category(title, description, fallback_category, category_rules),
                 }
             )
         except (urllib.error.URLError, TimeoutError, socket.timeout) as exc:
-            items.append(fallback_from_url(url, fallback_category, str(exc)))
+            items.append(fallback_from_url(url, fallback_category, str(exc), draft_theme))
 
-    draft = build_episode_text(args.date, items, title=args.title)
+    draft = build_episode_text(args.date, items, draft_theme, title=args.title)
 
     if args.stdout:
         print(draft)
