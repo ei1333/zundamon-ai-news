@@ -106,6 +106,19 @@ def normalize_category(label: str, idx: int | None = None, *, theme_name: str = 
     return (label.strip() or 'AI', 'category-general')
 
 
+@lru_cache(maxsize=None)
+def detect_episode_theme(path: Path) -> str:
+    text = path.read_text(encoding='utf-8')
+    lowered = text.lower()
+    shogi_keywords = [
+        '将棋', '叡王', '王将', '王位', '王座', '名人', '棋王', '棋聖', '竜王',
+        '女流', '順位戦', '挑戦者決定', '棋士', '八段', '九段'
+    ]
+    if any(keyword.lower() in lowered for keyword in shogi_keywords):
+        return 'shogi'
+    return 'default'
+
+
 
 def parse_episode_full(path: Path, *, theme_name: str = 'default') -> tuple[dict[str, str], list[dict[str, str]]]:
     text = path.read_text(encoding='utf-8').strip()
@@ -219,12 +232,14 @@ def build_headline_items(items: list[dict[str, object]], *, indent: str, headlin
 
 
 def parse_episode_summary(path: Path, *, theme_name: str = 'default') -> dict[str, object]:
-    header, items = parse_episode_full(path, theme_name=theme_name)
-    theme = load_theme(theme_name)
+    episode_theme_name = detect_episode_theme(path)
+    header, items = parse_episode_full(path, theme_name=episode_theme_name)
+    theme = load_theme(episode_theme_name)
     return {
         'date': path.stem,
         'title': header['title'],
         'summary': header['summary'],
+        'theme_name': episode_theme_name,
         'theme_label': theme.get('theme_label', theme.get('site_name', '')),
         'items': [
             {
