@@ -220,10 +220,12 @@ def build_headline_items(items: list[dict[str, object]], *, indent: str, headlin
 
 def parse_episode_summary(path: Path, *, theme_name: str = 'default') -> dict[str, object]:
     header, items = parse_episode_full(path, theme_name=theme_name)
+    theme = load_theme(theme_name)
     return {
         'date': path.stem,
         'title': header['title'],
         'summary': header['summary'],
+        'theme_label': theme.get('theme_label', theme.get('site_name', '')),
         'items': [
             {
                 'headline': item['Headline'],

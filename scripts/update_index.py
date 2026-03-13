@@ -27,6 +27,7 @@ def build_featured_html(episode: dict[str, object]) -> str:
         date=escape_text(episode['date']),
         date_attr=escape_attr(episode['date']),
         title=escape_text(episode['title']),
+        theme_label=escape_text(episode['theme_label']),
         tags_html=build_tag_spans(
             episode['items'], indent='            ', category_key='category_label', class_key='category_class'
         ),
@@ -47,6 +48,7 @@ def build_recent_html(episodes: list[dict[str, object]]) -> str:
                 date_attr=escape_attr(episode['date']),
                 title=escape_text(episode['title']),
                 summary=escape_text(episode['summary']),
+                theme_label=escape_text(episode['theme_label']),
                 tags_html=build_tag_spans(
                     episode['items'], indent='              ', category_key='category_label', class_key='category_class'
                 ),
@@ -97,7 +99,6 @@ def update_index(target_date: str | None = None, *, theme_name: str = 'default')
         ),
         hero_eyebrow=escape_text(theme['hero']['eyebrow']),
         hero_title=escape_text(theme['hero']['title']),
-        theme_label=escape_text(theme.get('theme_label', theme.get('site_name', ''))),
         hero_lead=escape_text(theme['hero']['lead']),
         featured_html=build_featured_html(latest),
         recent_heading=escape_text(theme['index']['recent_heading']),
