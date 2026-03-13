@@ -42,7 +42,7 @@ def build_featured_html(episode: dict[str, object]) -> str:
 def build_recent_html(episodes: list[dict[str, object]]) -> str:
     cards = []
     template = load_template('index_recent_card.html')
-    for episode in episodes[1:3]:
+    for episode in episodes[1:4]:
         cards.append(
             template.format(
                 date=escape_text(episode['date']),
