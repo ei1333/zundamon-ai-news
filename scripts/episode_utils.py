@@ -24,9 +24,9 @@ def load_theme(theme_name: str = 'default') -> dict:
     raise SystemExit(f'Theme config not found. Searched: {searched}')
 
 
-@lru_cache(maxsize=1)
-def category_mapping() -> dict[str, tuple[str, str]]:
-    theme = load_theme()
+@lru_cache(maxsize=None)
+def category_mapping(theme_name: str = 'default') -> dict[str, tuple[str, str]]:
+    theme = load_theme(theme_name)
     mapping: dict[str, tuple[str, str]] = {}
     for key, value in theme.get('categories', {}).items():
         label = value.get('label', key)
@@ -37,11 +37,11 @@ def category_mapping() -> dict[str, tuple[str, str]]:
     return mapping
 
 
-@lru_cache(maxsize=1)
-def default_categories() -> dict[int, tuple[str, str]]:
-    theme = load_theme()
+@lru_cache(maxsize=None)
+def default_categories(theme_name: str = 'default') -> dict[int, tuple[str, str]]:
+    theme = load_theme(theme_name)
     labels = theme.get('draft', {}).get('default_categories', [])
-    mapping = category_mapping()
+    mapping = category_mapping(theme_name)
     resolved: dict[int, tuple[str, str]] = {}
     for idx, label in enumerate(labels, start=1):
         resolved[idx] = mapping.get(str(label).strip().lower(), (label, 'category-general'))
@@ -94,20 +94,20 @@ def auto_script(headline: str, summary: str, idx: int) -> str:
 
 
 
-def normalize_category(label: str, idx: int | None = None) -> tuple[str, str]:
+def normalize_category(label: str, idx: int | None = None, *, theme_name: str = 'default') -> tuple[str, str]:
     normalized = label.strip().lower()
-    mapping = category_mapping()
+    mapping = category_mapping(theme_name)
     if normalized in mapping:
         return mapping[normalized]
 
     if not label.strip() and idx is not None:
-        return default_categories().get(idx, ('AI', 'category-general'))
+        return default_categories(theme_name).get(idx, ('AI', 'category-general'))
 
     return (label.strip() or 'AI', 'category-general')
 
 
 
-def parse_episode_full(path: Path) -> tuple[dict[str, str], list[dict[str, str]]]:
+def parse_episode_full(path: Path, *, theme_name: str = 'default') -> tuple[dict[str, str], list[dict[str, str]]]:
     text = path.read_text(encoding='utf-8').strip()
     first_line = text.splitlines()[0].strip() if text.splitlines() else ''
     if not first_line.startswith('# '):
@@ -128,7 +128,7 @@ def parse_episode_full(path: Path) -> tuple[dict[str, str], list[dict[str, str]]
         headline = extract_subsection(item_block, 'Headline')
         summary = extract_subsection(item_block, 'Summary')
         category = extract_subsection(item_block, 'Category', required=False)
-        category_label, category_class = normalize_category(category, idx)
+        category_label, category_class = normalize_category(category, idx, theme_name=theme_name)
         script = extract_subsection(item_block, 'Script', required=False)
         item = {
             'Headline': headline,
@@ -162,8 +162,8 @@ def escape_attr(value: str) -> str:
 
 
 
-def build_head_html(*, title: str, description: str, url: str, stylesheet_href: str, og_type: str, og_image_url: str | None = None) -> str:
-    theme = load_theme()
+def build_head_html(*, title: str, description: str, url: str, stylesheet_href: str, og_type: str, og_image_url: str | None = None, theme_name: str = 'default') -> str:
+    theme = load_theme(theme_name)
     title_text = escape_text(title)
     desc_attr = escape_attr(description)
     url_attr = escape_attr(url)
@@ -218,8 +218,8 @@ def build_headline_items(items: list[dict[str, object]], *, indent: str, headlin
 
 
 
-def parse_episode_summary(path: Path) -> dict[str, object]:
-    header, items = parse_episode_full(path)
+def parse_episode_summary(path: Path, *, theme_name: str = 'default') -> dict[str, object]:
+    header, items = parse_episode_full(path, theme_name=theme_name)
     return {
         'date': path.stem,
         'title': header['title'],

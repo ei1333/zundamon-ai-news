@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import sys
+import argparse
 
 from episode_utils import (
     ROOT,
@@ -16,9 +16,9 @@ from episode_utils import (
 )
 
 
-def list_episodes() -> list[dict[str, str]]:
+def list_episodes(*, theme_name: str = 'default') -> list[dict[str, str]]:
     paths = sorted((ROOT / 'episodes').glob('*.md'), key=lambda p: p.stem, reverse=True)
-    return [parse_episode_summary(path) for path in paths if path.name != '_template.md']
+    return [parse_episode_summary(path, theme_name=theme_name) for path in paths if path.name != '_template.md']
 
 
 
@@ -72,9 +72,9 @@ def build_backnumber_html(episodes: list[dict[str, object]]) -> str:
 
 
 
-def update_index(target_date: str | None = None) -> None:
-    theme = load_theme()
-    episodes = list_episodes()
+def update_index(target_date: str | None = None, *, theme_name: str = 'default') -> None:
+    theme = load_theme(theme_name)
+    episodes = list_episodes(theme_name=theme_name)
     if not episodes:
         raise SystemExit('No episodes found')
 
@@ -93,6 +93,7 @@ def update_index(target_date: str | None = None) -> None:
             url=theme['site_url'],
             stylesheet_href='assets/style.css',
             og_type='website',
+            theme_name=theme_name,
         ),
         hero_eyebrow=escape_text(theme['hero']['eyebrow']),
         hero_title=escape_text(theme['hero']['title']),
@@ -109,6 +110,8 @@ def update_index(target_date: str | None = None) -> None:
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 2:
-        raise SystemExit('Usage: ./scripts/update_index.py [YYYY-MM-DD]')
-    update_index(sys.argv[1] if len(sys.argv) == 2 else None)
+    parser = argparse.ArgumentParser(description='Rebuild index.html from episodes.')
+    parser.add_argument('date', nargs='?', help='Optional featured episode date YYYY-MM-DD')
+    parser.add_argument('--theme', default='default', help='Theme name from config/themes/<name>.json')
+    args = parser.parse_args()
+    update_index(args.date, theme_name=args.theme)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import re
 import subprocess
 import sys
@@ -17,8 +18,8 @@ from episode_utils import (
 )
 
 
-def render_html(date: str, header: dict, items: list[dict]) -> str:
-    theme = load_theme()
+def render_html(date: str, header: dict, items: list[dict], *, theme_name: str = 'default') -> str:
+    theme = load_theme(theme_name)
     day_theme = theme.get('day', {})
     item_html = []
     for item in items:
@@ -42,6 +43,7 @@ def render_html(date: str, header: dict, items: list[dict]) -> str:
             stylesheet_href='../assets/style.css',
             og_type='article',
             og_image_url=f'{site_url}/assets/ogp-{date}.png',
+            theme_name=theme_name,
         ),
         back_link=escape_text(day_theme.get('back_link', '← トップページへ戻る')),
         eyebrow=escape_text(day_theme.get('eyebrow', '今日のエピソード')),
@@ -65,11 +67,16 @@ def render_script(header: dict, items: list[dict]) -> str:
     return '\n'.join(lines).strip() + '\n'
 
 
-def main():
-    if len(sys.argv) != 2:
-        raise SystemExit('Usage: ./scripts/render_episode.py YYYY-MM-DD')
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description='Render one episode into HTML / script / OGP.')
+    parser.add_argument('date', help='Episode date in YYYY-MM-DD format')
+    parser.add_argument('--theme', default='default', help='Theme name from config/themes/<name>.json')
+    return parser.parse_args()
 
-    date = sys.argv[1]
+
+def main():
+    args = parse_args()
+    date = args.date
     if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', date):
         raise SystemExit('Expected YYYY-MM-DD')
 
@@ -77,20 +84,22 @@ def main():
     if not episode_path.exists():
         raise SystemExit(f'Episode source not found: {episode_path}')
 
-    header, items = parse_episode_full(episode_path)
+    header, items = parse_episode_full(episode_path, theme_name=args.theme)
 
     days_dir = ROOT / 'days'
     scripts_dir = ROOT / 'scripts_text'
     days_dir.mkdir(exist_ok=True)
     scripts_dir.mkdir(exist_ok=True)
 
-    (days_dir / f'{date}.html').write_text(render_html(date, header, items), encoding='utf-8')
+    (days_dir / f'{date}.html').write_text(render_html(date, header, items, theme_name=args.theme), encoding='utf-8')
     (scripts_dir / f'{date}.txt').write_text(render_script(header, items), encoding='utf-8')
 
     subprocess.run(
         [
             sys.executable,
             str(ROOT / 'scripts' / 'render_ogp.py'),
+            '--theme',
+            args.theme,
             '--date',
             date,
             '--title',

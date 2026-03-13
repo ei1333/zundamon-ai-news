@@ -63,6 +63,7 @@ pip install -r requirements.txt
 - `scripts/new_episode.sh` - `new_episode.py` を呼ぶ薄いラッパー
 - `scripts/new_episode.py` - 新しい原稿ファイル作成 + 初回レンダリング（`--no-index` 対応）
 - `config/themes/default.json` - 既定テーマ設定（canonical）
+- `config/themes/shogi.json` - 将棋ニュース向けテーマ例
 - `config/theme.json` - 互換用の既定テーマ参照（将来的に廃止予定）
 - `scripts/draft_from_urls.py` - 記事URL 3本から episode 原稿の下書きを生成
 - `scripts/render_episode.py` - 原稿から HTML / 台本 / 日別 OGP を生成
@@ -108,6 +109,12 @@ cd /path/to/zundamon-ai-news
 ./scripts/new_episode.sh --theme default 2026-03-13 "AI規制・研究・半導体"
 ```
 
+将棋ニュース用テーマ例:
+
+```bash
+./scripts/new_episode.sh --theme shogi 2026-03-13 "叡王戦・王将戦・女流王位戦"
+```
+
 これで主に次が作られます。
 
 - `episodes/2026-03-13.md`
@@ -124,6 +131,15 @@ python3 scripts/draft_from_urls.py --theme default 2026-03-13 \
   "https://example.com/a" \
   "https://example.com/b" \
   "https://example.com/c"
+```
+
+将棋テーマで下書きを作る例:
+
+```bash
+python3 scripts/draft_from_urls.py --theme shogi 2026-03-13 \
+  "https://www.shogi.or.jp/match_news/2026/03/260312_t_result_01.html" \
+  "https://www.shogi.or.jp/news/2026/03/260308_n_result_01.html" \
+  "https://www.shogi.or.jp/match_news/2026/03/260313_t_01.html"
 ```
 
 既存ファイルを上書きしたくないので、`episodes/YYYY-MM-DD.md` がすでにある場合は停止します。
