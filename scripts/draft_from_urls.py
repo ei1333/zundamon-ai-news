@@ -5,6 +5,7 @@ import argparse
 import html
 import json
 import re
+import socket
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -28,6 +29,25 @@ def fetch_url(url: str) -> str:
         charset = resp.headers.get_content_charset() or 'utf-8'
         data = resp.read()
     return data.decode(charset, errors='replace')
+
+
+
+def fallback_from_url(url: str, fallback_category: str, reason: str) -> dict[str, str]:
+    parsed = urllib.parse.urlparse(url)
+    slug = parsed.path.rstrip('/').split('/')[-1] or parsed.netloc
+    slug = urllib.parse.unquote(slug)
+    slug = re.sub(r'[-_]+', ' ', slug)
+    slug = re.sub(r'\b\d{4}\b', ' ', slug)
+    slug = re.sub(r'\s+', ' ', slug).strip(' /')
+    headline = clean_title(slug.title()) if slug else '記事タイトル未取得'
+    site_name = parsed.netloc.removeprefix('www.') or 'source'
+    return {
+        'headline': headline,
+        'summary': f'URL からの自動取得に失敗したため、元記事を開いて要約を補ってください。({reason})',
+        'source_name': site_name,
+        'url': url,
+        'category': fallback_category,
+    }
 
 
 
@@ -95,6 +115,18 @@ def extract_site_name(html_text: str, url: str) -> str:
 
 
 
+def normalize_headline_style(title: str) -> str:
+    title = title.strip()
+    title = title.replace('‘', '“').replace('’', '”')
+    title = re.sub(r'\bAI\b', 'AI', title)
+    title = re.sub(r'\bOFC\b', 'OFC', title)
+    title = re.sub(r'\bHB\s*(\d+)\b', r'HB \1', title)
+    title = re.sub(r'\s+', ' ', title)
+    title = title.strip(' .-–—|｜:：')
+    return title
+
+
+
 def clean_title(title: str) -> str:
     title = html.unescape(title)
     title = re.sub(r'\s+', ' ', title).strip()
@@ -132,6 +164,7 @@ def clean_title(title: str) -> str:
         title = max(filtered, key=len).strip()
 
     title = re.sub(r'\s+[\-|｜:：]+\s*$', '', title).strip()
+    title = normalize_headline_style(title)
     return title or '記事タイトル未取得'
 
 
@@ -247,23 +280,23 @@ def main() -> None:
 
     items: list[dict[str, str]] = []
     for idx, url in enumerate(args.urls, start=1):
+        fallback_category = DEFAULT_CATEGORIES[idx - 1]
         try:
             html_text = fetch_url(url)
-        except urllib.error.URLError as exc:
-            raise SystemExit(f'Failed to fetch {url}: {exc}') from exc
-
-        title = extract_title(html_text)
-        description = extract_description(html_text)
-        site_name = extract_site_name(html_text, url)
-        items.append(
-            {
-                'headline': title,
-                'summary': description,
-                'source_name': site_name,
-                'url': url,
-                'category': infer_category(title, description, DEFAULT_CATEGORIES[idx - 1]),
-            }
-        )
+            title = extract_title(html_text)
+            description = extract_description(html_text)
+            site_name = extract_site_name(html_text, url)
+            items.append(
+                {
+                    'headline': title,
+                    'summary': description,
+                    'source_name': site_name,
+                    'url': url,
+                    'category': infer_category(title, description, fallback_category),
+                }
+            )
+        except (urllib.error.URLError, TimeoutError, socket.timeout) as exc:
+            items.append(fallback_from_url(url, fallback_category, str(exc)))
 
     draft = build_episode_text(args.date, items, title=args.title)
 
