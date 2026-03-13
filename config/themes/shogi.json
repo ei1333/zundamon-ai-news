@@ -4,9 +4,9 @@
   "og_image_url": "https://ei1333.github.io/zundamon-ai-news/assets/ogp.png",
   "theme_label": "将棋ニュース",
   "hero": {
-    "eyebrow": "1分で聴く将棋ニュース",
+    "eyebrow": "1分で聴く音声ニュース",
     "title": "ずんだもん1分ニュース",
-    "lead": "今週の将棋界の動きを、公開情報をもとに1分前後へぎゅっと要約。ずんだもんの声でさっと聴けます。"
+    "lead": "公開情報をもとに、その日の注目トピックを1分前後へぎゅっと要約。ずんだもんの声でさっと聴けます。"
   },
   "index": {
     "recent_heading": "最近の回",
