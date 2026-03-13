@@ -27,14 +27,14 @@ def fetch_url(url: str) -> str:
 
 
 
-def fallback_from_url(url: str, fallback_category: str, reason: str, draft_theme: dict[str, object]) -> dict[str, str]:
+def fallback_from_url(url: str, fallback_category: str, reason: str, draft_theme: dict[str, object], *, theme_name: str = 'default') -> dict[str, str]:
     parsed = urllib.parse.urlparse(url)
     slug = parsed.path.rstrip('/').split('/')[-1] or parsed.netloc
     slug = urllib.parse.unquote(slug)
     slug = re.sub(r'[-_]+', ' ', slug)
     slug = re.sub(r'\b\d{4}\b', ' ', slug)
     slug = re.sub(r'\s+', ' ', slug).strip(' /')
-    headline = clean_title(slug.title()) if slug else '記事タイトル未取得'
+    headline = maybe_shorten_headline(clean_title(slug.title()), theme_name) if slug else '記事タイトル未取得'
     site_name = parsed.netloc.removeprefix('www.') or 'source'
     return {
         'headline': headline,
@@ -193,6 +193,48 @@ def normalize_summary(text: str) -> str:
 
 
 
+def shorten_shogi_headline(title: str) -> str:
+    title = re.sub(r'\s+', ' ', title).strip()
+
+    match = re.search(r'(叡王戦|王将戦|棋王戦|名人戦|王位戦|王座戦|棋聖戦|竜王戦|女流王位戦)([^。]*)', title)
+    if match:
+        base = match.group(1)
+        rest = match.group(2).strip()
+
+        game = re.search(r'(第\d+局)', rest)
+        if game:
+            base += game.group(1)
+
+        winner = re.search(r'([一-龠ぁ-んァ-ヶA-Za-z]+(?:王将|王位|棋王|叡王|名人|王座|棋聖|竜王|九段|八段|七段|六段|五段|四段|三段|二段|初段|女流[一-龠ぁ-んァ-ヶA-Za-z]+))の勝利', rest)
+        if winner:
+            return f'{base} {winner.group(1)}が勝利'
+
+        challenger = re.search(r'([一-龠ぁ-んァ-ヶA-Za-z]+(?:王将|王位|棋王|叡王|名人|王座|棋聖|竜王|九段|八段|七段|六段|五段|四段|三段|二段|初段|女流[一-龠ぁ-んァ-ヶA-Za-z]+)).{0,12}(挑戦者決定戦|挑戦権)', rest)
+        if challenger:
+            return f'{base} {challenger.group(1)}が挑戦権'
+
+        if '挑戦者決定戦' in rest:
+            player = re.search(r'([一-龠ぁ-んァ-ヶA-Za-z]+(?:九段|八段|七段|六段|五段|四段|三段|二段|初段|女流[一-龠ぁ-んァ-ヶA-Za-z]+))の勝利', rest)
+            if player:
+                return f'{base} {player.group(1)}が挑戦権'
+            return f'{base} 挑戦者決定戦'
+
+    title = re.sub(r'\bVS\b', 'vs', title)
+    title = re.sub(r'第\d+期\s*', '', title)
+    title = re.sub(r'(.{0,18})vs(.{0,18})', '', title, flags=re.IGNORECASE).strip()
+    title = re.sub(r'\s+', ' ', title).strip(' ・')
+    return title
+
+
+
+def maybe_shorten_headline(title: str, theme_name: str) -> str:
+    if theme_name != 'shogi':
+        return title
+    shortened = shorten_shogi_headline(title)
+    return shortened or title
+
+
+
 def infer_category(title: str, description: str, fallback: str, category_rules: list[tuple[str, list[str]]]) -> str:
     haystack = f'{title} {description}'.lower()
     for category, keywords in category_rules:
@@ -298,7 +340,7 @@ def main() -> None:
         fallback_category = default_categories[idx - 1]
         try:
             html_text = fetch_url(url)
-            title = extract_title(html_text)
+            title = maybe_shorten_headline(extract_title(html_text), args.theme)
             description = extract_description(html_text)
             site_name = extract_site_name(html_text, url)
             items.append(
@@ -311,7 +353,7 @@ def main() -> None:
                 }
             )
         except (urllib.error.URLError, TimeoutError, socket.timeout) as exc:
-            items.append(fallback_from_url(url, fallback_category, str(exc), draft_theme))
+            items.append(fallback_from_url(url, fallback_category, str(exc), draft_theme, theme_name=args.theme))
 
     draft = build_episode_text(args.date, items, draft_theme, title=args.title)
 
