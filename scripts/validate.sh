@@ -9,6 +9,10 @@ fail() {
   exit 1
 }
 
+warn() {
+  echo "WARN: $*" >&2
+}
+
 [ -f index.html ] || fail "index.html not found"
 [ -d episodes ] || fail "episodes directory not found"
 [ -d days ] || fail "days directory not found"
@@ -64,6 +68,27 @@ for idx, item in enumerate(items, start=1):
     if not item['SourceName'].strip() or not item['SourceURL'].strip():
         raise SystemExit(f"Item {idx} source is incomplete: {path}")
 PY
+
+  while IFS= read -r warning; do
+    [ -n "$warning" ] && warn "$warning"
+  done < <(python3 - "$source" <<'PY'
+from pathlib import Path
+import sys
+from scripts.episode_utils import parse_episode_full
+
+path = Path(sys.argv[1])
+header, _items = parse_episode_full(path)
+title = ' '.join(header['title'].split())
+topics = [part.strip() for part in title.split('・') if part.strip()]
+if len(title) > 28:
+    print(f"{path.name}: title is {len(title)} chars; OGP may trim it")
+if len(topics) >= 4:
+    print(f"{path.name}: title has {len(topics)} topics; OGP may drop trailing topics")
+for idx, topic in enumerate(topics, start=1):
+    if len(topic) > 18:
+        print(f"{path.name}: topic {idx} is {len(topic)} chars; OGP balance may degrade")
+PY
+)
 
   grep -q "href=\"days/$date.html\"" index.html || fail "index.html does not link to days/$date.html"
   grep -q "sample-news-$date\.wav" "days/$date.html" || fail "days/$date.html does not reference sample-news-$date.wav"

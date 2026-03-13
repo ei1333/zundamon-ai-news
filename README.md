@@ -227,6 +227,7 @@ VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_t
 - 各回の HTML / 台本 / 音声 / OGP の存在と非空
 - `index.html` が最新回を含み、各日別ページへ導線を持つこと
 - 日別ページの audio / OGP / OGP メタ情報の整合
+- OGP で詰まりやすい長すぎタイトルやトピック過多の warning
 
 ### 9. OGP を個別に再生成する
 
