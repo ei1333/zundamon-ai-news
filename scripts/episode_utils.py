@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import html
 import re
 from pathlib import Path
 
@@ -119,6 +120,24 @@ def parse_episode_full(path: Path) -> tuple[dict[str, str], list[dict[str, str]]
         items.append(item)
 
     return header, items
+
+
+
+def load_template(name: str) -> str:
+    path = ROOT / 'scripts' / 'templates' / name
+    if not path.exists():
+        raise SystemExit(f'Template not found: {path}')
+    return path.read_text(encoding='utf-8')
+
+
+
+def escape_text(value: str) -> str:
+    return html.escape(str(value))
+
+
+
+def escape_attr(value: str) -> str:
+    return html.escape(str(value), quote=True)
 
 
 

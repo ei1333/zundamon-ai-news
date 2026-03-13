@@ -34,7 +34,9 @@
 - `scripts/new_episode.sh` - `new_episode.py` を呼ぶ薄いラッパー
 - `scripts/new_episode.py` - 新しい原稿ファイルを安全に作り、初回レンダリングを行うスクリプト（`--no-index` 対応）
 - `scripts/render_episode.py` - episode 原稿から HTML と台本テキストを生成するスクリプト
-- `scripts/update_index.py` - episode 一覧から index の最新回表示・最新3回カード・説明文・バックナンバーを再構築するスクリプト
+- `scripts/update_index.py` - episode 一覧から index を全生成するスクリプト
+- `scripts/templates/day.html` - 日別ページ用テンプレート
+- `scripts/templates/index.html` - トップページ用テンプレート
 - `scripts/render_audio.sh` - 生成済み台本テキストから音声を生成するスクリプト
 - `scripts/validate.sh` - 公開前にテンプレ置換漏れや音声参照切れを確認するスクリプト
 - `scripts/publish.sh` - `main` の公開物を `gh-pages` へ反映するローカル用スクリプト

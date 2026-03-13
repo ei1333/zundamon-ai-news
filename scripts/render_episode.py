@@ -1,82 +1,38 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import html
 import re
 import sys
 
-from episode_utils import ROOT, parse_episode_full
+from episode_utils import ROOT, escape_attr, escape_text, load_template, parse_episode_full
 
 
 def render_html(date: str, header: dict, items: list[dict]) -> str:
-    title = html.escape(header['title'])
-    summary = html.escape(header['summary'])
-    intro = html.escape(header['intro'])
-    closing = html.escape(header['closing'])
-    page_title = html.escape(f'{date} | ずんだもん1分AIニュース')
-    page_url = html.escape(f'https://ei1333.github.io/zundamon-ai-news/days/{date}.html', quote=True)
-    audio_file = html.escape(f'sample-news-{date}.wav')
-
     item_html = []
     for item in items:
-        headline = html.escape(item['Headline'])
-        summary_text = html.escape(item['Summary'])
-        source_name = html.escape(item['SourceName'])
-        source_url = html.escape(item['SourceURL'], quote=True)
-        category = html.escape(item['Category'])
-        category_class = html.escape(item['CategoryClass'])
         item_html.append(
-            f'''          <li>\n            <div class="episode-tags">\n              <span class="episode-tag {category_class}">{category}</span>\n            </div>\n            <h3>{headline}</h3>\n            <p>{summary_text}</p>\n            <p>出典: <a href="{source_url}">{source_name}</a></p>\n          </li>'''
+            '          <li>\n'
+            '            <div class="episode-tags">\n'
+            f'              <span class="episode-tag {escape_attr(item["CategoryClass"])}">{escape_text(item["Category"])}</span>\n'
+            '            </div>\n'
+            f'            <h3>{escape_text(item["Headline"])}</h3>\n'
+            f'            <p>{escape_text(item["Summary"])}</p>\n'
+            f'            <p>出典: <a href="{escape_attr(item["SourceURL"])}">{escape_text(item["SourceName"])}</a></p>\n'
+            '          </li>'
         )
 
-    items_joined = '\n'.join(item_html)
-    return f'''<!DOCTYPE html>
-<html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{page_title}</title>
-    <meta name="description" content="{summary}" />
-    <meta property="og:type" content="article" />
-    <meta property="og:title" content="{page_title}" />
-    <meta property="og:description" content="{summary}" />
-    <meta property="og:url" content="{page_url}" />
-    <meta property="og:site_name" content="ずんだもん1分AIニュース" />
-    <meta property="og:image" content="https://ei1333.github.io/zundamon-ai-news/assets/ogp.svg" />
-    <meta property="og:image:alt" content="ずんだもん1分AIニュースのOGP画像" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{page_title}" />
-    <meta name="twitter:description" content="{summary}" />
-    <meta name="twitter:image" content="https://ei1333.github.io/zundamon-ai-news/assets/ogp.svg" />
-    <link rel="stylesheet" href="../assets/style.css" />
-  </head>
-  <body>
-    <main class="container">
-      <a class="back-link" href="../index.html">← トップページへ戻る</a>
-
-      <article class="article">
-        <p class="eyebrow">Daily Episode</p>
-        <h1>{date} のAIニュース</h1>
-        <p class="meta">{intro}</p>
-
-        <h2>音声</h2>
-        <audio class="audio" controls>
-          <source src="../assets/audio/{audio_file}" type="audio/wav" />
-          お使いのブラウザは audio 要素に対応していません。
-        </audio>
-
-        <h2>ニュース要約</h2>
-        <p>{summary}</p>
-        <ol class="news-list">
-{items_joined}
-        </ol>
-
-        <p class="note">{closing}</p>
-      </article>
-    </main>
-  </body>
-</html>
-'''
+    return load_template('day.html').format(
+        page_title=escape_text(f'{date} | ずんだもん1分AIニュース'),
+        summary_attr=escape_attr(header['summary']),
+        page_url=escape_attr(f'https://ei1333.github.io/zundamon-ai-news/days/{date}.html'),
+        og_image_url=escape_attr('https://ei1333.github.io/zundamon-ai-news/assets/ogp.svg'),
+        page_heading=escape_text(f'{date} のAIニュース'),
+        intro_html=escape_text(header['intro']),
+        audio_file=escape_attr(f'sample-news-{date}.wav'),
+        summary_html=escape_text(header['summary']),
+        items_html='\n'.join(item_html),
+        closing_html=escape_text(header['closing']),
+    )
 
 
 def render_script(header: dict, items: list[dict]) -> str:

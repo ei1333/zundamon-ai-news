@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{page_title}</title>
+    <meta name="description" content="{summary_attr}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="{page_title}" />
+    <meta property="og:description" content="{summary_attr}" />
+    <meta property="og:url" content="{page_url}" />
+    <meta property="og:site_name" content="ずんだもん1分AIニュース" />
+    <meta property="og:image" content="{og_image_url}" />
+    <meta property="og:image:alt" content="ずんだもん1分AIニュースのOGP画像" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{page_title}" />
+    <meta name="twitter:description" content="{summary_attr}" />
+    <meta name="twitter:image" content="{og_image_url}" />
+    <link rel="stylesheet" href="../assets/style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <a class="back-link" href="../index.html">← トップページへ戻る</a>
+
+      <article class="article">
+        <p class="eyebrow">Daily Episode</p>
+        <h1>{page_heading}</h1>
+        <p class="meta">{intro_html}</p>
+
+        <h2>音声</h2>
+        <audio class="audio" controls>
+          <source src="../assets/audio/{audio_file}" type="audio/wav" />
+          お使いのブラウザは audio 要素に対応していません。
+        </audio>
+
+        <h2>ニュース要約</h2>
+        <p>{summary_html}</p>
+        <ol class="news-list">
+{items_html}
+        </ol>
+
+        <p class="note">{closing_html}</p>
+      </article>
+    </main>
+  </body>
+</html>
