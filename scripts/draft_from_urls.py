@@ -34,7 +34,7 @@ def fallback_from_url(url: str, fallback_category: str, reason: str, draft_theme
     slug = re.sub(r'[-_]+', ' ', slug)
     slug = re.sub(r'\b\d{4}\b', ' ', slug)
     slug = re.sub(r'\s+', ' ', slug).strip(' /')
-    headline = maybe_shorten_headline(clean_title(slug.title()), theme_name) if slug else '記事タイトル未取得'
+    headline = maybe_shorten_headline(clean_title(slug.title()), theme_name, description='') if slug else '記事タイトル未取得'
     site_name = parsed.netloc.removeprefix('www.') or 'source'
     return {
         'headline': headline,
@@ -231,10 +231,23 @@ def shorten_shogi_headline(title: str) -> str:
 
 
 
-def maybe_shorten_headline(title: str, theme_name: str) -> str:
+def maybe_shorten_headline(title: str, theme_name: str, *, description: str = '') -> str:
     if theme_name != 'shogi':
         return title
     shortened = shorten_shogi_headline(title)
+    if shortened and '挑戦者決定戦' not in shortened:
+        return shortened
+
+    combined = f'{title} {description}'.strip()
+    patched = shorten_shogi_headline(combined)
+    if patched:
+        return patched
+
+    if '女流王位戦' in combined and ('挑戦権' in combined or '挑戦者決定戦' in combined):
+        winner = re.search(r'([一-龠ぁ-んァ-ヶA-Za-z]+女流(?:[一-龠ぁ-んァ-ヶA-Za-z]+)?(?:二段|初段|三段|四段|五段|六段)|[一-龠ぁ-んァ-ヶA-Za-z]+(?:女流二段|女流初段|女流三段|女流四段|女流五段|女流六段))', combined)
+        if winner:
+            return f'女流王位戦 {winner.group(1)}が挑戦権'
+
     return shortened or title
 
 
@@ -344,8 +357,9 @@ def main() -> None:
         fallback_category = default_categories[idx - 1]
         try:
             html_text = fetch_url(url)
-            title = maybe_shorten_headline(extract_title(html_text), args.theme)
+            raw_title = extract_title(html_text)
             description = extract_description(html_text)
+            title = maybe_shorten_headline(raw_title, args.theme, description=description)
             site_name = extract_site_name(html_text, url)
             items.append(
                 {
