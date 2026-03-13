@@ -96,17 +96,58 @@ def extract_site_name(html_text: str, url: str) -> str:
 
 
 def clean_title(title: str) -> str:
+    title = html.unescape(title)
     title = re.sub(r'\s+', ' ', title).strip()
-    parts = re.split(r'\s+[\-|｜:：]\s+', title)
-    if parts:
-        title = max(parts, key=len).strip()
-    return title
+    title = title.strip('"“”‘’「」『』')
+
+    separators = [r' \| ', r' ｜ ', r' - ', r' — ', r' – ', r' :: ', r' : ', r'：']
+    parts = [title]
+    for sep in separators:
+        next_parts: list[str] = []
+        for part in parts:
+            split_parts = [p.strip() for p in re.split(sep, part) if p.strip()]
+            next_parts.extend(split_parts or [part])
+        parts = next_parts
+
+    noise_patterns = [
+        r'^home$',
+        r'^news$',
+        r'^press release$',
+        r'^press$',
+        r'^blog$',
+        r'^article$',
+        r'^official site$',
+        r'^transparency coalition$',
+        r'^legislation for transparency in ai now\.?$',
+    ]
+
+    filtered = []
+    for part in parts:
+        normalized = re.sub(r'[^a-z0-9 ]+', '', part.lower()).strip()
+        if any(re.fullmatch(pattern, normalized) for pattern in noise_patterns):
+            continue
+        filtered.append(part)
+
+    if filtered:
+        title = max(filtered, key=len).strip()
+
+    title = re.sub(r'\s+[\-|｜:：]+\s*$', '', title).strip()
+    return title or '記事タイトル未取得'
 
 
 
 def normalize_summary(text: str) -> str:
-    text = re.sub(r'\s+', ' ', html.unescape(text)).strip()
+    text = html.unescape(text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    text = re.sub(r'^(share this:|read more:|continue reading:?|for immediate release:?)+', '', text, flags=re.IGNORECASE).strip()
+    text = re.sub(r'\b(photo|image) courtesy of [^.]+\.?', '', text, flags=re.IGNORECASE).strip()
+    text = re.sub(r'\bclick here to[^.]+\.?', '', text, flags=re.IGNORECASE).strip()
     text = text.strip(' 　')
+
+    sentences = re.split(r'(?<=[.!?。！？])\s+', text)
+    sentences = [s.strip(' "“”') for s in sentences if s.strip()]
+    if sentences:
+        text = ' '.join(sentences[:2])
     if len(text) > 140:
         text = text[:139].rstrip(' 、。,.!！?？') + '…'
     return text or '要約未取得。元記事を確認して補ってください。'
@@ -122,8 +163,28 @@ def infer_category(title: str, description: str, fallback: str) -> str:
 
 
 
+def pick_episode_title(items: list[dict[str, str]]) -> str:
+    keywords = []
+    seen = set()
+    for item in items[:3]:
+        category = item['category']
+        if category and category not in seen:
+            keywords.append(category)
+            seen.add(category)
+            continue
+
+        headline = item['headline']
+        if headline and headline not in seen:
+            keywords.append(headline)
+            seen.add(headline)
+
+    title = '・'.join(keywords[:3]).strip()
+    return title or '新しいAIニュース回'
+
+
+
 def build_episode_text(date: str, items: list[dict[str, str]], title: str | None = None) -> str:
-    resolved_title = title or '・'.join(item['headline'] for item in items[:3])
+    resolved_title = title or pick_episode_title(items)
     summary = f'{date} の回では、' + '、'.join(item['headline'] for item in items[:3]) + 'の3本を掲載しています。'
     lines = [
         f'# {resolved_title}',
