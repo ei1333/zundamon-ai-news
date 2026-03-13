@@ -190,37 +190,28 @@ def split_title_lines(title: str, font, max_width: int) -> list[str]:
     if bbox[2] - bbox[0] <= max_width:
         return [title]
 
-    parts = title.replace('・', '・|').split('|') if '・' in title else [title]
-    if len(parts) > 1:
-        lines: list[str] = []
-        current = ''
-        for part in parts:
-            candidate = current + part if current else part
-            candidate_bbox = text_bbox(probe, candidate, font)
-            if current and candidate_bbox[2] - candidate_bbox[0] > max_width:
-                lines.append(current)
-                current = part.lstrip()
-            else:
-                current = candidate
-        if current:
-            lines.append(current)
-        if len(lines) <= 2 and all((text_bbox(probe, line, font)[2] - text_bbox(probe, line, font)[0]) <= max_width for line in lines):
-            return lines
+    topics = [part.strip() for part in title.split('・') if part.strip()]
+    if len(topics) > 1:
+        kept_topics = topics[:]
+        while kept_topics:
+            best_lines = None
+            best_score = None
+            for split_idx in range(1, len(kept_topics) + 1):
+                left = '・'.join(kept_topics[:split_idx])
+                right_topics = kept_topics[split_idx:]
+                lines = [left] if not right_topics else [left, '・'.join(right_topics)]
+                widths = [text_bbox(probe, line, font)[2] - text_bbox(probe, line, font)[0] for line in lines]
+                if all(width <= max_width for width in widths):
+                    score = abs(widths[0] - widths[-1]) if len(widths) == 2 else widths[0]
+                    if best_score is None or score < best_score:
+                        best_score = score
+                        best_lines = lines
+            if best_lines:
+                return best_lines
+            kept_topics.pop()
 
-    best_split = None
-    for i in range(1, len(title)):
-        left = title[:i].rstrip(' ・')
-        right = title[i:].lstrip(' ・')
-        if not left or not right:
-            continue
-        left_w = text_bbox(probe, left, font)[2] - text_bbox(probe, left, font)[0]
-        right_w = text_bbox(probe, right, font)[2] - text_bbox(probe, right, font)[0]
-        if left_w <= max_width and right_w <= max_width:
-            score = abs(left_w - right_w)
-            if best_split is None or score < best_split[0]:
-                best_split = (score, left, right)
-    if best_split:
-        return [best_split[1], best_split[2]]
+        first_topic = topics[0]
+        return [fit_text(first_topic, len(first_topic), max_width, font, ellipsis=False)]
 
     first = fit_text(title, len(title), max_width, font)
     consumed = len(first.rstrip('…'))
