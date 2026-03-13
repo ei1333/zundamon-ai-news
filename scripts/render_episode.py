@@ -22,6 +22,8 @@ from episode_utils import (
 def render_html(date: str, header: dict, items: list[dict], *, theme_name: str = 'ai') -> str:
     theme = load_theme(theme_name)
     day_theme = theme.get('day', {})
+    coverage_label = '直近1週間' if header.get('coverage') == 'weekly' else '当日'
+    page_heading_template = day_theme.get('page_heading_weekly' if header.get('coverage') == 'weekly' else 'page_heading', '{date} のニュース')
     item_html = []
     for item in items:
         item_html.append(
@@ -47,9 +49,11 @@ def render_html(date: str, header: dict, items: list[dict], *, theme_name: str =
             theme_name=theme_name,
         ),
         back_link=escape_text(day_theme.get('back_link', '← トップページへ戻る')),
-        eyebrow=escape_text(day_theme.get('eyebrow', '今日のエピソード')),
-        page_heading=escape_text(day_theme.get('page_heading', '{date} のニュース').format(date=date)),
+        eyebrow=escape_text(day_theme.get('eyebrow_weekly' if header.get('coverage') == 'weekly' else 'eyebrow', '今日のエピソード')),
+        page_heading=escape_text(page_heading_template.format(date=date, window=header.get('window', date))),
         theme_label=escape_text(theme.get('theme_label', theme.get('site_name', ''))),
+        coverage_label=escape_text(coverage_label),
+        window_label=escape_text(header.get('window', date)),
         intro_html=escape_text(header['intro']),
         audio_heading=escape_text(day_theme.get('audio_heading', '音声で聴く')),
         audio_file=escape_attr(f'sample-news-{date}.wav'),

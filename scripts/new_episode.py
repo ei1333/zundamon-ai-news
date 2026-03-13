@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from episode_utils import ROOT, build_episode_template_text, load_theme
+from episode_utils import ROOT, build_episode_template_text, default_window_for, load_theme
 
 
 def validate_date(date: str) -> str:
@@ -20,11 +20,11 @@ def run(cmd: list[str]) -> None:
     subprocess.run(cmd, check=True)
 
 
-def create_episode_from_template(target_path: Path, date: str, title: str, theme_name: str) -> None:
+def create_episode_from_template(target_path: Path, date: str, title: str, theme_name: str, coverage: str, window: str) -> None:
     if target_path.exists():
         raise SystemExit(f'Target already exists: {target_path}')
 
-    text = build_episode_template_text(date, title=title, theme_name=theme_name)
+    text = build_episode_template_text(date, title=title, theme_name=theme_name, coverage=coverage, window=window)
     target_path.write_text(text, encoding='utf-8')
 
 
@@ -44,6 +44,8 @@ def parse_args() -> argparse.Namespace:
         default='ai',
         help='Theme name. `ai` is the default theme; `default` remains as a backward-compatible alias.',
     )
+    parser.add_argument('--coverage', default='weekly', choices=['daily', 'weekly'], help='Coverage window type for this episode.')
+    parser.add_argument('--window', help='Explicit window like YYYY-MM-DD..YYYY-MM-DD. Defaults from coverage/date.')
     return parser.parse_args()
 
 
@@ -51,6 +53,8 @@ def main() -> None:
     args = parse_args()
     date = validate_date(args.date)
     theme_name = args.theme
+    coverage = args.coverage
+    window = args.window or default_window_for(date, coverage)
     theme = load_theme(theme_name)
     title = args.title or theme.get('episode_template', {}).get('default_title', '新しいニュース回')
 
@@ -66,7 +70,7 @@ def main() -> None:
 
     episode_path = episodes_dir / f'{date}.md'
 
-    create_episode_from_template(episode_path, date, title, theme_name)
+    create_episode_from_template(episode_path, date, title, theme_name, coverage, window)
     run([sys.executable, str(ROOT / 'scripts' / 'render_episode.py'), date])
     if not args.no_index:
         run([sys.executable, str(ROOT / 'scripts' / 'update_index.py'), date])

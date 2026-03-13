@@ -51,6 +51,7 @@ for source in "${episode_sources[@]}"; do
 
   python3 - "$source" <<'PY'
 from pathlib import Path
+import re
 import sys
 from scripts.episode_utils import detect_episode_theme, extract_section, parse_episode_full
 
@@ -62,6 +63,18 @@ except SystemExit:
     raise SystemExit(f"Episode theme is missing: {path}")
 if explicit_theme not in {'ai', 'shogi'}:
     raise SystemExit(f"Episode theme must be one of ai/shogi: {path} (got: {explicit_theme})")
+try:
+    coverage = extract_section(text, 'Coverage').strip().lower()
+except SystemExit:
+    raise SystemExit(f"Episode coverage is missing: {path}")
+if coverage not in {'daily', 'weekly'}:
+    raise SystemExit(f"Episode coverage must be one of daily/weekly: {path} (got: {coverage})")
+try:
+    window = extract_section(text, 'Window').strip()
+except SystemExit:
+    raise SystemExit(f"Episode window is missing: {path}")
+if not re.fullmatch(r'\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}', window):
+    raise SystemExit(f"Episode window must be YYYY-MM-DD..YYYY-MM-DD: {path} (got: {window})")
 header, items = parse_episode_full(path, theme_name=detect_episode_theme(path))
 if len(items) != 3:
     raise SystemExit(f"Episode must contain exactly 3 items: {path}")

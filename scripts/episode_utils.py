@@ -4,6 +4,7 @@ from __future__ import annotations
 import html
 import json
 import re
+from datetime import datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
 
@@ -110,22 +111,42 @@ def normalize_category(label: str, idx: int | None = None, *, theme_name: str = 
     return (label.strip() or 'AI', 'category-general')
 
 
-@lru_cache(maxsize=None)
-def detect_episode_theme(path: Path) -> str:
+def parse_iso_date(value: str) -> datetime:
+    return datetime.strptime(value, '%Y-%m-%d')
+
+
+def default_window_for(date: str, coverage: str) -> str:
+    if coverage == 'weekly':
+        end = parse_iso_date(date)
+        start = end - timedelta(days=6)
+        return f'{start:%Y-%m-%d}..{end:%Y-%m-%d}'
+    return f'{date}..{date}'
+
+
+def parse_episode_metadata(path: Path) -> dict[str, str]:
     text = path.read_text(encoding='utf-8')
     explicit_theme = extract_section(text, 'Theme') if re.search(r'^## Theme\n', text, flags=re.MULTILINE) else ''
-    normalized_theme = explicit_theme.strip().lower()
-    if normalized_theme:
-        return normalized_theme
+    theme = explicit_theme.strip().lower()
+    if not theme:
+        lowered = text.lower()
+        shogi_keywords = [
+            '将棋', '叡王', '王将', '王位', '王座', '名人', '棋王', '棋聖', '竜王',
+            '女流', '順位戦', '挑戦者決定', '棋士', '八段', '九段'
+        ]
+        theme = 'shogi' if any(keyword.lower() in lowered for keyword in shogi_keywords) else 'ai'
 
-    lowered = text.lower()
-    shogi_keywords = [
-        '将棋', '叡王', '王将', '王位', '王座', '名人', '棋王', '棋聖', '竜王',
-        '女流', '順位戦', '挑戦者決定', '棋士', '八段', '九段'
-    ]
-    if any(keyword.lower() in lowered for keyword in shogi_keywords):
-        return 'shogi'
-    return 'ai'
+    coverage = extract_section(text, 'Coverage').strip().lower() if re.search(r'^## Coverage\n', text, flags=re.MULTILINE) else 'daily'
+    window = extract_section(text, 'Window').strip() if re.search(r'^## Window\n', text, flags=re.MULTILINE) else default_window_for(path.stem, coverage)
+    return {
+        'theme': theme,
+        'coverage': coverage,
+        'window': window,
+    }
+
+
+@lru_cache(maxsize=None)
+def detect_episode_theme(path: Path) -> str:
+    return parse_episode_metadata(path)['theme']
 
 
 
@@ -135,8 +156,12 @@ def parse_episode_full(path: Path, *, theme_name: str = 'ai') -> tuple[dict[str,
     if not first_line.startswith('# '):
         raise SystemExit('Episode file must start with a # title')
 
+    metadata = parse_episode_metadata(path)
     header = {
         'title': first_line[2:].strip(),
+        'theme': metadata['theme'],
+        'coverage': metadata['coverage'],
+        'window': metadata['window'],
         'summary': extract_section(text, 'Summary'),
         'intro': extract_section(text, 'Intro'),
         'script_intro': extract_section(text, 'Script Intro'),
@@ -248,6 +273,8 @@ def parse_episode_summary(path: Path, *, theme_name: str = 'ai') -> dict[str, ob
         'date': path.stem,
         'title': header['title'],
         'summary': header['summary'],
+        'coverage': header['coverage'],
+        'window': header['window'],
         'theme_name': episode_theme_name,
         'theme_label': theme.get('theme_label', theme.get('site_name', '')),
         'items': [
@@ -262,18 +289,25 @@ def parse_episode_summary(path: Path, *, theme_name: str = 'ai') -> dict[str, ob
 
 
 
-def build_episode_template_text(date: str, *, title: str | None = None, theme_name: str = 'ai') -> str:
+def build_episode_template_text(date: str, *, title: str | None = None, theme_name: str = 'ai', coverage: str = 'weekly', window: str | None = None) -> str:
     theme = load_theme(theme_name)
     template = theme.get('episode_template', {})
     resolved_title = title or template.get('default_title', '新しいニュース回')
     category_labels = theme.get('draft', {}).get('default_categories', ['トピック1', 'トピック2', 'トピック3'])
     category_labels = (category_labels + ['トピック1', 'トピック2', 'トピック3'])[:3]
+    resolved_window = window or default_window_for(date, coverage)
 
     lines = [
         f'# {resolved_title}',
         '',
         '## Theme',
         theme_name,
+        '',
+        '## Coverage',
+        coverage,
+        '',
+        '## Window',
+        resolved_window,
         '',
         '## Summary',
         template.get('summary', 'YYYY-MM-DD の回です。').replace('YYYY-MM-DD', date),

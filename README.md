@@ -165,6 +165,8 @@ python3 scripts/draft_from_urls.py --theme shogi --stdout 2026-03-13 \
 
 - `# タイトル`
 - `## Theme` (`ai` / `shogi`)
+- `## Coverage` (`daily` / `weekly`)
+- `## Window` (`YYYY-MM-DD..YYYY-MM-DD`)
 - `## Summary`
 - `## Intro`
 - `## Script Intro`
@@ -185,7 +187,8 @@ python3 scripts/draft_from_urls.py --theme shogi --stdout 2026-03-13 \
 ```
 
 `## Theme` は必須で、現在は `ai` または `shogi` を指定します。
-`render_episode.py` はこの値を自動で読んで、適切なテーマで日別ページと OGP を生成します。
+`## Coverage` は `daily` / `weekly`、`## Window` は対象期間を `YYYY-MM-DD..YYYY-MM-DD` で書きます。
+`render_episode.py` はこれらの値を自動で読んで、適切なテーマと期間表示で日別ページと OGP を生成します。
 
 設計上は **site theme** と **episode theme** を分けています。
 トップページ (`index.html`) のブランドや OGP は site theme で決め、各回の表示ラベルや日別ページは episode 本文の `## Theme` を真実源として扱います。
@@ -214,6 +217,8 @@ python3 scripts/draft_from_urls.py --theme shogi --stdout 2026-03-13 \
 
 - `python3 scripts/render_episode.py 2026-03-13`
 - `python3 scripts/update_index.py` （site theme ベースでトップを再構築）
+
+公開日はファイル名の日付を使い、実際のニュース対象期間は `## Window` で持ちます。特定テーマを曜日ごとに回す場合も、この構成なら「公開日」と「直近1週間の対象期間」を分けて運用できます。
 - `./scripts/render_audio.sh 2026-03-13 zundamon`
 - `./scripts/validate.sh`
 

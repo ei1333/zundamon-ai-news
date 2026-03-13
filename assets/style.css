@@ -73,6 +73,17 @@ h3 {
   font-weight: 700;
 }
 
+.meta-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.meta-badges .theme-label {
+  margin-bottom: 0;
+}
+
 .featured-meta .theme-label,
 .episode-card .theme-label {
   margin-bottom: 0;

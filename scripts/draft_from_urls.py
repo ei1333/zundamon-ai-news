@@ -11,7 +11,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-from episode_utils import load_theme
+from episode_utils import default_window_for, load_theme
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -230,14 +230,21 @@ def pick_episode_title(items: list[dict[str, str]], draft_theme: dict[str, objec
 
 
 
-def build_episode_text(date: str, items: list[dict[str, str]], draft_theme: dict[str, object], *, theme_name: str = 'ai', title: str | None = None) -> str:
+def build_episode_text(date: str, items: list[dict[str, str]], draft_theme: dict[str, object], *, theme_name: str = 'ai', coverage: str = 'weekly', window: str | None = None, title: str | None = None) -> str:
     resolved_title = title or pick_episode_title(items, draft_theme)
-    summary = f'{date} の回では、' + '、'.join(item['headline'] for item in items[:3]) + 'の3本を掲載しています。'
+    resolved_window = window or default_window_for(date, coverage)
+    summary = f'{resolved_window} の公開情報から、' + '、'.join(item['headline'] for item in items[:3]) + 'の3本を掲載しています。'
     lines = [
         f'# {resolved_title}',
         '',
         '## Theme',
         theme_name,
+        '',
+        '## Coverage',
+        coverage,
+        '',
+        '## Window',
+        resolved_window,
         '',
         '## Summary',
         summary,
@@ -286,6 +293,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('urls', nargs=3, help='Three source article URLs')
     parser.add_argument('--title', help='Override episode title')
     parser.add_argument('--theme', default='ai', help='Theme name from config/themes/<name>.json')
+    parser.add_argument('--coverage', default='weekly', choices=['daily', 'weekly'], help='Coverage window type for this draft')
+    parser.add_argument('--window', help='Explicit window like YYYY-MM-DD..YYYY-MM-DD. Defaults from coverage/date.')
     parser.add_argument('--stdout', action='store_true', help='Print the draft instead of writing episodes/YYYY-MM-DD.md')
     return parser.parse_args()
 
@@ -325,7 +334,7 @@ def main() -> None:
         except (urllib.error.URLError, TimeoutError, socket.timeout) as exc:
             items.append(fallback_from_url(url, fallback_category, str(exc), draft_theme, theme_name=args.theme))
 
-    draft = build_episode_text(args.date, items, draft_theme, theme_name=args.theme, title=args.title)
+    draft = build_episode_text(args.date, items, draft_theme, theme_name=args.theme, coverage=args.coverage, window=args.window, title=args.title)
 
     if args.stdout:
         print(draft)
