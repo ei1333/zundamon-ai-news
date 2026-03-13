@@ -19,22 +19,60 @@ if grep -R --line-number --exclude='_template.html' --exclude='_template.md' 'YY
   fail "Unreplaced template marker YYYY-MM-DD found"
 fi
 
+if grep -R --line-number --exclude='_template.html' --exclude='_template.md' '{[A-Za-z0-9_][A-Za-z0-9_]*}' days index.html; then
+  fail "Unreplaced template placeholder found in rendered HTML"
+fi
+
 mapfile -t episode_sources < <(find episodes -maxdepth 1 -type f -name '*.md' ! -name '_template.md' | sort)
 [ ${#episode_sources[@]} -gt 0 ] || fail "No episode sources found"
+
+latest_date="$(basename "${episode_sources[-1]}")"
+latest_date="${latest_date%.md}"
+grep -q "href=\"days/$latest_date.html\"" index.html || fail "index.html does not point to latest episode $latest_date"
 
 for source in "${episode_sources[@]}"; do
   base="$(basename "$source")"
   date="${base%.md}"
   [[ "$date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || fail "Unexpected episode source name: $base"
 
+  [ -s "$source" ] || fail "Episode source is empty: $source"
   [ -f "days/$date.html" ] || fail "Missing rendered HTML for $date"
+  [ -s "days/$date.html" ] || fail "Rendered HTML is empty for $date"
   [ -f "scripts_text/$date.txt" ] || fail "Missing rendered script text for $date"
+  [ -s "scripts_text/$date.txt" ] || fail "Rendered script text is empty for $date"
   [ -f "assets/audio/sample-news-$date.wav" ] || fail "Missing audio file for $date"
+  [ -s "assets/audio/sample-news-$date.wav" ] || fail "Audio file is empty for $date"
   [ -f "assets/ogp-$date.png" ] || fail "Missing OGP image for $date"
+  [ -s "assets/ogp-$date.png" ] || fail "OGP image is empty for $date"
+
+  python3 - "$source" <<'PY'
+from pathlib import Path
+import sys
+from scripts.episode_utils import parse_episode_full
+
+path = Path(sys.argv[1])
+header, items = parse_episode_full(path)
+if len(items) != 3:
+    raise SystemExit(f"Episode must contain exactly 3 items: {path}")
+if not header['title'].strip():
+    raise SystemExit(f"Episode title is empty: {path}")
+for idx, item in enumerate(items, start=1):
+    if not item['Headline'].strip():
+        raise SystemExit(f"Item {idx} headline is empty: {path}")
+    if not item['Summary'].strip():
+        raise SystemExit(f"Item {idx} summary is empty: {path}")
+    if not item['SourceName'].strip() or not item['SourceURL'].strip():
+        raise SystemExit(f"Item {idx} source is incomplete: {path}")
+PY
 
   grep -q "href=\"days/$date.html\"" index.html || fail "index.html does not link to days/$date.html"
   grep -q "sample-news-$date\.wav" "days/$date.html" || fail "days/$date.html does not reference sample-news-$date.wav"
   grep -q "assets/ogp-$date\.png\|/assets/ogp-$date\.png" "days/$date.html" || fail "days/$date.html does not reference ogp-$date.png"
+  grep -q '<meta property="og:type" content="article"' "days/$date.html" || fail "days/$date.html missing article og:type"
+  grep -q '<audio class="audio" controls' "days/$date.html" || fail "days/$date.html missing audio player"
 done
+
+grep -q '<meta property="og:type" content="website"' index.html || fail "index.html missing website og:type"
+grep -q 'sample-news-' index.html || fail "index.html does not reference any episode audio"
 
 echo "Validation OK"

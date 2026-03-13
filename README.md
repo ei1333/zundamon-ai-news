@@ -67,7 +67,7 @@ pip install -r requirements.txt
 - `scripts/render_audio.sh` - 生成済み台本テキストから音声を生成
 - `scripts/build_episode.sh` - 日別ビルドを一発で回す（HTML / 台本 / index / 音声 / validate）
 - `scripts/render_ogp.py` - Pillow でトップ OGP と日別 OGP を生成
-- `scripts/validate.sh` - テンプレ置換漏れや音声参照切れを確認
+- `scripts/validate.sh` - テンプレ置換漏れ、生成物欠落、空ファイル、最新回導線ずれ、HTML 参照崩れなどを確認
 - `scripts/publish.sh` - `main` の公開物を `gh-pages` に反映するローカル用スクリプト
 - `scripts/templates/` - 日別ページ / トップページ / partial 類のテンプレート群
 - `.github/workflows/publish.yml` - `main` への push を公開反映する GitHub Actions
@@ -219,6 +219,14 @@ VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_t
 ```bash
 ./scripts/validate.sh
 ```
+
+現在の `validate.sh` では主に次を確認します。
+
+- 未置換テンプレマーカーやプレースホルダの残り
+- episode 原稿が正しくパースできること
+- 各回の HTML / 台本 / 音声 / OGP の存在と非空
+- `index.html` が最新回を含み、各日別ページへ導線を持つこと
+- 日別ページの audio / OGP / OGP メタ情報の整合
 
 ### 9. OGP を個別に再生成する
 
