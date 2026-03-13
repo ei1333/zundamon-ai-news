@@ -187,6 +187,9 @@ python3 scripts/draft_from_urls.py --theme shogi --stdout 2026-03-13 \
 `## Theme` は必須で、現在は `ai` または `shogi` を指定します。
 `render_episode.py` はこの値を自動で読んで、適切なテーマで日別ページと OGP を生成します。
 
+設計上は **site theme** と **episode theme** を分けています。
+トップページ (`index.html`) のブランドや OGP は site theme で決め、各回の表示ラベルや日別ページは episode 本文の `## Theme` を真実源として扱います。
+
 `### Category` を省略した場合は、当面次の既定値を使います。
 
 - 1本目 → `透明性`
@@ -210,7 +213,7 @@ python3 scripts/draft_from_urls.py --theme shogi --stdout 2026-03-13 \
 内部では次を順に実行します。
 
 - `python3 scripts/render_episode.py 2026-03-13`
-- `python3 scripts/update_index.py`
+- `python3 scripts/update_index.py` （site theme ベースでトップを再構築）
 - `./scripts/render_audio.sh 2026-03-13 zundamon`
 - `./scripts/validate.sh`
 
