@@ -12,10 +12,9 @@ ROOT = Path(__file__).resolve().parent.parent
 
 @lru_cache(maxsize=None)
 def load_theme(theme_name: str = 'default') -> dict:
-    candidates = []
+    candidates = [ROOT / 'config' / 'themes' / f'{theme_name}.json']
     if theme_name == 'default':
         candidates.append(ROOT / 'config' / 'theme.json')
-    candidates.append(ROOT / 'config' / 'themes' / f'{theme_name}.json')
 
     for path in candidates:
         if path.exists():

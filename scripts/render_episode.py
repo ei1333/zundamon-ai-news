@@ -12,11 +12,14 @@ from episode_utils import (
     escape_attr,
     escape_text,
     load_template,
+    load_theme,
     parse_episode_full,
 )
 
 
 def render_html(date: str, header: dict, items: list[dict]) -> str:
+    theme = load_theme()
+    day_theme = theme.get('day', {})
     item_html = []
     for item in items:
         item_html.append(
@@ -26,22 +29,27 @@ def render_html(date: str, header: dict, items: list[dict]) -> str:
             '            </div>\n'
             f'            <h3>{escape_text(item["Headline"])}</h3>\n'
             f'            <p>{escape_text(item["Summary"])}</p>\n'
-            f'            <p>出典: <a href="{escape_attr(item["SourceURL"])}">{escape_text(item["SourceName"])} </a></p>\n'
+            f'            <p>{escape_text(day_theme.get("source_prefix", "出典:"))} <a href="{escape_attr(item["SourceURL"])}">{escape_text(item["SourceName"])} </a></p>\n'
             '          </li>'
         )
 
+    site_url = theme.get('site_url', 'https://example.com/').rstrip('/')
     return load_template('day.html').format(
         head_html=build_head_html(
-            title=f'{date} | ずんだもん1分AIニュース',
+            title=f'{date} | {theme.get("site_name", "Site")}',
             description=header['summary'],
-            url=f'https://ei1333.github.io/zundamon-ai-news/days/{date}.html',
+            url=f'{site_url}/days/{date}.html',
             stylesheet_href='../assets/style.css',
             og_type='article',
-            og_image_url=f'https://ei1333.github.io/zundamon-ai-news/assets/ogp-{date}.png',
+            og_image_url=f'{site_url}/assets/ogp-{date}.png',
         ),
-        page_heading=escape_text(f'{date} のAIニュース'),
+        back_link=escape_text(day_theme.get('back_link', '← トップページへ戻る')),
+        eyebrow=escape_text(day_theme.get('eyebrow', '今日のエピソード')),
+        page_heading=escape_text(day_theme.get('page_heading', '{date} のニュース').format(date=date)),
         intro_html=escape_text(header['intro']),
+        audio_heading=escape_text(day_theme.get('audio_heading', '音声で聴く')),
         audio_file=escape_attr(f'sample-news-{date}.wav'),
+        content_heading=escape_text(day_theme.get('content_heading', 'この回の内容')),
         summary_html=escape_text(header['summary']),
         items_html='\n'.join(item_html),
         closing_html=escape_text(header['closing']),

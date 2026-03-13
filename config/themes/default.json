@@ -13,6 +13,14 @@
     "credits_heading": "クレジット",
     "credits_voice": "音声：VOICEVOX:ずんだもん"
   },
+  "day": {
+    "back_link": "← トップページへ戻る",
+    "eyebrow": "今日のエピソード",
+    "page_heading": "{date} のAIニュース",
+    "audio_heading": "音声で聴く",
+    "content_heading": "この回の内容",
+    "source_prefix": "出典:"
+  },
   "ogp": {
     "site_name": "ずんだもん1分AIニュース",
     "site_image_alt": "ずんだもん1分AIニュースのOGP画像",
