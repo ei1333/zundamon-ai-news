@@ -6,6 +6,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from episode_utils import load_theme
+
 ROOT = Path(__file__).resolve().parent.parent
 
 WIDTH = 1200
@@ -34,13 +36,13 @@ WAVE_SEGMENTS = [
     ((784, 468), (814, 430), (844, 506), (874, 468)),
     ((874, 468), (904, 430), (934, 506), (964, 468)),
 ]
-DEFAULT_TEXT_NODES = [
-    ('Daily AI Audio Brief', (160, 186), 26, True, (233, 255, 240, 255), 'la'),
-    ('ずんだもん', (160, 264), 64, True, (255, 255, 255, 255), 'la'),
-    ('1分AIニュース', (160, 327), 64, True, (255, 255, 255, 255), 'la'),
-    ('AIニュースを、ずんだもんの声で', (160, 424), 28, True, (243, 255, 246, 255), 'la'),
-    ('1分前後にまとめてお届け', (160, 462), 28, True, (243, 255, 246, 255), 'la'),
-]
+def default_text_nodes() -> list[tuple]:
+    theme = load_theme()
+    nodes = theme.get('ogp', {}).get('default_text_nodes', [])
+    return [
+        (node[0], tuple(node[1]), node[2], node[3], tuple(node[4]), node[5])
+        for node in nodes
+    ]
 
 
 def load_font(size: int, bold: bool = False):
@@ -266,15 +268,17 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
+    theme = load_theme()
+
     if args.date:
         date = args.date
         title_font_size = 40
         title_font = load_font(title_font_size, bold=True)
-        title_lines = split_title_lines(trim_text(args.title or 'ずんだもん1分AIニュース', 28), title_font, max_width=410)
+        title_lines = split_title_lines(trim_text(args.title or theme.get('site_name', 'ずんだもん1分AIニュース'), 28), title_font, max_width=410)
         text_nodes = [
-            ('Daily Episode', (160, 186), 26, True, (233, 255, 240, 255), 'la'),
+            (theme.get('ogp', {}).get('episode_badge', 'Daily Episode'), (160, 186), 26, True, (233, 255, 240, 255), 'la'),
             (date, (160, 262), 44, True, (255, 255, 255, 255), 'la'),
-            ('ずんだもん1分AIニュース', (160, 434 if len(title_lines) == 1 else 458), 28, True, (243, 255, 246, 255), 'la'),
+            (theme.get('ogp', {}).get('episode_brand', theme.get('site_name', 'ずんだもん1分AIニュース')), (160, 434 if len(title_lines) == 1 else 458), 28, True, (243, 255, 246, 255), 'la'),
         ]
         multiline_blocks = [
             (title_lines, (160, 336), title_font_size, True, (255, 255, 255, 255), 10),
@@ -282,7 +286,7 @@ def main() -> None:
         render_ogp(out_path=ROOT / 'assets' / f'ogp-{date}.png', text_nodes=text_nodes, multiline_blocks=multiline_blocks)
         return
 
-    render_ogp(out_path=ROOT / 'assets' / 'ogp.png', text_nodes=DEFAULT_TEXT_NODES)
+    render_ogp(out_path=ROOT / 'assets' / 'ogp.png', text_nodes=default_text_nodes())
 
 
 if __name__ == '__main__':

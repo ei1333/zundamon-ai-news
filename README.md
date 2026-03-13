@@ -62,6 +62,7 @@ pip install -r requirements.txt
 - `assets/ogp-YYYY-MM-DD.png` - 日別ページ用 OGP 画像
 - `scripts/new_episode.sh` - `new_episode.py` を呼ぶ薄いラッパー
 - `scripts/new_episode.py` - 新しい原稿ファイル作成 + 初回レンダリング（`--no-index` 対応）
+- `config/theme.json` - サイト名・説明・カテゴリなどのテーマ設定
 - `scripts/draft_from_urls.py` - 記事URL 3本から episode 原稿の下書きを生成
 - `scripts/render_episode.py` - 原稿から HTML / 台本 / 日別 OGP を生成
 - `scripts/update_index.py` - episode 一覧から `index.html` を再構築

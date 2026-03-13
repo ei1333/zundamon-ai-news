@@ -2,30 +2,44 @@
 from __future__ import annotations
 
 import html
+import json
 import re
+from functools import lru_cache
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-CATEGORY_MAPPING = {
-    '透明性': ('透明性', 'category-transparency'),
-    'transparency': ('透明性', 'category-transparency'),
-    '研究': ('研究', 'category-research'),
-    'research': ('研究', 'category-research'),
-    'インフラ': ('インフラ', 'category-infra'),
-    'infra': ('インフラ', 'category-infra'),
-    'infrastructure': ('インフラ', 'category-infra'),
-    '安全性': ('安全性', 'category-safety'),
-    'safety': ('安全性', 'category-safety'),
-    '市場': ('市場', 'category-market'),
-    'market': ('市場', 'category-market'),
-}
 
-DEFAULT_CATEGORIES = {
-    1: ('透明性', 'category-transparency'),
-    2: ('研究', 'category-research'),
-    3: ('インフラ', 'category-infra'),
-}
+@lru_cache(maxsize=1)
+def load_theme() -> dict:
+    path = ROOT / 'config' / 'theme.json'
+    if not path.exists():
+        raise SystemExit(f'Theme config not found: {path}')
+    return json.loads(path.read_text(encoding='utf-8'))
+
+
+@lru_cache(maxsize=1)
+def category_mapping() -> dict[str, tuple[str, str]]:
+    theme = load_theme()
+    mapping: dict[str, tuple[str, str]] = {}
+    for key, value in theme.get('categories', {}).items():
+        label = value.get('label', key)
+        css_class = value.get('class', 'category-general')
+        mapping[key.strip().lower()] = (label, css_class)
+        for alias in value.get('aliases', []):
+            mapping[str(alias).strip().lower()] = (label, css_class)
+    return mapping
+
+
+@lru_cache(maxsize=1)
+def default_categories() -> dict[int, tuple[str, str]]:
+    theme = load_theme()
+    labels = theme.get('draft', {}).get('default_categories', [])
+    mapping = category_mapping()
+    resolved: dict[int, tuple[str, str]] = {}
+    for idx, label in enumerate(labels, start=1):
+        resolved[idx] = mapping.get(str(label).strip().lower(), (label, 'category-general'))
+    return resolved
 
 
 def extract_section(text: str, heading: str) -> str:
@@ -76,11 +90,12 @@ def auto_script(headline: str, summary: str, idx: int) -> str:
 
 def normalize_category(label: str, idx: int | None = None) -> tuple[str, str]:
     normalized = label.strip().lower()
-    if normalized in CATEGORY_MAPPING:
-        return CATEGORY_MAPPING[normalized]
+    mapping = category_mapping()
+    if normalized in mapping:
+        return mapping[normalized]
 
     if not label.strip() and idx is not None:
-        return DEFAULT_CATEGORIES.get(idx, ('AI', 'category-general'))
+        return default_categories().get(idx, ('AI', 'category-general'))
 
     return (label.strip() or 'AI', 'category-general')
 
@@ -141,13 +156,16 @@ def escape_attr(value: str) -> str:
 
 
 
-def build_head_html(*, title: str, description: str, url: str, stylesheet_href: str, og_type: str, og_image_url: str = 'https://ei1333.github.io/zundamon-ai-news/assets/ogp.png') -> str:
+def build_head_html(*, title: str, description: str, url: str, stylesheet_href: str, og_type: str, og_image_url: str | None = None) -> str:
+    theme = load_theme()
     title_text = escape_text(title)
     desc_attr = escape_attr(description)
     url_attr = escape_attr(url)
     stylesheet_attr = escape_attr(stylesheet_href)
     og_type_attr = escape_attr(og_type)
-    og_image_url = escape_attr(og_image_url)
+    resolved_og_image_url = escape_attr(og_image_url or theme.get('og_image_url', f"{theme.get('site_url', '').rstrip('/')}/assets/ogp.png"))
+    site_name = escape_attr(theme.get('site_name', 'Site'))
+    site_image_alt = escape_attr(theme.get('ogp', {}).get('site_image_alt', f"{theme.get('site_name', 'Site')}のOGP画像"))
     return '\n'.join([
         '    <meta charset="UTF-8" />',
         '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
@@ -157,13 +175,13 @@ def build_head_html(*, title: str, description: str, url: str, stylesheet_href: 
         f'    <meta property="og:title" content="{title_text}" />',
         f'    <meta property="og:description" content="{desc_attr}" />',
         f'    <meta property="og:url" content="{url_attr}" />',
-        '    <meta property="og:site_name" content="ずんだもん1分AIニュース" />',
-        f'    <meta property="og:image" content="{og_image_url}" />',
-        '    <meta property="og:image:alt" content="ずんだもん1分AIニュースのOGP画像" />',
+        f'    <meta property="og:site_name" content="{site_name}" />',
+        f'    <meta property="og:image" content="{resolved_og_image_url}" />',
+        f'    <meta property="og:image:alt" content="{site_image_alt}" />',
         '    <meta name="twitter:card" content="summary_large_image" />',
         f'    <meta name="twitter:title" content="{title_text}" />',
         f'    <meta name="twitter:description" content="{desc_attr}" />',
-        f'    <meta name="twitter:image" content="{og_image_url}" />',
+        f'    <meta name="twitter:image" content="{resolved_og_image_url}" />',
         f'    <link rel="stylesheet" href="{stylesheet_attr}" />',
     ])
 

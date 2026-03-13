@@ -6,32 +6,32 @@
   <body>
     <main class="container">
       <header class="hero">
-        <p class="eyebrow">1分で聴くAIニュース</p>
-        <h1>ずんだもん1分AIニュース</h1>
+        <p class="eyebrow">{hero_eyebrow}</p>
+        <h1>{hero_title}</h1>
         <p class="lead">
-          その日のAIニュースを、公開情報をもとに1分前後へぎゅっと要約。ずんだもんの声でさっと聴けます。
+          {hero_lead}
         </p>
       </header>
 
       {featured_html}
 
       <section class="card">
-        <h2>最近の回</h2>
+        <h2>{recent_heading}</h2>
         <div class="episode-grid">
 {recent_html}
         </div>
       </section>
 
       <section class="card">
-        <h2>バックナンバー</h2>
+        <h2>{backnumber_heading}</h2>
         <ul>
 {backnumber_html}
         </ul>
       </section>
 
       <section class="card">
-        <h2>クレジット</h2>
-        <p>音声：VOICEVOX:ずんだもん</p>
+        <h2>{credits_heading}</h2>
+        <p>{credits_voice}</p>
       </section>
 
     </main>

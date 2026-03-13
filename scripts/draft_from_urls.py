@@ -11,15 +11,18 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+from episode_utils import load_theme
+
 ROOT = Path(__file__).resolve().parent.parent
 
+THEME = load_theme()
+DRAFT_THEME = THEME.get('draft', {})
 USER_AGENT = 'zundamon-ai-news/0.1 (+https://ei1333.github.io/zundamon-ai-news/)'
-DEFAULT_CATEGORIES = ['透明性', '研究', 'インフラ']
+DEFAULT_CATEGORIES = DRAFT_THEME.get('default_categories', ['透明性', '研究', 'インフラ'])
 
 CATEGORY_RULES = [
-    ('透明性', ['policy', 'regulation', 'law', 'govern', 'transparency', 'disclosure', 'copyright', 'safety', 'trust']),
-    ('研究', ['research', 'study', 'paper', 'model', 'benchmark', 'science', 'university', 'lab']),
-    ('インフラ', ['chip', 'gpu', 'datacenter', 'data center', 'cloud', 'semiconductor', 'infra', 'infrastructure', 'network', 'server']),
+    (rule['label'], rule.get('keywords', []))
+    for rule in DRAFT_THEME.get('category_rules', [])
 ]
 
 
@@ -43,7 +46,7 @@ def fallback_from_url(url: str, fallback_category: str, reason: str) -> dict[str
     site_name = parsed.netloc.removeprefix('www.') or 'source'
     return {
         'headline': headline,
-        'summary': f'URL からの自動取得に失敗したため、元記事を開いて要約を補ってください。({reason})',
+        'summary': DRAFT_THEME.get('fallback_summary', 'URL からの自動取得に失敗したため、元記事を開いて要約を補ってください。({reason})').format(reason=reason),
         'source_name': site_name,
         'url': url,
         'category': fallback_category,
@@ -212,7 +215,7 @@ def pick_episode_title(items: list[dict[str, str]]) -> str:
             seen.add(headline)
 
     title = '・'.join(keywords[:3]).strip()
-    return title or '新しいAIニュース回'
+    return title or DRAFT_THEME.get('title_fallback', '新しいAIニュース回')
 
 
 
@@ -226,10 +229,10 @@ def build_episode_text(date: str, items: list[dict[str, str]], title: str | None
         summary,
         '',
         '## Intro',
-        f'{date} 時点の公開情報をもとに構成した下書きです。内容を確認して整えてください。',
+        DRAFT_THEME.get('intro', '{date} 時点の公開情報をもとに構成した下書きです。内容を確認して整えてください。').format(date=date),
         '',
         '## Script Intro',
-        f'ずんだもん1分AIニュース、{date}版なのだ。',
+        DRAFT_THEME.get('script_intro', 'ずんだもん1分AIニュース、{date}版なのだ。').format(date=date),
         '',
     ]
     for idx, item in enumerate(items, start=1):
@@ -253,10 +256,10 @@ def build_episode_text(date: str, items: list[dict[str, str]], title: str | None
         ]
     lines += [
         '## Script Closing',
-        '以上、今日のAIニュースまとめなのだ。気になる話題は出典も見てみるのだ。',
+        DRAFT_THEME.get('script_closing', '以上、今日のAIニュースまとめなのだ。気になる話題は出典も見てみるのだ。'),
         '',
         '## Closing',
-        '※ この記事は公開情報をもとにした短い要約です。詳細は各出典をご確認ください。',
+        DRAFT_THEME.get('closing', '※ この記事は公開情報をもとにした短い要約です。詳細は各出典をご確認ください。'),
         '',
     ]
     return '\n'.join(lines)

@@ -11,6 +11,7 @@ from episode_utils import (
     escape_attr,
     escape_text,
     load_template,
+    load_theme,
     parse_episode_summary,
 )
 
@@ -72,6 +73,7 @@ def build_backnumber_html(episodes: list[dict[str, object]]) -> str:
 
 
 def update_index(target_date: str | None = None) -> None:
+    theme = load_theme()
     episodes = list_episodes()
     if not episodes:
         raise SystemExit('No episodes found')
@@ -86,15 +88,22 @@ def update_index(target_date: str | None = None) -> None:
     index_path = ROOT / 'index.html'
     html_text = load_template('index.html').format(
         head_html=build_head_html(
-            title='ずんだもん1分AIニュース',
-            description='公開情報をもとに独自要約したAIニュースを、ずんだもんの声で1分前後にまとめてお届けします。',
-            url='https://ei1333.github.io/zundamon-ai-news/',
+            title=theme['site_name'],
+            description=theme['hero']['lead'],
+            url=theme['site_url'],
             stylesheet_href='assets/style.css',
             og_type='website',
         ),
+        hero_eyebrow=escape_text(theme['hero']['eyebrow']),
+        hero_title=escape_text(theme['hero']['title']),
+        hero_lead=escape_text(theme['hero']['lead']),
         featured_html=build_featured_html(latest),
+        recent_heading=escape_text(theme['index']['recent_heading']),
         recent_html=build_recent_html(episodes),
+        backnumber_heading=escape_text(theme['index']['backnumber_heading']),
         backnumber_html=build_backnumber_html(episodes),
+        credits_heading=escape_text(theme['index']['credits_heading']),
+        credits_voice=escape_text(theme['index']['credits_voice']),
     )
     index_path.write_text(html_text, encoding='utf-8')
 
