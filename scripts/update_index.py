@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import sys
 
-from episode_utils import ROOT, escape_attr, escape_text, load_template, parse_episode_summary
+from episode_utils import ROOT, build_head_html, escape_attr, escape_text, load_template, parse_episode_summary
 
 
 def list_episodes() -> list[dict[str, str]]:
@@ -115,7 +115,13 @@ def update_index(target_date: str | None = None) -> None:
 
     index_path = ROOT / 'index.html'
     html_text = load_template('index.html').format(
-        og_image_url=escape_attr('https://ei1333.github.io/zundamon-ai-news/assets/ogp.svg'),
+        head_html=build_head_html(
+            title='ずんだもん1分AIニュース',
+            description='公開情報をもとに独自要約したAIニュースを、ずんだもんの声で1分前後にまとめてお届けします。',
+            url='https://ei1333.github.io/zundamon-ai-news/',
+            stylesheet_href='assets/style.css',
+            og_type='website',
+        ),
         featured_html=build_featured_html(latest),
         recent_html=build_recent_html(episodes),
         backnumber_html=build_backnumber_html(episodes),

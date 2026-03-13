@@ -141,6 +141,34 @@ def escape_attr(value: str) -> str:
 
 
 
+def build_head_html(*, title: str, description: str, url: str, stylesheet_href: str, og_type: str) -> str:
+    title_text = escape_text(title)
+    desc_attr = escape_attr(description)
+    url_attr = escape_attr(url)
+    stylesheet_attr = escape_attr(stylesheet_href)
+    og_type_attr = escape_attr(og_type)
+    og_image_url = escape_attr('https://ei1333.github.io/zundamon-ai-news/assets/ogp.svg')
+    return '\n'.join([
+        '    <meta charset="UTF-8" />',
+        '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+        f'    <title>{title_text}</title>',
+        f'    <meta name="description" content="{desc_attr}" />',
+        f'    <meta property="og:type" content="{og_type_attr}" />',
+        f'    <meta property="og:title" content="{title_text}" />',
+        f'    <meta property="og:description" content="{desc_attr}" />',
+        f'    <meta property="og:url" content="{url_attr}" />',
+        '    <meta property="og:site_name" content="ずんだもん1分AIニュース" />',
+        f'    <meta property="og:image" content="{og_image_url}" />',
+        '    <meta property="og:image:alt" content="ずんだもん1分AIニュースのOGP画像" />',
+        '    <meta name="twitter:card" content="summary_large_image" />',
+        f'    <meta name="twitter:title" content="{title_text}" />',
+        f'    <meta name="twitter:description" content="{desc_attr}" />',
+        f'    <meta name="twitter:image" content="{og_image_url}" />',
+        f'    <link rel="stylesheet" href="{stylesheet_attr}" />',
+    ])
+
+
+
 def parse_episode_summary(path: Path) -> dict[str, object]:
     header, items = parse_episode_full(path)
     return {

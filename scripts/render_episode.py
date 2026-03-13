@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 import sys
 
-from episode_utils import ROOT, escape_attr, escape_text, load_template, parse_episode_full
+from episode_utils import ROOT, build_head_html, escape_attr, escape_text, load_template, parse_episode_full
 
 
 def render_html(date: str, header: dict, items: list[dict]) -> str:
@@ -22,10 +22,13 @@ def render_html(date: str, header: dict, items: list[dict]) -> str:
         )
 
     return load_template('day.html').format(
-        page_title=escape_text(f'{date} | ずんだもん1分AIニュース'),
-        summary_attr=escape_attr(header['summary']),
-        page_url=escape_attr(f'https://ei1333.github.io/zundamon-ai-news/days/{date}.html'),
-        og_image_url=escape_attr('https://ei1333.github.io/zundamon-ai-news/assets/ogp.svg'),
+        head_html=build_head_html(
+            title=f'{date} | ずんだもん1分AIニュース',
+            description=header['summary'],
+            url=f'https://ei1333.github.io/zundamon-ai-news/days/{date}.html',
+            stylesheet_href='../assets/style.css',
+            og_type='article',
+        ),
         page_heading=escape_text(f'{date} のAIニュース'),
         intro_html=escape_text(header['intro']),
         audio_file=escape_attr(f'sample-news-{date}.wav'),
