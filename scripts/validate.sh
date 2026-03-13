@@ -52,10 +52,17 @@ for source in "${episode_sources[@]}"; do
   python3 - "$source" <<'PY'
 from pathlib import Path
 import sys
-from scripts.episode_utils import parse_episode_full
+from scripts.episode_utils import detect_episode_theme, extract_section, parse_episode_full
 
 path = Path(sys.argv[1])
-header, items = parse_episode_full(path)
+text = path.read_text(encoding='utf-8')
+try:
+    explicit_theme = extract_section(text, 'Theme').strip().lower()
+except SystemExit:
+    raise SystemExit(f"Episode theme is missing: {path}")
+if explicit_theme not in {'ai', 'shogi'}:
+    raise SystemExit(f"Episode theme must be one of ai/shogi: {path} (got: {explicit_theme})")
+header, items = parse_episode_full(path, theme_name=detect_episode_theme(path))
 if len(items) != 3:
     raise SystemExit(f"Episode must contain exactly 3 items: {path}")
 if not header['title'].strip():

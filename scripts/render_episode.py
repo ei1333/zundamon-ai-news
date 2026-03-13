@@ -10,6 +10,7 @@ from episode_utils import (
     ROOT,
     build_head_html,
     build_tag_spans,
+    detect_episode_theme,
     escape_attr,
     escape_text,
     load_template,
@@ -71,7 +72,7 @@ def render_script(header: dict, items: list[dict]) -> str:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Render one episode into HTML / script / OGP.')
     parser.add_argument('date', help='Episode date in YYYY-MM-DD format')
-    parser.add_argument('--theme', default='ai', help='Theme name from config/themes/<name>.json')
+    parser.add_argument('--theme', help='Optional theme override. If omitted, uses ## Theme from the episode source.')
     return parser.parse_args()
 
 
@@ -85,14 +86,15 @@ def main():
     if not episode_path.exists():
         raise SystemExit(f'Episode source not found: {episode_path}')
 
-    header, items = parse_episode_full(episode_path, theme_name=args.theme)
+    theme_name = args.theme or detect_episode_theme(episode_path)
+    header, items = parse_episode_full(episode_path, theme_name=theme_name)
 
     days_dir = ROOT / 'days'
     scripts_dir = ROOT / 'scripts_text'
     days_dir.mkdir(exist_ok=True)
     scripts_dir.mkdir(exist_ok=True)
 
-    (days_dir / f'{date}.html').write_text(render_html(date, header, items, theme_name=args.theme), encoding='utf-8')
+    (days_dir / f'{date}.html').write_text(render_html(date, header, items, theme_name=theme_name), encoding='utf-8')
     (scripts_dir / f'{date}.txt').write_text(render_script(header, items), encoding='utf-8')
 
     subprocess.run(
@@ -100,7 +102,7 @@ def main():
             sys.executable,
             str(ROOT / 'scripts' / 'render_ogp.py'),
             '--theme',
-            args.theme,
+            theme_name,
             '--date',
             date,
             '--title',
