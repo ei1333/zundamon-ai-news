@@ -66,6 +66,7 @@ pip install -r requirements.txt
 - `config/themes/shogi.json` - 将棋ニュース向けテーマ例
 - `config/theme.json` - 互換用の既定テーマ参照（将来的に廃止予定）
 - `scripts/draft_from_urls.py` - 記事URL 3本から episode 原稿の下書きを生成
+- `scripts/build_rewrite_prompt.py` - 下書き Markdown から生成AI投入用の prompt 文を組み立てる
 - `scripts/render_episode.py` - 原稿から HTML / 台本 / 日別 OGP を生成
 - `scripts/update_index.py` - episode 一覧から `index.html` を再構築
 - `scripts/render_audio.sh` - 生成済み台本テキストから音声を生成
@@ -178,8 +179,19 @@ URL から作った下書きは、そのまま公開するより **生成AIで h
 典型フロー:
 
 1. `draft_from_urls.py --stdout ...` で下書きを出す
-2. その下書きを `prompts/episode_rewrite_prompt.md` の素材欄へ入れる
-3. 返ってきた Markdown を `episodes/YYYY-MM-DD.md` に保存する
+2. `build_rewrite_prompt.py` で prompt 文を組み立てる
+3. その prompt を生成AIへ渡す
+4. 返ってきた Markdown を `episodes/YYYY-MM-DD.md` に保存する
+
+例:
+
+```bash
+python3 scripts/draft_from_urls.py --theme shogi --stdout 2026-03-13 \
+  "https://www.shogi.or.jp/match_news/2026/03/260312_t_result_01.html" \
+  "https://www.shogi.or.jp/news/2026/03/260308_n_result_01.html" \
+  "https://www.shogi.or.jp/match_news/2026/03/260313_t_01.html" \
+| python3 scripts/build_rewrite_prompt.py 2026-03-13 --theme shogi
+```
 
 ### 5. 原稿を埋める
 

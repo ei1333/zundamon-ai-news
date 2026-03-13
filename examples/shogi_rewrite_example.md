@@ -93,5 +93,5 @@
 ## Intended Use
 
 1. `draft_from_urls.py --stdout` の結果を用意する
-2. `prompts/episode_rewrite_prompt.md` のテンプレに貼る
+2. `build_rewrite_prompt.py` で prompt 文を組み立てる（または手でテンプレに貼る）
 3. この example のような粒度で、headline / summary / script を短く自然に整える
