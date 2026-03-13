@@ -127,6 +127,14 @@ def clean_title(title: str) -> str:
     title = re.sub(r'\s+', ' ', title).strip()
     title = title.strip('"“”‘’「」『』')
 
+    title = re.sub(r'[｜|](将棋ニュース|棋戦トピックス|日本将棋連盟)\s*$', '', title)
+    title = re.sub(r'\s*[｜|]\s*(将棋ニュース|棋戦トピックス|日本将棋連盟)\s*$', '', title)
+    title = re.sub(r'[｜|](将棋ニュース|棋戦トピックス)[｜|]日本将棋連盟\s*$', '', title)
+    title = re.sub(r'\s*[｜|]\s*(将棋ニュース|棋戦トピックス)\s*[｜|]\s*日本将棋連盟\s*$', '', title)
+    title = re.sub(r'[｜|]日本将棋連盟\s*$', '', title)
+    title = re.sub(r'\s*[｜|]\s*日本将棋連盟\s*$', '', title)
+    title = re.sub(r'^日本将棋連盟\s*[｜|]\s*', '', title)
+
     separators = [r' \| ', r' ｜ ', r' - ', r' — ', r' – ', r' :: ', r' : ', r'：']
     parts = [title]
     for sep in separators:
@@ -146,11 +154,14 @@ def clean_title(title: str) -> str:
         r'^official site$',
         r'^transparency coalition$',
         r'^legislation for transparency in ai now\.?$',
+        r'^日本将棋連盟$',
+        r'^将棋ニュース$',
+        r'^棋戦トピックス$',
     ]
 
     filtered = []
     for part in parts:
-        normalized = re.sub(r'[^a-z0-9 ]+', '', part.lower()).strip()
+        normalized = re.sub(r'[^a-z0-9ぁ-んァ-ヶ一-龠 ]+', '', part.lower()).strip()
         if any(re.fullmatch(pattern, normalized) for pattern in noise_patterns):
             continue
         filtered.append(part)
