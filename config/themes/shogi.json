@@ -2,6 +2,7 @@
   "site_name": "ずんだもん1分将棋ニュース",
   "site_url": "https://ei1333.github.io/zundamon-ai-news/",
   "og_image_url": "https://ei1333.github.io/zundamon-ai-news/assets/ogp.png",
+  "theme_label": "将棋ニュース",
   "hero": {
     "eyebrow": "1分で聴く将棋ニュース",
     "title": "ずんだもん1分将棋ニュース",

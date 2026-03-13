@@ -48,6 +48,7 @@ def render_html(date: str, header: dict, items: list[dict], *, theme_name: str =
         back_link=escape_text(day_theme.get('back_link', '← トップページへ戻る')),
         eyebrow=escape_text(day_theme.get('eyebrow', '今日のエピソード')),
         page_heading=escape_text(day_theme.get('page_heading', '{date} のニュース').format(date=date)),
+        theme_label=escape_text(theme.get('theme_label', theme.get('site_name', ''))),
         intro_html=escape_text(header['intro']),
         audio_heading=escape_text(day_theme.get('audio_heading', '音声で聴く')),
         audio_file=escape_attr(f'sample-news-{date}.wav'),
