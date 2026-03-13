@@ -31,6 +31,8 @@
 - `scripts_text/YYYY-MM-DD.txt` - episode 原稿から生成される読み上げ台本
 - `assets/audio/` - 音声ファイル配置場所
 - `assets/style.css` - 共通スタイル
+- `assets/ogp.svg` - OGPデザインの元SVG
+- `assets/ogp.png` - 公開用OGP画像
 - `scripts/new_episode.sh` - `new_episode.py` を呼ぶ薄いラッパー
 - `scripts/new_episode.py` - 新しい原稿ファイルを安全に作り、初回レンダリングを行うスクリプト（`--no-index` 対応）
 - `scripts/render_episode.py` - episode 原稿から HTML と台本テキストを生成するスクリプト
@@ -43,6 +45,7 @@
 - `scripts/templates/partial_tag.html` - タグ表示用の共通 partial
 - `scripts/templates/partial_headline_item.html` - 見出しリスト項目用の共通 partial
 - `scripts/render_audio.sh` - 生成済み台本テキストから音声を生成するスクリプト
+- `scripts/render_ogp.py` - Pillowで OGP PNG を生成するスクリプト
 - `scripts/validate.sh` - 公開前にテンプレ置換漏れや音声参照切れを確認するスクリプト
 - `scripts/publish.sh` - `main` の公開物を `gh-pages` へ反映するローカル用スクリプト
 - `.github/workflows/publish.yml` - `main` への push を `gh-pages` 公開へ反映する GitHub Actions
@@ -158,6 +161,12 @@ VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_t
 
 ```bash
 ./scripts/validate.sh
+```
+
+OGP画像を再生成したいときはこれめう。
+
+```bash
+python3 scripts/render_ogp.py
 ```
 
 ### 7. `main` に保存する
