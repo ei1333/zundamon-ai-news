@@ -28,7 +28,7 @@
         </p>
       </header>
 
-            <section class="card featured-card">
+            <section class="card featured-card" data-episode-theme="shogi">
         <div class="featured-copy">
           <p class="eyebrow">最新エピソード</p>
           <h2>最新回</h2>
@@ -67,10 +67,19 @@
       </section>
 
 
-      <section class="card">
+      <section class="card filter-card">
+        <h2>テーマで絞り込み</h2>
+        <div class="theme-filters" role="group" aria-label="テーマで絞り込み">
+          <button class="theme-filter-button" type="button" data-theme-filter="all" aria-pressed="false">すべて</button>
+          <button class="theme-filter-button" type="button" data-theme-filter="ai" aria-pressed="false">AIニュース</button>
+          <button class="theme-filter-button" type="button" data-theme-filter="shogi" aria-pressed="false">将棋ニュース</button>
+        </div>
+      </section>
+
+      <section class="card" data-filter-section="recent">
         <h2>最近の回</h2>
         <div class="episode-grid">
-          <article class="episode-card">
+          <article class="episode-card" data-episode-theme="ai">
             <p class="episode-date">2026-03-12</p>
             <p class="theme-label">テーマ: AIニュース</p>
             <h3><a href="days/2026-03-12.html">AI透明性・プライバシー保護・AIインフラ拡大</a></h3>
@@ -86,7 +95,7 @@
               <li>Semtech が AI 向け高速接続技術を訴求</li>
             </ul>
           </article>
-          <article class="episode-card">
+          <article class="episode-card" data-episode-theme="ai">
             <p class="episode-date">2026-03-11</p>
             <p class="theme-label">テーマ: AIニュース</p>
             <h3><a href="days/2026-03-11.html">AIエージェント実装・省電力モデル・データセンター投資</a></h3>
@@ -105,13 +114,13 @@
         </div>
       </section>
 
-      <section class="card">
+      <section class="card" data-filter-section="backnumber">
         <h2>バックナンバー</h2>
-        <ul>
-          <li><a href="days/2026-03-13.html">2026-03-13 | 叡王戦挑戦者決定・王将戦第5局・女流王位戦 </a></li>
-          <li><a href="days/2026-03-12.html">2026-03-12 | AI透明性・プライバシー保護・AIインフラ拡大 </a></li>
-          <li><a href="days/2026-03-11.html">2026-03-11 | AIエージェント実装・省電力モデル・データセンター投資 </a></li>
-          <li><a href="days/2026-03-10.html">2026-03-10 | AI検索競争・音声生成改善・半導体供給網 </a></li>
+        <ul class="backnumber-list">
+          <li data-episode-theme="shogi"><a href="days/2026-03-13.html">2026-03-13 | 叡王戦挑戦者決定・王将戦第5局・女流王位戦 </a> <span class="backnumber-theme">将棋ニュース</span></li>
+          <li data-episode-theme="ai"><a href="days/2026-03-12.html">2026-03-12 | AI透明性・プライバシー保護・AIインフラ拡大 </a> <span class="backnumber-theme">AIニュース</span></li>
+          <li data-episode-theme="ai"><a href="days/2026-03-11.html">2026-03-11 | AIエージェント実装・省電力モデル・データセンター投資 </a> <span class="backnumber-theme">AIニュース</span></li>
+          <li data-episode-theme="ai"><a href="days/2026-03-10.html">2026-03-10 | AI検索競争・音声生成改善・半導体供給網 </a> <span class="backnumber-theme">AIニュース</span></li>
         </ul>
       </section>
 
@@ -121,5 +130,30 @@
       </section>
 
     </main>
+    <script>
+      (() => {
+        const buttons = [...document.querySelectorAll('[data-theme-filter]')];
+        const cards = [...document.querySelectorAll('[data-episode-theme]')];
+        if (!buttons.length || !cards.length) return;
+
+        const applyFilter = (theme) => {
+          for (const button of buttons) {
+            const active = button.dataset.themeFilter === theme;
+            button.setAttribute('aria-pressed', active ? 'true' : 'false');
+            button.classList.toggle('is-active', active);
+          }
+          for (const card of cards) {
+            const visible = theme === 'all' || card.dataset.episodeTheme === theme;
+            card.hidden = !visible;
+          }
+        };
+
+        for (const button of buttons) {
+          button.addEventListener('click', () => applyFilter(button.dataset.themeFilter || 'all'));
+        }
+
+        applyFilter('all');
+      })();
+    </script>
   </body>
 </html>
