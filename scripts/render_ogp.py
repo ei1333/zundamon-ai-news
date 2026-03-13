@@ -111,6 +111,15 @@ def draw_text_anchor(draw: ImageDraw.ImageDraw, xy: tuple[int, int], text: str, 
 
 
 
+def draw_multiline_text(draw: ImageDraw.ImageDraw, x: int, y: int, lines: list[str], font, fill, line_gap: int = 10):
+    current_y = y
+    for line in lines:
+        draw_text_anchor(draw, (x, current_y), line, font, fill, 'la')
+        bbox = text_bbox(draw, line, font)
+        current_y += (bbox[3] - bbox[1]) + line_gap
+
+
+
 def cubic_bezier(p0, p1, p2, p3, steps: int = 32):
     points = []
     for i in range(steps + 1):
@@ -154,7 +163,66 @@ def trim_text(text: str, max_chars: int) -> str:
 
 
 
-def render_ogp(*, out_path: Path, text_nodes: list[tuple], chips=CHIPS):
+def fit_text(text: str, max_chars: int, max_width: int, font) -> str:
+    text = trim_text(text, max_chars)
+    probe = ImageDraw.Draw(Image.new('RGB', (1, 1)))
+    while text:
+        bbox = text_bbox(probe, text, font)
+        if bbox[2] - bbox[0] <= max_width:
+            return text
+        text = text[:-2].rstrip() + '…'
+    return '…'
+
+
+
+def split_title_lines(title: str, font, max_width: int) -> list[str]:
+    title = ' '.join(title.split())
+    probe = ImageDraw.Draw(Image.new('RGB', (1, 1)))
+    bbox = text_bbox(probe, title, font)
+    if bbox[2] - bbox[0] <= max_width:
+        return [title]
+
+    parts = title.replace('・', '・|').split('|') if '・' in title else [title]
+    if len(parts) > 1:
+        lines: list[str] = []
+        current = ''
+        for part in parts:
+            candidate = current + part if current else part
+            candidate_bbox = text_bbox(probe, candidate, font)
+            if current and candidate_bbox[2] - candidate_bbox[0] > max_width:
+                lines.append(current)
+                current = part.lstrip()
+            else:
+                current = candidate
+        if current:
+            lines.append(current)
+        if len(lines) <= 2 and all((text_bbox(probe, line, font)[2] - text_bbox(probe, line, font)[0]) <= max_width for line in lines):
+            return lines
+
+    best_split = None
+    for i in range(1, len(title)):
+        left = title[:i].rstrip(' ・')
+        right = title[i:].lstrip(' ・')
+        if not left or not right:
+            continue
+        left_w = text_bbox(probe, left, font)[2] - text_bbox(probe, left, font)[0]
+        right_w = text_bbox(probe, right, font)[2] - text_bbox(probe, right, font)[0]
+        if left_w <= max_width and right_w <= max_width:
+            score = abs(left_w - right_w)
+            if best_split is None or score < best_split[0]:
+                best_split = (score, left, right)
+    if best_split:
+        return [best_split[1], best_split[2]]
+
+    first = fit_text(title, len(title), max_width, font)
+    consumed = len(first.rstrip('…'))
+    rest = title[consumed:].lstrip(' ・')
+    second = fit_text(rest or title, len(rest or title), max_width, font)
+    return [first, second]
+
+
+
+def render_ogp(*, out_path: Path, text_nodes: list[tuple], multiline_blocks: list[tuple] | None = None, chips=CHIPS):
     image = linear_gradient((WIDTH, HEIGHT), *BG_GRADIENT).convert('RGBA')
     draw = ImageDraw.Draw(image, 'RGBA')
 
@@ -176,6 +244,8 @@ def render_ogp(*, out_path: Path, text_nodes: list[tuple], chips=CHIPS):
     draw_text_anchor(draw, (706, 208), 'ON AIR', load_font(16, bold=True), (255, 255, 255, 255), 'middle')
     for text, xy, size, bold, fill, anchor in text_nodes:
         draw_text_anchor(draw, xy, text, load_font(size, bold=bold), fill, anchor)
+    for lines, xy, size, bold, fill, line_gap in multiline_blocks or []:
+        draw_multiline_text(draw, xy[0], xy[1], lines, load_font(size, bold=bold), fill, line_gap=line_gap)
 
     draw_wave(draw)
 
@@ -199,16 +269,21 @@ def main() -> None:
 
     if args.date:
         date = args.date
-        title = trim_text(args.title or 'ずんだもん1分AIニュース', 20)
-        summary = trim_text(args.summary or '公開情報をもとに独自要約したAIニュースをお届け', 36)
+        title_font_size = 40
+        title_font = load_font(title_font_size, bold=True)
+        title_lines = split_title_lines(trim_text(args.title or 'ずんだもん1分AIニュース', 28), title_font, max_width=410)
+        summary = fit_text(args.summary or '公開情報をもとに独自要約したAIニュースをお届け', 44, 410, load_font(26, bold=True))
+
         text_nodes = [
             ('Daily Episode', (160, 186), 26, True, (233, 255, 240, 255), 'la'),
             (date, (160, 262), 44, True, (255, 255, 255, 255), 'la'),
-            (title, (160, 336), 40, True, (255, 255, 255, 255), 'la'),
-            (summary, (160, 418), 26, True, (243, 255, 246, 255), 'la'),
-            ('ずんだもん1分AIニュース', (160, 462), 28, True, (243, 255, 246, 255), 'la'),
+            (summary, (160, 432 if len(title_lines) == 1 else 456), 26, True, (243, 255, 246, 255), 'la'),
+            ('ずんだもん1分AIニュース', (160, 472 if len(title_lines) == 1 else 494), 28, True, (243, 255, 246, 255), 'la'),
         ]
-        render_ogp(out_path=ROOT / 'assets' / f'ogp-{date}.png', text_nodes=text_nodes)
+        multiline_blocks = [
+            (title_lines, (160, 336), title_font_size, True, (255, 255, 255, 255), 10),
+        ]
+        render_ogp(out_path=ROOT / 'assets' / f'ogp-{date}.png', text_nodes=text_nodes, multiline_blocks=multiline_blocks)
         return
 
     render_ogp(out_path=ROOT / 'assets' / 'ogp.png', text_nodes=DEFAULT_TEXT_NODES)
