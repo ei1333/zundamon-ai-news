@@ -1,0 +1,87 @@
+あなたはニュース編集者です。
+以下の素材をもとに、日本語の短い音声ニュース原稿を作成してください。
+
+要件:
+- 3本構成にする
+- 読み上げ時間は全体で1分前後を想定する
+- 見出しは短く、意味が一目で分かる自然な日本語にする
+- summary は各項目 1〜2文で簡潔にする
+- script は実際に読み上げやすい自然文にする
+- source の事実から逸脱しない
+- 不明な点は断定せず、素材にある情報だけでまとめる
+- 元の title にある媒体名ノイズや過剰に長い対局カード表現は、必要に応じて自然に言い換える
+- 将棋テーマでは「挑戦権獲得」「第5局で勝利」など、意味が明快な表現を優先する
+
+出力形式:
+次の Markdown 構造を厳密に守ってください。
+
+# {episode_title}
+
+## Summary
+...
+
+## Intro
+...
+
+## Script Intro
+...
+
+## Item 1
+### Headline
+...
+
+### Summary
+...
+
+### Category
+...
+
+### Source
+[媒体名](URL)
+
+### Script
+...
+
+## Item 2
+### Headline
+...
+
+### Summary
+...
+
+### Category
+...
+
+### Source
+[媒体名](URL)
+
+### Script
+...
+
+## Item 3
+### Headline
+...
+
+### Summary
+...
+
+### Category
+...
+
+### Source
+[媒体名](URL)
+
+### Script
+...
+
+## Script Closing
+...
+
+## Closing
+...
+
+素材:
+- テーマ: {theme_name}
+- 日付: {date}
+- 下書き:
+{draft_markdown}

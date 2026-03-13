@@ -1,6 +1,6 @@
 # shogi_rewrite_example.md
 
-`prompts/episode_rewrite_prompt.md` を使って、将棋ニュース下書きを生成AIで整えるときの最小サンプルです。
+`prompts/episode_rewrite_prompt.txt` と `scripts/build_rewrite_prompt.py` を使って、将棋ニュース下書きを生成AIで整えるときの最小サンプルです。
 
 ## Example Input Draft
 
