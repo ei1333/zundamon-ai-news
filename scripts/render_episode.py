@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 
 from episode_utils import (
@@ -36,6 +37,7 @@ def render_html(date: str, header: dict, items: list[dict]) -> str:
             url=f'https://ei1333.github.io/zundamon-ai-news/days/{date}.html',
             stylesheet_href='../assets/style.css',
             og_type='article',
+            og_image_url=f'https://ei1333.github.io/zundamon-ai-news/assets/ogp-{date}.png',
         ),
         page_heading=escape_text(f'{date} のAIニュース'),
         intro_html=escape_text(header['intro']),
@@ -77,8 +79,23 @@ def main():
     (days_dir / f'{date}.html').write_text(render_html(date, header, items), encoding='utf-8')
     (scripts_dir / f'{date}.txt').write_text(render_script(header, items), encoding='utf-8')
 
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / 'scripts' / 'render_ogp.py'),
+            '--date',
+            date,
+            '--title',
+            header['title'],
+            '--summary',
+            header['summary'],
+        ],
+        check=True,
+    )
+
     print(f'Rendered: days/{date}.html')
     print(f'Rendered: scripts_text/{date}.txt')
+    print(f'Rendered: assets/ogp-{date}.png')
 
 
 if __name__ == '__main__':

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / 'assets' / 'ogp.png'
 
 WIDTH = 1200
 HEIGHT = 630
@@ -34,7 +34,7 @@ WAVE_SEGMENTS = [
     ((784, 468), (814, 430), (844, 506), (874, 468)),
     ((874, 468), (904, 430), (934, 506), (964, 468)),
 ]
-TEXT_NODES = [
+DEFAULT_TEXT_NODES = [
     ('Daily AI Audio Brief', (160, 190), 26, True, (233, 255, 240, 255), 'la'),
     ('ずんだもん', (160, 284), 64, True, (255, 255, 255, 255), 'la'),
     ('1分AIニュース', (160, 362), 64, True, (255, 255, 255, 255), 'la'),
@@ -146,7 +146,15 @@ def paste_gradient_card(image: Image.Image, box_with_radius, gradient_def):
 
 
 
-def main() -> None:
+def trim_text(text: str, max_chars: int) -> str:
+    text = ' '.join(text.split())
+    if len(text) <= max_chars:
+        return text
+    return text[: max_chars - 1].rstrip() + '…'
+
+
+
+def render_ogp(*, out_path: Path, text_nodes: list[tuple], chips=CHIPS):
     image = linear_gradient((WIDTH, HEIGHT), *BG_GRADIENT).convert('RGBA')
     draw = ImageDraw.Draw(image, 'RGBA')
 
@@ -159,22 +167,51 @@ def main() -> None:
 
     draw = ImageDraw.Draw(image, 'RGBA')
     rounded_box(draw, ON_AIR_BOX[:4], ON_AIR_BOX[4], fill=(255, 107, 74, 255))
-    for box, fill, label, label_xy, text_fill in CHIPS:
+    for box, fill, label, label_xy, text_fill in chips:
         rounded_box(draw, box[:4], box[4], fill=fill)
-        font = load_font(18, bold=True)
-        draw_text_anchor(draw, label_xy, label, font, text_fill, 'la')
+        draw_text_anchor(draw, label_xy, label, load_font(18, bold=True), text_fill, 'la')
     for box, fill in BARS:
         rounded_box(draw, box[:4], box[4], fill=fill)
 
     draw_text_anchor(draw, (706, 208), 'ON AIR', load_font(16, bold=True), (255, 255, 255, 255), 'middle')
-    for text, xy, size, bold, fill, anchor in TEXT_NODES:
+    for text, xy, size, bold, fill, anchor in text_nodes:
         draw_text_anchor(draw, xy, text, load_font(size, bold=bold), fill, anchor)
 
     draw_wave(draw)
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    image.convert('RGB').save(OUT, format='PNG', optimize=True)
-    print(f'Rendered: {OUT.relative_to(ROOT)}')
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    image.convert('RGB').save(out_path, format='PNG', optimize=True)
+    print(f'Rendered: {out_path.relative_to(ROOT)}')
+
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description='Render shared or per-episode OGP PNG image.')
+    parser.add_argument('--date', help='Episode date in YYYY-MM-DD format')
+    parser.add_argument('--title', help='Episode title for per-episode OGP')
+    parser.add_argument('--summary', help='Episode summary for per-episode OGP')
+    return parser.parse_args()
+
+
+
+def main() -> None:
+    args = parse_args()
+
+    if args.date:
+        date = args.date
+        title = trim_text(args.title or 'ずんだもん1分AIニュース', 20)
+        summary = trim_text(args.summary or '公開情報をもとに独自要約したAIニュースをお届け', 36)
+        text_nodes = [
+            ('Daily Episode', (160, 190), 26, True, (233, 255, 240, 255), 'la'),
+            (date, (160, 270), 44, True, (255, 255, 255, 255), 'la'),
+            (title, (160, 344), 40, True, (255, 255, 255, 255), 'la'),
+            (summary, (160, 424), 26, True, (243, 255, 246, 255), 'la'),
+            ('ずんだもん1分AIニュース', (160, 468), 28, True, (243, 255, 246, 255), 'la'),
+        ]
+        render_ogp(out_path=ROOT / 'assets' / f'ogp-{date}.png', text_nodes=text_nodes)
+        return
+
+    render_ogp(out_path=ROOT / 'assets' / 'ogp.png', text_nodes=DEFAULT_TEXT_NODES)
 
 
 if __name__ == '__main__':

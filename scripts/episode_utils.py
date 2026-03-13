@@ -141,13 +141,13 @@ def escape_attr(value: str) -> str:
 
 
 
-def build_head_html(*, title: str, description: str, url: str, stylesheet_href: str, og_type: str) -> str:
+def build_head_html(*, title: str, description: str, url: str, stylesheet_href: str, og_type: str, og_image_url: str = 'https://ei1333.github.io/zundamon-ai-news/assets/ogp.png') -> str:
     title_text = escape_text(title)
     desc_attr = escape_attr(description)
     url_attr = escape_attr(url)
     stylesheet_attr = escape_attr(stylesheet_href)
     og_type_attr = escape_attr(og_type)
-    og_image_url = escape_attr('https://ei1333.github.io/zundamon-ai-news/assets/ogp.png')
+    og_image_url = escape_attr(og_image_url)
     return '\n'.join([
         '    <meta charset="UTF-8" />',
         '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',

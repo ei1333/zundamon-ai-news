@@ -32,7 +32,8 @@
 - `assets/audio/` - 音声ファイル配置場所
 - `assets/style.css` - 共通スタイル
 - `assets/ogp.svg` - OGPデザインの元SVG
-- `assets/ogp.png` - 公開用OGP画像
+- `assets/ogp.png` - トップページ用OGP画像
+- `assets/ogp-YYYY-MM-DD.png` - 日別ページ用OGP画像
 - `scripts/new_episode.sh` - `new_episode.py` を呼ぶ薄いラッパー
 - `scripts/new_episode.py` - 新しい原稿ファイルを安全に作り、初回レンダリングを行うスクリプト（`--no-index` 対応）
 - `scripts/render_episode.py` - episode 原稿から HTML と台本テキストを生成するスクリプト
@@ -45,7 +46,7 @@
 - `scripts/templates/partial_tag.html` - タグ表示用の共通 partial
 - `scripts/templates/partial_headline_item.html` - 見出しリスト項目用の共通 partial
 - `scripts/render_audio.sh` - 生成済み台本テキストから音声を生成するスクリプト
-- `scripts/render_ogp.py` - Pillowで OGP PNG を生成するスクリプト
+- `scripts/render_ogp.py` - Pillowで共通OGP画像と日別OGP画像を生成するスクリプト
 - `scripts/validate.sh` - 公開前にテンプレ置換漏れや音声参照切れを確認するスクリプト
 - `scripts/publish.sh` - `main` の公開物を `gh-pages` へ反映するローカル用スクリプト
 - `.github/workflows/publish.yml` - `main` への push を `gh-pages` 公開へ反映する GitHub Actions
@@ -116,6 +117,7 @@ index 更新をあとでやりたいときは、次も使えるめう。
 原稿を編集したら、HTML と台本を再生成します。
 
 `### Script` を空欄にした項目は、`### Headline` と `### Summary` を使って仮の読み上げ文を自動生成します。
+このとき日別ページ用の `assets/ogp-YYYY-MM-DD.png` も同時生成されます。
 
 ```bash
 ./scripts/render_episode.py 2026-03-13
@@ -163,10 +165,16 @@ VOICEVOX_TTS_SCRIPT="${VOICEVOX_TTS_SCRIPT:-$HOME/.openclaw/workspace/voicevox_t
 ./scripts/validate.sh
 ```
 
-OGP画像を再生成したいときはこれめう。
+トップページ用OGP画像を再生成したいときはこれめう。
 
 ```bash
 python3 scripts/render_ogp.py
+```
+
+日別ページ用OGP画像を個別に再生成したいときはこれめう。
+
+```bash
+python3 scripts/render_ogp.py --date 2026-03-13 --title "AI規制・研究・半導体" --summary "公開情報をもとに独自要約したAIニュース回"
 ```
 
 ### 7. `main` に保存する
