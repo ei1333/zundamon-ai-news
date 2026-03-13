@@ -1,0 +1,67 @@
+{
+  "site_name": "ずんだもん1分AIニュース",
+  "site_url": "https://ei1333.github.io/zundamon-ai-news/",
+  "og_image_url": "https://ei1333.github.io/zundamon-ai-news/assets/ogp.png",
+  "theme_label": "AIニュース",
+  "hero": {
+    "eyebrow": "1分で聴く音声ニュース",
+    "title": "ずんだもん1分ニュース",
+    "lead": "公開情報をもとに、その日の注目トピックを1分前後へぎゅっと要約。ずんだもんの声でさっと聴けます。"
+  },
+  "index": {
+    "recent_heading": "最近の回",
+    "backnumber_heading": "バックナンバー",
+    "credits_heading": "クレジット",
+    "credits_voice": "音声：VOICEVOX:ずんだもん"
+  },
+  "day": {
+    "back_link": "← トップページへ戻る",
+    "eyebrow": "今日のエピソード",
+    "page_heading": "{date} のAIニュース",
+    "audio_heading": "音声で聴く",
+    "content_heading": "この回の内容",
+    "source_prefix": "出典:"
+  },
+  "ogp": {
+    "site_name": "ずんだもん1分AIニュース",
+    "site_image_alt": "ずんだもん1分AIニュースのOGP画像",
+    "default_text_nodes": [
+      ["Daily AI Audio Brief", [160, 186], 26, true, [233, 255, 240, 255], "la"],
+      ["ずんだもん", [160, 264], 64, true, [255, 255, 255, 255], "la"],
+      ["1分AIニュース", [160, 327], 64, true, [255, 255, 255, 255], "la"],
+      ["AIニュースを、ずんだもんの声で", [160, 424], 28, true, [243, 255, 246, 255], "la"],
+      ["1分前後にまとめてお届け", [160, 462], 28, true, [243, 255, 246, 255], "la"]
+    ],
+    "episode_badge": "Daily Episode",
+    "episode_brand": "ずんだもん1分AIニュース"
+  },
+  "episode_template": {
+    "default_title": "新しいAIニュース回",
+    "summary": "YYYY-MM-DD の回です。",
+    "intro": "YYYY-MM-DD 時点の公開情報をもとに構成した回です。音声は VOICEVOX のずんだもんボイスで生成しています。",
+    "script_intro": "ずんだもん1分AIニュース、YYYY-MM-DD版なのだ。",
+    "script_closing": "今日のひとことなのだ。ここに締めのひとことを入れるのだ。",
+    "closing": "※ この記事は公開情報をもとにした短い要約です。詳細は各出典をご確認ください。"
+  },
+  "draft": {
+    "default_categories": ["透明性", "研究", "インフラ"],
+    "fallback_summary": "URL からの自動取得に失敗したため、元記事を開いて要約を補ってください。({reason})",
+    "intro": "{date} 時点の公開情報をもとに構成した下書きです。内容を確認して整えてください。",
+    "script_intro": "ずんだもん1分AIニュース、{date}版なのだ。",
+    "script_closing": "以上、今日のAIニュースまとめなのだ。気になる話題は出典も見てみるのだ。",
+    "closing": "※ この記事は公開情報をもとにした短い要約です。詳細は各出典をご確認ください。",
+    "title_fallback": "新しいAIニュース回",
+    "category_rules": [
+      {"label": "透明性", "keywords": ["policy", "regulation", "law", "govern", "transparency", "disclosure", "copyright", "safety", "trust"]},
+      {"label": "研究", "keywords": ["research", "study", "paper", "model", "benchmark", "science", "university", "lab"]},
+      {"label": "インフラ", "keywords": ["chip", "gpu", "datacenter", "data center", "cloud", "semiconductor", "infra", "infrastructure", "network", "server"]}
+    ]
+  },
+  "categories": {
+    "透明性": {"label": "透明性", "class": "category-transparency", "aliases": ["transparency"]},
+    "研究": {"label": "研究", "class": "category-research", "aliases": ["research"]},
+    "インフラ": {"label": "インフラ", "class": "category-infra", "aliases": ["infra", "infrastructure"]},
+    "安全性": {"label": "安全性", "class": "category-safety", "aliases": ["safety"]},
+    "市場": {"label": "市場", "class": "category-market", "aliases": ["market"]}
+  }
+}

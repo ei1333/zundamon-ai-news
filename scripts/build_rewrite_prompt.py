@@ -31,7 +31,7 @@ def parse_args() -> argparse.Namespace:
         description='Build an LLM rewrite prompt from date/theme/draft markdown.'
     )
     parser.add_argument('date', help='Episode date in YYYY-MM-DD format')
-    parser.add_argument('--theme', default='default', help='Theme name for prompt context')
+    parser.add_argument('--theme', default='ai', help='Theme name for prompt context')
     parser.add_argument('--title', help='Optional episode title hint for the prompt')
     parser.add_argument('--draft-file', help='Path to draft markdown. If omitted, reads stdin')
     parser.add_argument('--template', default=str(PROMPT_TEMPLATE_PATH), help='Prompt template markdown path')

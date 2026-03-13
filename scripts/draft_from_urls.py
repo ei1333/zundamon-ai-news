@@ -282,7 +282,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('date', help='Episode date in YYYY-MM-DD format')
     parser.add_argument('urls', nargs=3, help='Three source article URLs')
     parser.add_argument('--title', help='Override episode title')
-    parser.add_argument('--theme', default='default', help='Theme name from config/themes/<name>.json')
+    parser.add_argument('--theme', default='ai', help='Theme name from config/themes/<name>.json')
     parser.add_argument('--stdout', action='store_true', help='Print the draft instead of writing episodes/YYYY-MM-DD.md')
     return parser.parse_args()
 

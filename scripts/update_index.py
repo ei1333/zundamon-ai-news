@@ -16,7 +16,7 @@ from episode_utils import (
 )
 
 
-def list_episodes(*, theme_name: str = 'default') -> list[dict[str, str]]:
+def list_episodes(*, theme_name: str = 'ai') -> list[dict[str, str]]:
     paths = sorted((ROOT / 'episodes').glob('*.md'), key=lambda p: p.stem, reverse=True)
     return [parse_episode_summary(path, theme_name=theme_name) for path in paths if path.name != '_template.md']
 
@@ -74,7 +74,7 @@ def build_backnumber_html(episodes: list[dict[str, object]]) -> str:
 
 
 
-def update_index(target_date: str | None = None, *, theme_name: str = 'default') -> None:
+def update_index(target_date: str | None = None, *, theme_name: str = 'ai') -> None:
     theme = load_theme(theme_name)
     episodes = list_episodes(theme_name=theme_name)
     if not episodes:
@@ -114,6 +114,6 @@ def update_index(target_date: str | None = None, *, theme_name: str = 'default')
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Rebuild index.html from episodes.')
     parser.add_argument('date', nargs='?', help='Optional featured episode date YYYY-MM-DD')
-    parser.add_argument('--theme', default='default', help='Theme name from config/themes/<name>.json')
+    parser.add_argument('--theme', default='ai', help='Theme name from config/themes/<name>.json')
     args = parser.parse_args()
     update_index(args.date, theme_name=args.theme)

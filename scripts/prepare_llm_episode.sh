@@ -19,7 +19,7 @@ Examples:
 EOF
 }
 
-THEME="default"
+THEME="ai"
 if [ "${1:-}" = "--theme" ]; then
   if [ $# -lt 6 ]; then
     usage

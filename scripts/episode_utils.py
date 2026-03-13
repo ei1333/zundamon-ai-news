@@ -11,10 +11,14 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 @lru_cache(maxsize=None)
-def load_theme(theme_name: str = 'default') -> dict:
-    candidates = [ROOT / 'config' / 'themes' / f'{theme_name}.json']
-    if theme_name == 'default':
-        candidates.append(ROOT / 'config' / 'theme.json')
+def load_theme(theme_name: str = 'ai') -> dict:
+    normalized_theme = {'default': 'ai'}.get(theme_name, theme_name)
+    candidates = [ROOT / 'config' / 'themes' / f'{normalized_theme}.json']
+    if normalized_theme == 'ai':
+        candidates.extend([
+            ROOT / 'config' / 'themes' / 'default.json',
+            ROOT / 'config' / 'theme.json',
+        ])
 
     for path in candidates:
         if path.exists():
@@ -25,7 +29,7 @@ def load_theme(theme_name: str = 'default') -> dict:
 
 
 @lru_cache(maxsize=None)
-def category_mapping(theme_name: str = 'default') -> dict[str, tuple[str, str]]:
+def category_mapping(theme_name: str = 'ai') -> dict[str, tuple[str, str]]:
     theme = load_theme(theme_name)
     mapping: dict[str, tuple[str, str]] = {}
     for key, value in theme.get('categories', {}).items():
@@ -38,7 +42,7 @@ def category_mapping(theme_name: str = 'default') -> dict[str, tuple[str, str]]:
 
 
 @lru_cache(maxsize=None)
-def default_categories(theme_name: str = 'default') -> dict[int, tuple[str, str]]:
+def default_categories(theme_name: str = 'ai') -> dict[int, tuple[str, str]]:
     theme = load_theme(theme_name)
     labels = theme.get('draft', {}).get('default_categories', [])
     mapping = category_mapping(theme_name)
@@ -94,7 +98,7 @@ def auto_script(headline: str, summary: str, idx: int) -> str:
 
 
 
-def normalize_category(label: str, idx: int | None = None, *, theme_name: str = 'default') -> tuple[str, str]:
+def normalize_category(label: str, idx: int | None = None, *, theme_name: str = 'ai') -> tuple[str, str]:
     normalized = label.strip().lower()
     mapping = category_mapping(theme_name)
     if normalized in mapping:
@@ -121,11 +125,11 @@ def detect_episode_theme(path: Path) -> str:
     ]
     if any(keyword.lower() in lowered for keyword in shogi_keywords):
         return 'shogi'
-    return 'default'
+    return 'ai'
 
 
 
-def parse_episode_full(path: Path, *, theme_name: str = 'default') -> tuple[dict[str, str], list[dict[str, str]]]:
+def parse_episode_full(path: Path, *, theme_name: str = 'ai') -> tuple[dict[str, str], list[dict[str, str]]]:
     text = path.read_text(encoding='utf-8').strip()
     first_line = text.splitlines()[0].strip() if text.splitlines() else ''
     if not first_line.startswith('# '):
@@ -180,7 +184,7 @@ def escape_attr(value: str) -> str:
 
 
 
-def build_head_html(*, title: str, description: str, url: str, stylesheet_href: str, og_type: str, og_image_url: str | None = None, theme_name: str = 'default') -> str:
+def build_head_html(*, title: str, description: str, url: str, stylesheet_href: str, og_type: str, og_image_url: str | None = None, theme_name: str = 'ai') -> str:
     theme = load_theme(theme_name)
     title_text = escape_text(title)
     desc_attr = escape_attr(description)
@@ -236,7 +240,7 @@ def build_headline_items(items: list[dict[str, object]], *, indent: str, headlin
 
 
 
-def parse_episode_summary(path: Path, *, theme_name: str = 'default') -> dict[str, object]:
+def parse_episode_summary(path: Path, *, theme_name: str = 'ai') -> dict[str, object]:
     episode_theme_name = detect_episode_theme(path)
     header, items = parse_episode_full(path, theme_name=episode_theme_name)
     theme = load_theme(episode_theme_name)
@@ -258,7 +262,7 @@ def parse_episode_summary(path: Path, *, theme_name: str = 'default') -> dict[st
 
 
 
-def build_episode_template_text(date: str, *, title: str | None = None, theme_name: str = 'default') -> str:
+def build_episode_template_text(date: str, *, title: str | None = None, theme_name: str = 'ai') -> str:
     theme = load_theme(theme_name)
     template = theme.get('episode_template', {})
     resolved_title = title or template.get('default_title', '新しいニュース回')

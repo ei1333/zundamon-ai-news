@@ -1,7 +1,7 @@
 # 新しいAIニュース回
 
 ## Theme
-default
+ai
 
 ## Summary
 YYYY-MM-DD の回です。

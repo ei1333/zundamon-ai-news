@@ -36,7 +36,7 @@ WAVE_SEGMENTS = [
     ((784, 468), (814, 430), (844, 506), (874, 468)),
     ((874, 468), (904, 430), (934, 506), (964, 468)),
 ]
-def default_text_nodes(theme_name: str = 'default') -> list[tuple]:
+def default_text_nodes(theme_name: str = 'ai') -> list[tuple]:
     theme = load_theme(theme_name)
     nodes = theme.get('ogp', {}).get('default_text_nodes', [])
     return [
@@ -261,7 +261,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('--date', help='Episode date in YYYY-MM-DD format')
     parser.add_argument('--title', help='Episode title for per-episode OGP')
     parser.add_argument('--summary', help='Episode summary for per-episode OGP')
-    parser.add_argument('--theme', default='default', help='Theme name from config/themes/<name>.json')
+    parser.add_argument('--theme', default='ai', help='Theme name from config/themes/<name>.json')
     return parser.parse_args()
 
 

@@ -41,8 +41,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         '--theme',
-        default='default',
-        help='Theme name. Uses config/theme.json for default, or config/themes/<name>.json',
+        default='ai',
+        help='Theme name. `ai` is the default theme; `default` remains as a backward-compatible alias.',
     )
     return parser.parse_args()
 

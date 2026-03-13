@@ -18,7 +18,7 @@ from episode_utils import (
 )
 
 
-def render_html(date: str, header: dict, items: list[dict], *, theme_name: str = 'default') -> str:
+def render_html(date: str, header: dict, items: list[dict], *, theme_name: str = 'ai') -> str:
     theme = load_theme(theme_name)
     day_theme = theme.get('day', {})
     item_html = []
@@ -71,7 +71,7 @@ def render_script(header: dict, items: list[dict]) -> str:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Render one episode into HTML / script / OGP.')
     parser.add_argument('date', help='Episode date in YYYY-MM-DD format')
-    parser.add_argument('--theme', default='default', help='Theme name from config/themes/<name>.json')
+    parser.add_argument('--theme', default='ai', help='Theme name from config/themes/<name>.json')
     return parser.parse_args()
 
 
