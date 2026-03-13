@@ -249,7 +249,7 @@ def render_ogp(*, out_path: Path, text_nodes: list[tuple], multiline_blocks: lis
     for box, fill in BARS:
         rounded_box(draw, box[:4], box[4], fill=fill)
 
-    draw_text_anchor(draw, (706, 203), 'ON AIR', load_font(16, bold=True), (255, 255, 255, 255), 'middle')
+    draw_text_anchor(draw, (706, 201), 'ON AIR', load_font(16, bold=True), (255, 255, 255, 255), 'middle')
     for text, xy, size, bold, fill, anchor in text_nodes:
         draw_text_anchor(draw, xy, text, load_font(size, bold=bold), fill, anchor)
     for lines, xy, size, bold, fill, line_gap in multiline_blocks or []:
