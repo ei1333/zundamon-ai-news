@@ -67,9 +67,9 @@ def main() -> None:
     episode_path = episodes_dir / f'{date}.md'
 
     create_episode_from_template(episode_path, date, title, theme_name)
-    run([sys.executable, str(ROOT / 'scripts' / 'render_episode.py'), '--theme', theme_name, date])
+    run([sys.executable, str(ROOT / 'scripts' / 'render_episode.py'), date])
     if not args.no_index:
-        run([sys.executable, str(ROOT / 'scripts' / 'update_index.py'), '--theme', theme_name, date])
+        run([sys.executable, str(ROOT / 'scripts' / 'update_index.py'), date])
 
     print('Created:')
     print(f'- episodes/{date}.md')

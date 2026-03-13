@@ -27,7 +27,7 @@ def fetch_url(url: str) -> str:
 
 
 
-def fallback_from_url(url: str, fallback_category: str, reason: str, draft_theme: dict[str, object], *, theme_name: str = 'default') -> dict[str, str]:
+def fallback_from_url(url: str, fallback_category: str, reason: str, draft_theme: dict[str, object], *, theme_name: str = 'ai') -> dict[str, str]:
     parsed = urllib.parse.urlparse(url)
     slug = parsed.path.rstrip('/').split('/')[-1] or parsed.netloc
     slug = urllib.parse.unquote(slug)
@@ -230,11 +230,14 @@ def pick_episode_title(items: list[dict[str, str]], draft_theme: dict[str, objec
 
 
 
-def build_episode_text(date: str, items: list[dict[str, str]], draft_theme: dict[str, object], title: str | None = None) -> str:
+def build_episode_text(date: str, items: list[dict[str, str]], draft_theme: dict[str, object], *, theme_name: str = 'ai', title: str | None = None) -> str:
     resolved_title = title or pick_episode_title(items, draft_theme)
     summary = f'{date} の回では、' + '、'.join(item['headline'] for item in items[:3]) + 'の3本を掲載しています。'
     lines = [
         f'# {resolved_title}',
+        '',
+        '## Theme',
+        theme_name,
         '',
         '## Summary',
         summary,
@@ -322,7 +325,7 @@ def main() -> None:
         except (urllib.error.URLError, TimeoutError, socket.timeout) as exc:
             items.append(fallback_from_url(url, fallback_category, str(exc), draft_theme, theme_name=args.theme))
 
-    draft = build_episode_text(args.date, items, draft_theme, title=args.title)
+    draft = build_episode_text(args.date, items, draft_theme, theme_name=args.theme, title=args.title)
 
     if args.stdout:
         print(draft)
