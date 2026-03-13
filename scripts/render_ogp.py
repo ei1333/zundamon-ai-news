@@ -280,14 +280,18 @@ def main() -> None:
         title_font_size = 40
         title_font = load_font(title_font_size, bold=True)
         title_lines = split_title_lines(trim_text(args.title or 'ずんだもん1分AIニュース', 28), title_font, max_width=410)
-        summary = fit_text(args.summary or '公開情報をもとに独自要約したAIニュースをお届け', 44, 410, load_font(26, bold=True), ellipsis=False)
+        summary = fit_text(args.summary or '', 44, 410, load_font(26, bold=True), ellipsis=False)
 
         text_nodes = [
             ('Daily Episode', (160, 186), 26, True, (233, 255, 240, 255), 'la'),
             (date, (160, 262), 44, True, (255, 255, 255, 255), 'la'),
-            (summary, (160, 432 if len(title_lines) == 1 else 456), 26, True, (243, 255, 246, 255), 'la'),
-            ('ずんだもん1分AIニュース', (160, 472 if len(title_lines) == 1 else 494), 28, True, (243, 255, 246, 255), 'la'),
+            ('ずんだもん1分AIニュース', (160, 472 if len(title_lines) == 1 else 494, ), 28, True, (243, 255, 246, 255), 'la'),
         ]
+        if summary:
+            text_nodes.insert(
+                2,
+                (summary, (160, 432 if len(title_lines) == 1 else 456), 26, True, (243, 255, 246, 255), 'la'),
+            )
         multiline_blocks = [
             (title_lines, (160, 336), title_font_size, True, (255, 255, 255, 255), 10),
         ]

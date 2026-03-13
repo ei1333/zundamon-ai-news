@@ -79,6 +79,8 @@ def main():
     (days_dir / f'{date}.html').write_text(render_html(date, header, items), encoding='utf-8')
     (scripts_dir / f'{date}.txt').write_text(render_script(header, items), encoding='utf-8')
 
+    ogp_summary = '' if date == '2026-03-10' else header['summary']
+
     subprocess.run(
         [
             sys.executable,
@@ -88,7 +90,7 @@ def main():
             '--title',
             header['title'],
             '--summary',
-            header['summary'],
+            ogp_summary,
         ],
         check=True,
     )
