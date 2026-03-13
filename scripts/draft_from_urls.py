@@ -217,6 +217,10 @@ def shorten_shogi_headline(title: str) -> str:
             player = re.search(r'([一-龠ぁ-んァ-ヶA-Za-z]+(?:九段|八段|七段|六段|五段|四段|三段|二段|初段|女流[一-龠ぁ-んァ-ヶA-Za-z]+))の勝利', rest)
             if player:
                 return f'{base} {player.group(1)}が挑戦権'
+
+            players = re.findall(r'([一-龠ぁ-んァ-ヶA-Za-z]+(?:九段|八段|七段|六段|五段|四段|三段|二段|初段|女流[一-龠ぁ-んァ-ヶA-Za-z]+))', rest)
+            if players:
+                return f'{base} {players[0]}が挑戦権'
             return f'{base} 挑戦者決定戦'
 
     title = re.sub(r'\bVS\b', 'vs', title)
