@@ -30,6 +30,9 @@ LLM は **自然な編集**、
 ### Editorial / Drafting
 
 - `scripts/draft_from_urls.py` - 記事 URL 3本から episode 原稿の下書きを生成
+- `scripts/draft_fetch.py` - URL 取得、title/description/site name 抽出
+- `scripts/draft_tagging.py` - 主タグ / 補助タグ / タイトル候補の推定
+- `scripts/draft_builder.py` - draft Markdown の組み立てと fallback item 生成
 - `scripts/build_rewrite_prompt.py` - 下書き Markdown から生成AI投入用の prompt 文を組み立てる
 - `scripts/prepare_llm_episode.sh` - URL 3本から draft と prompt をまとめて用意する。URL を省くと schedule 由来の source 候補を表示
 - `prompts/episode_rewrite_prompt.txt` - 機械が読む prompt テンプレート本体
