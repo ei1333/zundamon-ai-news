@@ -29,11 +29,22 @@ fi
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
+if [ $# -eq 1 ]; then
+  SCHEDULE_JSON="$(python3 scripts/show_schedule.py --json "$DATE")"
+  SCHEDULE_SPEAKER="$(printf '%s' "$SCHEDULE_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("speaker", "zundamon"))')"
+  SCHEDULE_SITE_THEME="$(printf '%s' "$SCHEDULE_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("site_theme", "ai"))')"
+  SPEAKER="$SCHEDULE_SPEAKER"
+  echo "==> Using schedule for $DATE"
+  echo "$SCHEDULE_JSON"
+else
+  SCHEDULE_SITE_THEME="ai"
+fi
+
 echo "==> Rendering episode outputs for $DATE"
 python3 scripts/render_episode.py "$DATE"
 
-echo "==> Updating index"
-python3 scripts/update_index.py
+echo "==> Updating index (site theme: $SCHEDULE_SITE_THEME)"
+python3 scripts/update_index.py --site-theme "$SCHEDULE_SITE_THEME"
 
 echo "==> Rendering audio ($SPEAKER)"
 ./scripts/render_audio.sh "$DATE" "$SPEAKER"

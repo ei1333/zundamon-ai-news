@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "defaults": {
+    "speaker": "zundamon",
+    "site_theme": "ai",
+    "coverage": "weekly"
+  },
+  "weekday_rules": {
+    "monday": {
+      "theme": "ai",
+      "coverage": "daily"
+    },
+    "tuesday": {
+      "theme": "ai",
+      "coverage": "daily"
+    },
+    "wednesday": {
+      "theme": "ai",
+      "coverage": "daily"
+    },
+    "thursday": {
+      "theme": "ai",
+      "coverage": "daily"
+    },
+    "friday": {
+      "theme": "ai",
+      "coverage": "daily"
+    },
+    "saturday": {
+      "theme": "vocaloid",
+      "coverage": "weekly"
+    },
+    "sunday": {
+      "theme": "shogi",
+      "coverage": "weekly"
+    }
+  }
+}
