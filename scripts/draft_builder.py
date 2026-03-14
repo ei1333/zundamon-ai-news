@@ -30,7 +30,7 @@ def fallback_from_url(url: str, fallback_category: str, reason: str, draft_theme
 def build_episode_text(date: str, items: list[DraftItem], draft_theme: dict[str, object], *, theme_name: str = 'ai', coverage: str = 'weekly', window: str | None = None, title: str | None = None, pick_title=None) -> str:
     resolved_title = title or (pick_title(items, draft_theme) if pick_title else str(draft_theme.get('title_fallback', '新しいAIニュース回')))
     resolved_window = window or default_window_for(date, coverage)
-    summary = f'{resolved_window} の公開情報から、' + '、'.join(str(item['headline']) for item in items[:3]) + 'の3本を掲載しています。'
+    summary = f'{resolved_window} の公開情報から、' + '、'.join(str(item.headline) for item in items[:3]) + 'の3本を掲載しています。'
     lines = [
         f'# {resolved_title}',
         '',
@@ -57,16 +57,16 @@ def build_episode_text(date: str, items: list[DraftItem], draft_theme: dict[str,
         lines += [
             f'## Item {idx}',
             '### Headline',
-            str(item['headline']),
+            str(item.headline),
             '',
             '### Summary',
-            str(item['summary']),
+            str(item.summary),
             '',
             '### Tags',
-            *[str(tag) for tag in item.get('tags', [])],
+            *[str(tag) for tag in item.tags],
             '',
             '### Source',
-            f'[{item["source_name"]}]({item["url"]})',
+            f'[{item.source_name}]({item.url})',
             '',
             '### Script',
             '',

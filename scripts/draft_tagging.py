@@ -29,17 +29,17 @@ def infer_tags(title: str, description: str, primary_tag: str, tag_rules: list[t
     return tags
 
 
-def pick_episode_title(items: list[dict[str, object]], draft_theme: dict[str, object]) -> str:
+def pick_episode_title(items: list[object], draft_theme: dict[str, object]) -> str:
     keywords = []
     seen = set()
     for item in items[:3]:
-        category = str(item.get('category', ''))
+        category = str(getattr(item, 'category', ''))
         if category and category not in seen:
             keywords.append(category)
             seen.add(category)
             continue
 
-        headline = str(item.get('headline', ''))
+        headline = str(getattr(item, 'headline', ''))
         if headline and headline not in seen:
             keywords.append(headline)
             seen.add(headline)
