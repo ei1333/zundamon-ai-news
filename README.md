@@ -173,7 +173,8 @@ python3 scripts/draft_from_urls.py --theme shogi --stdout 2026-03-13 \
 - `## Item 1` 〜 `## Item 3`
   - `### Headline`
   - `### Summary`
-  - `### Category` （任意）
+  - `### Tags` （任意、複数可）
+  - `### Category` （旧形式。未移行回との互換用）
   - `### Source`
   - `### Script` （空欄なら Summary から仮生成）
 - `## Script Closing`
@@ -193,11 +194,18 @@ python3 scripts/draft_from_urls.py --theme shogi --stdout 2026-03-13 \
 設計上は **site theme** と **episode theme** を分けています。
 トップページ (`index.html`) のブランドや OGP は site theme で決め、各回の表示ラベルや日別ページは episode 本文の `## Theme` を真実源として扱います。
 
-`### Category` を省略した場合は、当面次の既定値を使います。
+`### Tags` は自由記述です。複数行でも 1 行カンマ区切りでも書けます。
 
-- 1本目 → `透明性`
-- 2本目 → `研究`
-- 3本目 → `インフラ`
+```md
+### Tags
+製品
+初音ミク
+歌声合成
+```
+
+旧形式の `### Category` も引き続き読めますが、新規作成では `### Tags` を推奨します。
+
+`### Tags` と `### Category` の両方を省略した場合は、当面 theme ごとの既定タグを使います。
 
 ## Rendering and Publishing
 

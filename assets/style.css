@@ -227,6 +227,8 @@ h3 {
   padding: 4px 10px;
   font-size: 0.76rem;
   font-weight: 800;
+  background: rgba(91, 100, 117, 0.12);
+  color: #4b5563;
 }
 
 .category-transparency {

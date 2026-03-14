@@ -111,6 +111,36 @@ def normalize_category(label: str, idx: int | None = None, *, theme_name: str = 
     return (label.strip() or 'AI', 'category-general')
 
 
+def parse_tags_block(text: str, *, idx: int | None = None, theme_name: str = 'ai') -> list[dict[str, str]]:
+    raw = text.strip()
+    if not raw:
+        label, css_class = normalize_category('', idx, theme_name=theme_name)
+        return [{'label': label, 'class': css_class}]
+
+    lines = [line.strip() for line in raw.splitlines() if line.strip()]
+    if len(lines) == 1:
+        candidates = [part.strip() for part in re.split(r'[、,]', lines[0]) if part.strip()]
+    else:
+        candidates = [re.sub(r'^[-*]\s*', '', line).strip() for line in lines]
+        candidates = [tag for tag in candidates if tag]
+
+    tags = []
+    seen = set()
+    for candidate in candidates:
+        label, css_class = normalize_category(candidate, None, theme_name=theme_name)
+        key = (label, css_class)
+        if key in seen:
+            continue
+        seen.add(key)
+        tags.append({'label': label, 'class': css_class})
+
+    if tags:
+        return tags
+
+    label, css_class = normalize_category('', idx, theme_name=theme_name)
+    return [{'label': label, 'class': css_class}]
+
+
 def parse_iso_date(value: str) -> datetime:
     return datetime.strptime(value, '%Y-%m-%d')
 
@@ -174,14 +204,20 @@ def parse_episode_full(path: Path, *, theme_name: str = 'ai') -> tuple[dict[str,
         item_block = extract_section(text, f'Item {idx}')
         headline = extract_subsection(item_block, 'Headline')
         summary = extract_subsection(item_block, 'Summary')
+        tags_text = extract_subsection(item_block, 'Tags', required=False)
         category = extract_subsection(item_block, 'Category', required=False)
-        category_label, category_class = normalize_category(category, idx, theme_name=theme_name)
+        if tags_text:
+            tags = parse_tags_block(tags_text, idx=idx, theme_name=theme_name)
+        else:
+            category_label, category_class = normalize_category(category, idx, theme_name=theme_name)
+            tags = [{'label': category_label, 'class': category_class}]
         script = extract_subsection(item_block, 'Script', required=False)
         item = {
             'Headline': headline,
             'Summary': summary,
-            'Category': category_label,
-            'CategoryClass': category_class,
+            'Category': tags[0]['label'],
+            'CategoryClass': tags[0]['class'],
+            'Tags': tags,
             'Script': script or auto_script(headline, summary, idx),
         }
         item.update(parse_source_block(extract_subsection(item_block, 'Source')))
@@ -242,14 +278,27 @@ def build_head_html(*, title: str, description: str, url: str, stylesheet_href: 
 
 def build_tag_spans(items: list[dict[str, object]], *, indent: str, category_key: str, class_key: str) -> str:
     template = load_template('partial_tag.html')
-    return ''.join(
-        template.format(
-            indent=indent,
-            category_class=escape_attr(item[class_key]),
-            category_label=escape_text(item[category_key]),
-        )
-        for item in items
-    ).rstrip()
+    spans: list[str] = []
+    for item in items:
+        tags = item.get('Tags')
+        if isinstance(tags, list) and tags:
+            for tag in tags:
+                spans.append(
+                    template.format(
+                        indent=indent,
+                        tag_class=escape_attr(tag.get('class', 'category-general')),
+                        tag_label=escape_text(tag.get('label', '')),
+                    )
+                )
+        else:
+            spans.append(
+                template.format(
+                    indent=indent,
+                    tag_class=escape_attr(item[class_key]),
+                    tag_label=escape_text(item[category_key]),
+                )
+            )
+    return ''.join(spans).rstrip()
 
 
 
@@ -335,7 +384,7 @@ def build_episode_template_text(date: str, *, title: str | None = None, theme_na
             '### Summary',
             item_summary_defaults[idx - 1],
             '',
-            '### Category',
+            '### Tags',
             category_labels[idx - 1],
             '',
             '### Source',
