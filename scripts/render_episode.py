@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -64,13 +65,18 @@ def render_html(date: str, header: dict, items: list[dict], *, theme_name: str =
     )
 
 
+def build_script_parts(header: dict, items: list[dict]) -> list[dict[str, str]]:
+    parts = [
+        {'id': 'intro', 'label': 'Intro', 'text': header['script_intro'].strip()},
+    ]
+    for idx, item in enumerate(items, start=1):
+        parts.append({'id': f'item-{idx}', 'label': f'Item {idx}', 'text': item['Script'].strip()})
+    parts.append({'id': 'closing', 'label': 'Closing', 'text': header['script_closing'].strip()})
+    return [part for part in parts if part['text']]
+
+
 def render_script(header: dict, items: list[dict]) -> str:
-    lines = [header['script_intro'], '']
-    for item in items:
-        lines.append(item['Script'])
-        lines.append('')
-    lines.append(header['script_closing'])
-    return '\n'.join(lines).strip() + '\n'
+    return '\n\n'.join(part['text'] for part in build_script_parts(header, items)).strip() + '\n'
 
 
 def parse_args() -> argparse.Namespace:
@@ -100,6 +106,10 @@ def main():
 
     (days_dir / f'{date}.html').write_text(render_html(date, header, items, theme_name=theme_name), encoding='utf-8')
     (scripts_dir / f'{date}.txt').write_text(render_script(header, items), encoding='utf-8')
+    (scripts_dir / f'{date}.parts.json').write_text(
+        json.dumps(build_script_parts(header, items), ensure_ascii=False, indent=2) + '\n',
+        encoding='utf-8',
+    )
 
     subprocess.run(
         [
@@ -117,6 +127,7 @@ def main():
 
     print(f'Rendered: days/{date}.html')
     print(f'Rendered: scripts_text/{date}.txt')
+    print(f'Rendered: scripts_text/{date}.parts.json')
     print(f'Rendered: assets/ogp-{date}.png')
 
 
