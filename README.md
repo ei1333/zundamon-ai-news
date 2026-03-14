@@ -31,7 +31,7 @@ LLM は **自然な編集**、
 
 - `scripts/draft_from_urls.py` - 記事 URL 3本から episode 原稿の下書きを生成
 - `scripts/build_rewrite_prompt.py` - 下書き Markdown から生成AI投入用の prompt 文を組み立てる
-- `scripts/prepare_llm_episode.sh` - URL 3本から draft と prompt をまとめて用意する
+- `scripts/prepare_llm_episode.sh` - URL 3本から draft と prompt をまとめて用意する。URL を省くと schedule 由来の source 候補を表示
 - `prompts/episode_rewrite_prompt.txt` - 機械が読む prompt テンプレート本体
 - `prompts/episode_rewrite_prompt.md` - prompt の説明と運用メモ
 - `examples/shogi_rewrite_example.md` - 将棋ニュース下書き → 生成AI整形の最小サンプル
@@ -325,12 +325,17 @@ python3 scripts/show_schedule.py --json 2026-03-14
 ```
 
 `build_episode.sh` を **speaker 省略** で呼ぶと、その日の schedule から speaker / site theme を拾います。
+`new_episode.py` / `draft_from_urls.py` も、theme / coverage / window を省略すると schedule を参照します。
+`prepare_llm_episode.sh YYYY-MM-DD` のように URL なしで呼ぶと、その日の source 候補一覧を表示します。
 
 ## Recommended Minimal Flow
 
 普段の最短手順はこれです。
 
 ```bash
+./scripts/prepare_llm_episode.sh 2026-03-13
+# ↑ その日の schedule と source 候補を確認
+
 ./scripts/prepare_llm_episode.sh 2026-03-13 \
   "https://example.com/a" \
   "https://example.com/b" \
@@ -338,7 +343,7 @@ python3 scripts/show_schedule.py --json 2026-03-14
 
 # prompts/generated/2026-03-13.ai.prompt.txt を生成AIへ投入
 # 生成AIの出力を episodes/2026-03-13.md に保存
-./scripts/build_episode.sh 2026-03-13 zundamon
+./scripts/build_episode.sh 2026-03-13
 git add .
 git commit -m "Add daily AI news for 2026-03-13"
 git push origin main

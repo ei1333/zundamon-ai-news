@@ -8,31 +8,66 @@
   "weekday_rules": {
     "monday": {
       "theme": "ai",
-      "coverage": "daily"
+      "coverage": "daily",
+      "source_suggestions": [
+        "https://openai.com/news/",
+        "https://blog.google/technology/ai/",
+        "https://www.anthropic.com/news"
+      ]
     },
     "tuesday": {
       "theme": "ai",
-      "coverage": "daily"
+      "coverage": "daily",
+      "source_suggestions": [
+        "https://openai.com/news/",
+        "https://blog.google/technology/ai/",
+        "https://www.anthropic.com/news"
+      ]
     },
     "wednesday": {
       "theme": "ai",
-      "coverage": "daily"
+      "coverage": "daily",
+      "source_suggestions": [
+        "https://openai.com/news/",
+        "https://blog.google/technology/ai/",
+        "https://www.anthropic.com/news"
+      ]
     },
     "thursday": {
       "theme": "ai",
-      "coverage": "daily"
+      "coverage": "daily",
+      "source_suggestions": [
+        "https://openai.com/news/",
+        "https://blog.google/technology/ai/",
+        "https://www.anthropic.com/news"
+      ]
     },
     "friday": {
       "theme": "ai",
-      "coverage": "daily"
+      "coverage": "daily",
+      "source_suggestions": [
+        "https://openai.com/news/",
+        "https://blog.google/technology/ai/",
+        "https://www.anthropic.com/news"
+      ]
     },
     "saturday": {
       "theme": "vocaloid",
-      "coverage": "weekly"
+      "coverage": "weekly",
+      "source_suggestions": [
+        "https://blog.piapro.net/",
+        "https://sonicwire.com/news",
+        "https://magicalmirai.com/2026/"
+      ]
     },
     "sunday": {
       "theme": "shogi",
-      "coverage": "weekly"
+      "coverage": "weekly",
+      "source_suggestions": [
+        "https://www.shogi.or.jp/news/",
+        "https://www.shogi.or.jp/match/",
+        "https://www.shogi.or.jp/match_news/"
+      ]
     }
   }
 }

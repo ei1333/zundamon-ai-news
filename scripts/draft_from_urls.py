@@ -12,6 +12,7 @@ import urllib.request
 from pathlib import Path
 
 from episode_utils import default_window_for, load_theme
+from schedule_utils import resolve_rule
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -292,9 +293,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('date', help='Episode date in YYYY-MM-DD format')
     parser.add_argument('urls', nargs=3, help='Three source article URLs')
     parser.add_argument('--title', help='Override episode title')
-    parser.add_argument('--theme', default='ai', help='Theme name from config/themes/<name>.json')
-    parser.add_argument('--coverage', default='weekly', choices=['daily', 'weekly'], help='Coverage window type for this draft')
-    parser.add_argument('--window', help='Explicit window like YYYY-MM-DD..YYYY-MM-DD. Defaults from coverage/date.')
+    parser.add_argument('--theme', help='Theme name from config/themes/<name>.json. If omitted, resolves from schedule.')
+    parser.add_argument('--coverage', choices=['daily', 'weekly'], help='Coverage window type for this draft. If omitted, resolves from schedule.')
+    parser.add_argument('--window', help='Explicit window like YYYY-MM-DD..YYYY-MM-DD. Defaults from coverage/date or schedule.')
     parser.add_argument('--stdout', action='store_true', help='Print the draft instead of writing episodes/YYYY-MM-DD.md')
     return parser.parse_args()
 
@@ -305,7 +306,12 @@ def main() -> None:
     if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', args.date):
         raise SystemExit('Expected YYYY-MM-DD')
 
-    theme = load_theme(args.theme)
+    _, schedule_rule = resolve_rule(args.date)
+    theme_name = args.theme or schedule_rule.get('theme', 'ai')
+    coverage = args.coverage or schedule_rule.get('coverage', 'weekly')
+    window = args.window or schedule_rule.get('window') or default_window_for(args.date, coverage)
+
+    theme = load_theme(theme_name)
     draft_theme = theme.get('draft', {})
     default_categories = list(draft_theme.get('default_categories', ['透明性', '研究', 'インフラ']))
     category_rules = [
@@ -332,9 +338,9 @@ def main() -> None:
                 }
             )
         except (urllib.error.URLError, TimeoutError, socket.timeout) as exc:
-            items.append(fallback_from_url(url, fallback_category, str(exc), draft_theme, theme_name=args.theme))
+            items.append(fallback_from_url(url, fallback_category, str(exc), draft_theme, theme_name=theme_name))
 
-    draft = build_episode_text(args.date, items, draft_theme, theme_name=args.theme, coverage=args.coverage, window=args.window, title=args.title)
+    draft = build_episode_text(args.date, items, draft_theme, theme_name=theme_name, coverage=coverage, window=window, title=args.title)
 
     if args.stdout:
         print(draft)

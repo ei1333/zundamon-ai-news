@@ -3,26 +3,9 @@ from __future__ import annotations
 
 import argparse
 import json
-from datetime import datetime
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-SCHEDULE_PATH = ROOT / 'config' / 'schedule.json'
-WEEKDAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-
-
-def load_schedule() -> dict:
-    return json.loads(SCHEDULE_PATH.read_text(encoding='utf-8'))
-
-
-def resolve_rule(date_text: str) -> tuple[str, dict]:
-    date = datetime.strptime(date_text, '%Y-%m-%d')
-    weekday = WEEKDAYS[date.weekday()]
-    data = load_schedule()
-    defaults = data.get('defaults', {})
-    rule = dict(defaults)
-    rule.update(data.get('weekday_rules', {}).get(weekday, {}))
-    return weekday, rule
+from episode_utils import default_window_for
+from schedule_utils import resolve_rule
 
 
 def main() -> None:
@@ -37,15 +20,18 @@ def main() -> None:
         'weekday': weekday,
         **rule,
     }
+    result['window'] = result.get('window') or default_window_for(args.date, result.get('coverage', 'weekly'))
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return
 
     print(f"date: {args.date}")
     print(f"weekday: {weekday}")
-    for key in ['theme', 'coverage', 'speaker', 'site_theme']:
+    for key in ['theme', 'coverage', 'window', 'speaker', 'site_theme']:
         if key in result:
             print(f"{key}: {result[key]}")
+    for url in result.get('source_suggestions', []):
+        print(f"source: {url}")
 
 
 if __name__ == '__main__':

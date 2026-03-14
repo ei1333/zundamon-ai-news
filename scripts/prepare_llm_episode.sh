@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/prepare_llm_episode.sh [--theme THEME] YYYY-MM-DD URL1 URL2 URL3
+  ./scripts/prepare_llm_episode.sh [--theme THEME] YYYY-MM-DD [URL1 URL2 URL3]
 
 Examples:
   ./scripts/prepare_llm_episode.sh 2026-03-13 \
@@ -19,9 +19,9 @@ Examples:
 EOF
 }
 
-THEME="ai"
+THEME=""
 if [ "${1:-}" = "--theme" ]; then
-  if [ $# -lt 6 ]; then
+  if [ $# -lt 2 ]; then
     usage
     exit 1
   fi
@@ -29,15 +29,15 @@ if [ "${1:-}" = "--theme" ]; then
   shift 2
 fi
 
-if [ $# -ne 4 ]; then
+if [ $# -ne 1 ] && [ $# -ne 4 ]; then
   usage
   exit 1
 fi
 
 DATE="$1"
-URL1="$2"
-URL2="$3"
-URL3="$4"
+URL1="${2:-}"
+URL2="${3:-}"
+URL3="${4:-}"
 
 if ! [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
   echo "Invalid date format: $DATE" >&2
@@ -47,6 +47,22 @@ fi
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
+
+SCHEDULE_JSON="$(python3 scripts/show_schedule.py --json "$DATE")"
+if [ -z "$THEME" ]; then
+  THEME="$(printf '%s' "$SCHEDULE_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("theme", "ai"))')"
+fi
+
+if [ -z "$URL1" ] || [ -z "$URL2" ] || [ -z "$URL3" ]; then
+  echo "Schedule for $DATE:" >&2
+  echo "$SCHEDULE_JSON" >&2
+  echo >&2
+  echo "Source suggestions:" >&2
+  printf '%s' "$SCHEDULE_JSON" | python3 -c 'import json,sys; data=json.load(sys.stdin); [print(f"- {u}") for u in data.get("source_suggestions", [])]' >&2
+  echo >&2
+  echo "Pass 3 article URLs to continue." >&2
+  exit 1
+fi
 
 mkdir -p drafts prompts/generated episodes
 

@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from episode_utils import ROOT, build_episode_template_text, default_window_for, load_theme
+from schedule_utils import resolve_rule
 
 
 def validate_date(date: str) -> str:
@@ -41,20 +42,20 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         '--theme',
-        default='ai',
-        help='Theme name. `ai` is the default theme; `default` remains as a backward-compatible alias.',
+        help='Theme name. If omitted, resolves from config/schedule.json for the date.',
     )
-    parser.add_argument('--coverage', default='weekly', choices=['daily', 'weekly'], help='Coverage window type for this episode.')
-    parser.add_argument('--window', help='Explicit window like YYYY-MM-DD..YYYY-MM-DD. Defaults from coverage/date.')
+    parser.add_argument('--coverage', choices=['daily', 'weekly'], help='Coverage window type for this episode. If omitted, resolves from schedule.')
+    parser.add_argument('--window', help='Explicit window like YYYY-MM-DD..YYYY-MM-DD. Defaults from coverage/date or schedule.')
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
     date = validate_date(args.date)
-    theme_name = args.theme
-    coverage = args.coverage
-    window = args.window or default_window_for(date, coverage)
+    _, schedule_rule = resolve_rule(date)
+    theme_name = args.theme or schedule_rule.get('theme', 'ai')
+    coverage = args.coverage or schedule_rule.get('coverage', 'weekly')
+    window = args.window or schedule_rule.get('window') or default_window_for(date, coverage)
     theme = load_theme(theme_name)
     title = args.title or theme.get('episode_template', {}).get('default_title', '新しいニュース回')
 
