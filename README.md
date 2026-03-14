@@ -41,9 +41,11 @@ LLM は **自然な編集**、
 - `scripts/render_audio.py` - VOICEVOX helper を使った音声生成本体
 - `scripts/render_audio.sh` - 上記 Python スクリプトの薄い wrapper
 - `scripts/schedule_models.py` - schedule 解決結果の dataclass 定義
-- `scripts/index_models.py` - index 生成用 view model の dataclass 定義
+- `scripts/index_models.py` - index 生成用 summary/view model の dataclass 定義
 - `scripts/episode_models.py` - episode header/item/document の dataclass 定義
 - `scripts/validate_config.py` - theme / schedule 設定の静的検証
+- `scripts/validate.py` - サイト生成物全体の Python バリデータ本体
+- `scripts/validate.sh` - 上記 Python スクリプトの薄い wrapper
 - `scripts/episode_models.py` - episode header / item / tag / document の dataclass 定義
 - `scripts/validate_config.py` - themes / schedule 設定の構造チェック
 - `prompts/episode_rewrite_prompt.txt` - 機械が読む prompt テンプレート本体

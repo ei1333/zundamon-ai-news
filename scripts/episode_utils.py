@@ -9,6 +9,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from episode_models import EpisodeDocument, EpisodeHeader, EpisodeItem, EpisodeTag
+from index_models import IndexEpisodeSummary, IndexEpisodeTagSummary
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -367,28 +368,28 @@ def build_headline_items(items: list[object], *, indent: str, headline_key: str)
 
 
 
-def parse_episode_summary(path: Path, *, theme_name: str = 'ai') -> dict[str, object]:
+def parse_episode_summary(path: Path, *, theme_name: str = 'ai') -> IndexEpisodeSummary:
     episode_theme_name = detect_episode_theme(path)
     document = parse_episode_full(path, theme_name=episode_theme_name)
     theme = load_theme(episode_theme_name)
-    return {
-        'date': path.stem,
-        'title': document.header.title,
-        'summary': document.header.summary,
-        'coverage': document.header.coverage,
-        'window': document.header.window,
-        'theme_name': episode_theme_name,
-        'theme_label': theme.get('theme_label', theme.get('site_name', '')),
-        'items': [
-            {
-                'headline': item.headline,
-                'category_label': item.category,
-                'category_class': item.category_class,
-                'tags': [{'label': tag.label, 'css_class': tag.css_class} for tag in item.tags],
-            }
+    return IndexEpisodeSummary(
+        date=path.stem,
+        title=document.header.title,
+        summary=document.header.summary,
+        coverage=document.header.coverage,
+        window=document.header.window,
+        theme_name=episode_theme_name,
+        theme_label=str(theme.get('theme_label', theme.get('site_name', ''))),
+        items=[
+            IndexEpisodeTagSummary(
+                headline=item.headline,
+                category_label=item.category,
+                category_class=item.category_class,
+                tags=[{'label': tag.label, 'css_class': tag.css_class} for tag in item.tags],
+            )
             for item in document.items
         ],
-    }
+    )
 
 
 

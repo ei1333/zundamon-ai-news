@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import argparse
 
-from index_models import IndexThemeFilter, IndexViewModel
+from index_models import IndexEpisodeSummary, IndexThemeFilter, IndexViewModel
 from episode_utils import (
     ROOT,
     build_head_html,
@@ -17,46 +17,46 @@ from episode_utils import (
 )
 
 
-def list_episodes(*, site_theme_name: str = 'ai') -> list[dict[str, str]]:
+def list_episodes(*, site_theme_name: str = 'ai') -> list[IndexEpisodeSummary]:
     paths = sorted((ROOT / 'episodes').glob('*.md'), key=lambda p: p.stem, reverse=True)
     return [parse_episode_summary(path, theme_name=site_theme_name) for path in paths if path.name != '_template.md']
 
 
 
-def build_featured_html(episode: dict[str, object]) -> str:
+def build_featured_html(episode: IndexEpisodeSummary) -> str:
     return load_template('index_featured.html').format(
-        date=escape_text(episode['date']),
-        date_attr=escape_attr(episode['date']),
-        title=escape_text(episode['title']),
-        theme_label=escape_text(episode['theme_label']),
-        theme_name_attr=escape_attr(episode['theme_name']),
+        date=escape_text(episode.date),
+        date_attr=escape_attr(episode.date),
+        title=escape_text(episode.title),
+        theme_label=escape_text(episode.theme_label),
+        theme_name_attr=escape_attr(episode.theme_name),
         tags_html=build_tag_spans(
-            episode['items'], indent='            ', category_key='category_label', class_key='category_class'
+            episode.items, indent='            ', category_key='category_label', class_key='category_class'
         ),
         headlines_html=build_headline_items(
-            episode['items'], indent='            ', headline_key='headline'
+            episode.items, indent='            ', headline_key='headline'
         ),
     )
 
 
 
-def build_recent_html(episodes: list[dict[str, object]]) -> str:
+def build_recent_html(episodes: list[IndexEpisodeSummary]) -> str:
     cards = []
     template = load_template('index_recent_card.html')
     for episode in episodes[1:4]:
         cards.append(
             template.format(
-                date=escape_text(episode['date']),
-                date_attr=escape_attr(episode['date']),
-                title=escape_text(episode['title']),
-                summary=escape_text(episode['summary']),
-                theme_label=escape_text(episode['theme_label']),
-                theme_name_attr=escape_attr(episode['theme_name']),
+                date=escape_text(episode.date),
+                date_attr=escape_attr(episode.date),
+                title=escape_text(episode.title),
+                summary=escape_text(episode.summary),
+                theme_label=escape_text(episode.theme_label),
+                theme_name_attr=escape_attr(episode.theme_name),
                 tags_html=build_tag_spans(
-                    episode['items'], indent='              ', category_key='category_label', class_key='category_class'
+                    episode.items, indent='              ', category_key='category_label', class_key='category_class'
                 ),
                 headlines_html=build_headline_items(
-                    episode['items'], indent='              ', headline_key='headline'
+                    episode.items, indent='              ', headline_key='headline'
                 ),
             ).rstrip()
         )
@@ -64,15 +64,15 @@ def build_recent_html(episodes: list[dict[str, object]]) -> str:
 
 
 
-def build_backnumber_html(episodes: list[dict[str, object]]) -> str:
+def build_backnumber_html(episodes: list[IndexEpisodeSummary]) -> str:
     template = load_template('index_backnumber_item.html')
     return ''.join(
         template.format(
-            date=escape_text(episode['date']),
-            date_attr=escape_attr(episode['date']),
-            title=escape_text(episode['title']),
-            theme_label=escape_text(episode['theme_label']),
-            theme_name_attr=escape_attr(episode['theme_name']),
+            date=escape_text(episode.date),
+            date_attr=escape_attr(episode.date),
+            title=escape_text(episode.title),
+            theme_label=escape_text(episode.theme_label),
+            theme_name_attr=escape_attr(episode.theme_name),
         )
         for episode in episodes
     ).rstrip()
@@ -94,12 +94,12 @@ def build_index_view_model(target_date: str | None = None, *, site_theme_name: s
 
     featured = episodes[0]
     if target_date is not None:
-        matched = [episode for episode in episodes if episode['date'] == target_date]
+        matched = [episode for episode in episodes if episode.date == target_date]
         if not matched:
             raise SystemExit(f'Episode not found for date: {target_date}')
         featured = matched[0]
 
-    available = {str(episode['theme_name']) for episode in episodes}
+    available = {episode.theme_name for episode in episodes}
     ordered = [('all', 'すべて'), ('ai', 'AI'), ('shogi', '将棋'), ('vocaloid', 'ボーカロイド')]
     filters = [IndexThemeFilter(theme_name=name, label=label) for name, label in ordered if name == 'all' or name in available]
 

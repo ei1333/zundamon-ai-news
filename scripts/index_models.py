@@ -11,6 +11,26 @@ class IndexThemeFilter:
 
 
 @dataclass
+class IndexEpisodeTagSummary:
+    headline: str
+    category_label: str
+    category_class: str
+    tags: list[dict[str, str]] = field(default_factory=list)
+
+
+@dataclass
+class IndexEpisodeSummary:
+    date: str
+    title: str
+    summary: str
+    coverage: str
+    window: str
+    theme_name: str
+    theme_label: str
+    items: list[IndexEpisodeTagSummary] = field(default_factory=list)
+
+
+@dataclass
 class IndexViewModel:
     site_theme_name: str
     hero_eyebrow: str
@@ -20,7 +40,7 @@ class IndexViewModel:
     backnumber_heading: str
     credits_heading: str
     credits_voice: str
-    featured_episode: dict[str, object]
-    recent_episodes: list[dict[str, object]] = field(default_factory=list)
-    all_episodes: list[dict[str, object]] = field(default_factory=list)
+    featured_episode: IndexEpisodeSummary
+    recent_episodes: list[IndexEpisodeSummary] = field(default_factory=list)
+    all_episodes: list[IndexEpisodeSummary] = field(default_factory=list)
     theme_filters: list[IndexThemeFilter] = field(default_factory=list)
