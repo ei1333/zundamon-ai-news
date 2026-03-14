@@ -44,8 +44,80 @@ if [ ! -x "$VOICEVOX_TTS_SCRIPT" ]; then
 fi
 
 mkdir -p "$REPO_ROOT/assets/audio"
-TEXT="$(cat "$SCRIPT_TEXT")"
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "$TMP_DIR"' EXIT
 
-"$VOICEVOX_TTS_SCRIPT" "$SPEAKER" "$TEXT" "$OUTPUT"
+python3 - "$SCRIPT_TEXT" "$TMP_DIR/chunks.txt" <<'PY'
+from pathlib import Path
+import sys
+
+src = Path(sys.argv[1]).read_text(encoding='utf-8')
+out = Path(sys.argv[2])
+lines = [line.strip() for line in src.splitlines() if line.strip()]
+chunks = []
+current = ''
+max_chars = 110
+for line in lines:
+    if len(line) > max_chars:
+        if current:
+            chunks.append(current)
+            current = ''
+        parts = []
+        buf = ''
+        for token in line.replace('。', '。\n').replace('、', '、\n').splitlines():
+            token = token.strip()
+            if not token:
+                continue
+            if len(buf) + len(token) <= max_chars:
+                buf += token
+            else:
+                if buf:
+                    parts.append(buf)
+                buf = token
+        if buf:
+            parts.append(buf)
+        chunks.extend(parts)
+        continue
+    if not current:
+        current = line
+    elif len(current) + 1 + len(line) <= max_chars:
+        current += ' ' + line
+    else:
+        chunks.append(current)
+        current = line
+if current:
+    chunks.append(current)
+out.write_text('\n'.join(chunks) + '\n', encoding='utf-8')
+PY
+
+idx=0
+while IFS= read -r chunk; do
+  [ -n "$chunk" ] || continue
+  idx=$((idx + 1))
+  "$VOICEVOX_TTS_SCRIPT" "$SPEAKER" "$chunk" "$TMP_DIR/part-$(printf '%03d' "$idx").wav"
+done < "$TMP_DIR/chunks.txt"
+
+python3 - "$TMP_DIR" "$OUTPUT" <<'PY'
+from pathlib import Path
+import sys
+import wave
+
+parts = sorted(Path(sys.argv[1]).glob('part-*.wav'))
+out_path = Path(sys.argv[2])
+if not parts:
+    raise SystemExit('No synthesized chunks were created')
+with wave.open(str(parts[0]), 'rb') as first:
+    params = first.getparams()
+    frames = [first.readframes(first.getnframes())]
+for part in parts[1:]:
+    with wave.open(str(part), 'rb') as w:
+        if w.getparams()[:3] != params[:3]:
+            raise SystemExit(f'Incompatible wav params: {part}')
+        frames.append(w.readframes(w.getnframes()))
+with wave.open(str(out_path), 'wb') as out:
+    out.setparams(params)
+    for frame in frames:
+        out.writeframes(frame)
+PY
 
 echo "Rendered: assets/audio/sample-news-$DATE.wav"
