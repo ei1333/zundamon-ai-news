@@ -164,7 +164,7 @@ python3 scripts/draft_from_urls.py --theme shogi --stdout 2026-03-13 \
 `episodes/YYYY-MM-DD.md` は Markdown 見出しベースです。
 
 - `# タイトル`
-- `## Theme` (`ai` / `shogi`)
+- `## Theme` (`ai` / `shogi` / `vocaloid` など)
 - `## Coverage` (`daily` / `weekly`)
 - `## Window` (`YYYY-MM-DD..YYYY-MM-DD`)
 - `## Summary`
@@ -186,7 +186,7 @@ python3 scripts/draft_from_urls.py --theme shogi --stdout 2026-03-13 \
 [媒体名](https://example.com/article)
 ```
 
-`## Theme` は必須で、現在は `ai` または `shogi` を指定します。
+`## Theme` は必須で、`config/themes/<name>.json` に対応する theme 名を指定します。現在は `ai` / `shogi` / `vocaloid` を使えます。
 `## Coverage` は `daily` / `weekly`、`## Window` は対象期間を `YYYY-MM-DD..YYYY-MM-DD` で書きます。
 `render_episode.py` はこれらの値を自動で読んで、適切なテーマと期間表示で日別ページと OGP を生成します。
 

@@ -61,8 +61,8 @@ try:
     explicit_theme = extract_section(text, 'Theme').strip().lower()
 except SystemExit:
     raise SystemExit(f"Episode theme is missing: {path}")
-if explicit_theme not in {'ai', 'shogi'}:
-    raise SystemExit(f"Episode theme must be one of ai/shogi: {path} (got: {explicit_theme})")
+if not explicit_theme:
+    raise SystemExit(f"Episode theme must not be empty: {path}")
 try:
     coverage = extract_section(text, 'Coverage').strip().lower()
 except SystemExit:

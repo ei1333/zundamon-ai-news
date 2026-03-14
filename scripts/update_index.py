@@ -79,12 +79,20 @@ def build_backnumber_html(episodes: list[dict[str, object]]) -> str:
 
 
 def build_theme_filters_html(episodes: list[dict[str, object]]) -> str:
-    labels = {'all': 'すべて', 'ai': 'AIニュース', 'shogi': '将棋ニュース'}
-    ordered = ['all'] + [theme for theme in ['ai', 'shogi'] if any(ep['theme_name'] == theme for ep in episodes)]
+    ordered = ['all']
+    seen = set()
+    for episode in episodes:
+        theme_name = str(episode['theme_name'])
+        if theme_name in seen:
+            continue
+        seen.add(theme_name)
+        ordered.append(theme_name)
+
     parts = []
-    for theme in ordered:
+    for theme_name in ordered:
+        label = 'すべて' if theme_name == 'all' else load_theme(theme_name).get('theme_label', theme_name)
         parts.append(
-            f'          <button class="theme-filter-button" type="button" data-theme-filter="{escape_attr(theme)}" aria-pressed="false">{escape_text(labels[theme])}</button>'
+            f'          <button class="theme-filter-button" type="button" data-theme-filter="{escape_attr(theme_name)}" aria-pressed="false">{escape_text(label)}</button>'
         )
     return '\n'.join(parts)
 
