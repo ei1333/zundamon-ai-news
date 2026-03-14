@@ -19,6 +19,12 @@ class IndexEpisodeTagSummary:
 
 
 @dataclass
+class IndexDisplayTag:
+    label: str
+    css_class: str
+
+
+@dataclass
 class IndexEpisodeSummary:
     date: str
     title: str
@@ -28,6 +34,7 @@ class IndexEpisodeSummary:
     theme_name: str
     theme_label: str
     items: list[IndexEpisodeTagSummary] = field(default_factory=list)
+    display_tags: list[IndexDisplayTag] = field(default_factory=list)
 
 
 @dataclass

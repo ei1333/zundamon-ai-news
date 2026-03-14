@@ -9,7 +9,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from episode_models import EpisodeDocument, EpisodeHeader, EpisodeItem, EpisodeTag
-from index_models import IndexEpisodeSummary, IndexEpisodeTagSummary
+from index_models import IndexDisplayTag, IndexEpisodeSummary, IndexEpisodeTagSummary
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -368,10 +368,32 @@ def build_headline_items(items: list[object], *, indent: str, headline_key: str)
 
 
 
+def dedupe_index_tags(items: list[IndexEpisodeTagSummary]) -> list[IndexDisplayTag]:
+    deduped: list[IndexDisplayTag] = []
+    seen: set[tuple[str, str]] = set()
+    for item in items:
+        for tag in item.tags:
+            key = (str(tag.get('label', '')), str(tag.get('css_class', '')))
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(IndexDisplayTag(label=key[0], css_class=key[1]))
+    return deduped
+
+
 def parse_episode_summary(path: Path, *, theme_name: str = 'ai') -> IndexEpisodeSummary:
     episode_theme_name = detect_episode_theme(path)
     document = parse_episode_full(path, theme_name=episode_theme_name)
     theme = load_theme(episode_theme_name)
+    items = [
+        IndexEpisodeTagSummary(
+            headline=item.headline,
+            category_label=item.category,
+            category_class=item.category_class,
+            tags=[{'label': tag.label, 'css_class': tag.css_class} for tag in item.tags],
+        )
+        for item in document.items
+    ]
     return IndexEpisodeSummary(
         date=path.stem,
         title=document.header.title,
@@ -380,15 +402,8 @@ def parse_episode_summary(path: Path, *, theme_name: str = 'ai') -> IndexEpisode
         window=document.header.window,
         theme_name=episode_theme_name,
         theme_label=str(theme.get('theme_label', theme.get('site_name', ''))),
-        items=[
-            IndexEpisodeTagSummary(
-                headline=item.headline,
-                category_label=item.category,
-                category_class=item.category_class,
-                tags=[{'label': tag.label, 'css_class': tag.css_class} for tag in item.tags],
-            )
-            for item in document.items
-        ],
+        items=items,
+        display_tags=dedupe_index_tags(items),
     )
 
 

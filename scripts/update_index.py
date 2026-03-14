@@ -31,7 +31,7 @@ def build_featured_html(episode: IndexEpisodeSummary) -> str:
         theme_label=escape_text(episode.theme_label),
         theme_name_attr=escape_attr(episode.theme_name),
         tags_html=build_tag_spans(
-            episode.items, indent='            ', category_key='category_label', class_key='category_class'
+            episode.display_tags, indent='            ', category_key='label', class_key='css_class'
         ),
         headlines_html=build_headline_items(
             episode.items, indent='            ', headline_key='headline'
@@ -53,7 +53,7 @@ def build_recent_html(episodes: list[IndexEpisodeSummary]) -> str:
                 theme_label=escape_text(episode.theme_label),
                 theme_name_attr=escape_attr(episode.theme_name),
                 tags_html=build_tag_spans(
-                    episode.items, indent='              ', category_key='category_label', class_key='category_class'
+                    episode.display_tags, indent='              ', category_key='label', class_key='css_class'
                 ),
                 headlines_html=build_headline_items(
                     episode.items, indent='              ', headline_key='headline'
