@@ -38,7 +38,10 @@ LLM は **自然な編集**、
 - `scripts/prepare_llm_episode.sh` - 上記 Python スクリプトの薄い wrapper
 - `scripts/build_episode.py` - 日別ビルド本体。schedule 解決・render/index/audio/validate を担当
 - `scripts/build_episode.sh` - 上記 Python スクリプトの薄い wrapper
+- `scripts/render_audio.py` - VOICEVOX helper を使った音声生成本体
+- `scripts/render_audio.sh` - 上記 Python スクリプトの薄い wrapper
 - `scripts/schedule_models.py` - schedule 解決結果の dataclass 定義
+- `scripts/index_models.py` - index 生成用 view model の dataclass 定義
 - `prompts/episode_rewrite_prompt.txt` - 機械が読む prompt テンプレート本体
 - `prompts/episode_rewrite_prompt.md` - prompt の説明と運用メモ
 - `examples/shogi_rewrite_example.md` - 将棋ニュース下書き → 生成AI整形の最小サンプル

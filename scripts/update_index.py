@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 
+from index_models import IndexThemeFilter, IndexViewModel
 from episode_utils import (
     ROOT,
     build_head_html,
@@ -78,62 +79,72 @@ def build_backnumber_html(episodes: list[dict[str, object]]) -> str:
 
 
 
-def build_theme_filters_html(episodes: list[dict[str, object]]) -> str:
-    available = {str(episode['theme_name']) for episode in episodes}
-    ordered = ['all', 'ai', 'shogi', 'vocaloid']
-    label_map = {
-        'all': 'すべて',
-        'ai': 'AI',
-        'shogi': '将棋',
-        'vocaloid': 'ボーカロイド',
-    }
-
-    parts = []
-    for theme_name in ordered:
-        if theme_name != 'all' and theme_name not in available:
-            continue
-        label = label_map.get(theme_name, theme_name)
-        parts.append(
-            f'          <button class="theme-filter-button" type="button" data-theme-filter="{escape_attr(theme_name)}" aria-pressed="false">{escape_text(label)}</button>'
-        )
-    return '\n'.join(parts)
+def build_theme_filters_html(filters: list[IndexThemeFilter]) -> str:
+    return '\n'.join(
+        f'          <button class="theme-filter-button" type="button" data-theme-filter="{escape_attr(item.theme_name)}" aria-pressed="false">{escape_text(item.label)}</button>'
+        for item in filters
+    )
 
 
-
-def update_index(target_date: str | None = None, *, site_theme_name: str = 'ai') -> None:
+def build_index_view_model(target_date: str | None = None, *, site_theme_name: str = 'ai') -> IndexViewModel:
     theme = load_theme(site_theme_name)
     episodes = list_episodes(site_theme_name=site_theme_name)
     if not episodes:
         raise SystemExit('No episodes found')
 
-    latest = episodes[0]
+    featured = episodes[0]
     if target_date is not None:
         matched = [episode for episode in episodes if episode['date'] == target_date]
         if not matched:
             raise SystemExit(f'Episode not found for date: {target_date}')
-        latest = matched[0]
+        featured = matched[0]
+
+    available = {str(episode['theme_name']) for episode in episodes}
+    ordered = [('all', 'すべて'), ('ai', 'AI'), ('shogi', '将棋'), ('vocaloid', 'ボーカロイド')]
+    filters = [IndexThemeFilter(theme_name=name, label=label) for name, label in ordered if name == 'all' or name in available]
+
+    return IndexViewModel(
+        site_theme_name=site_theme_name,
+        hero_eyebrow=str(theme['hero']['eyebrow']),
+        hero_title=str(theme['hero']['title']),
+        hero_lead=str(theme['hero']['lead']),
+        recent_heading=str(theme['index']['recent_heading']),
+        backnumber_heading=str(theme['index']['backnumber_heading']),
+        credits_heading=str(theme['index']['credits_heading']),
+        credits_voice=str(theme['index']['credits_voice']),
+        featured_episode=featured,
+        recent_episodes=episodes[1:4],
+        all_episodes=episodes,
+        theme_filters=filters,
+    )
+
+
+
+def update_index(target_date: str | None = None, *, site_theme_name: str = 'ai') -> None:
+    view = build_index_view_model(target_date, site_theme_name=site_theme_name)
+    theme = load_theme(view.site_theme_name)
 
     index_path = ROOT / 'index.html'
     html_text = load_template('index.html').format(
         head_html=build_head_html(
             title=theme['site_name'],
-            description=theme['hero']['lead'],
+            description=view.hero_lead,
             url=theme['site_url'],
             stylesheet_href='assets/style.css',
             og_type='website',
-            theme_name=site_theme_name,
+            theme_name=view.site_theme_name,
         ),
-        hero_eyebrow=escape_text(theme['hero']['eyebrow']),
-        hero_title=escape_text(theme['hero']['title']),
-        hero_lead=escape_text(theme['hero']['lead']),
-        featured_html=build_featured_html(latest),
-        theme_filters_html=build_theme_filters_html(episodes),
-        recent_heading=escape_text(theme['index']['recent_heading']),
-        recent_html=build_recent_html(episodes),
-        backnumber_heading=escape_text(theme['index']['backnumber_heading']),
-        backnumber_html=build_backnumber_html(episodes),
-        credits_heading=escape_text(theme['index']['credits_heading']),
-        credits_voice=escape_text(theme['index']['credits_voice']),
+        hero_eyebrow=escape_text(view.hero_eyebrow),
+        hero_title=escape_text(view.hero_title),
+        hero_lead=escape_text(view.hero_lead),
+        featured_html=build_featured_html(view.featured_episode),
+        theme_filters_html=build_theme_filters_html(view.theme_filters),
+        recent_heading=escape_text(view.recent_heading),
+        recent_html=build_recent_html(view.all_episodes),
+        backnumber_heading=escape_text(view.backnumber_heading),
+        backnumber_html=build_backnumber_html(view.all_episodes),
+        credits_heading=escape_text(view.credits_heading),
+        credits_voice=escape_text(view.credits_voice),
     )
     index_path.write_text(html_text, encoding='utf-8')
 
