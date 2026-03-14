@@ -4,6 +4,8 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
+python3 scripts/validate_config.py >/dev/null
+
 fail() {
   echo "ERROR: $*" >&2
   exit 1
@@ -18,6 +20,8 @@ warn() {
 [ -d days ] || fail "days directory not found"
 [ -d assets/audio ] || fail "assets/audio directory not found"
 [ -f assets/ogp.png ] || fail "assets/ogp.png not found"
+
+python3 scripts/validate_config.py >/dev/null
 
 if grep -R --line-number --exclude='_template.html' --exclude='_template.md' 'YYYY-MM-DD' episodes days index.html; then
   fail "Unreplaced template marker YYYY-MM-DD found"
@@ -53,7 +57,8 @@ for source in "${episode_sources[@]}"; do
 from pathlib import Path
 import re
 import sys
-from scripts.episode_utils import detect_episode_theme, extract_section, parse_episode_full
+sys.path.insert(0, str(Path.cwd() / 'scripts'))
+from episode_utils import detect_episode_theme, extract_section, parse_episode_full
 
 path = Path(sys.argv[1])
 text = path.read_text(encoding='utf-8')
@@ -75,17 +80,17 @@ except SystemExit:
     raise SystemExit(f"Episode window is missing: {path}")
 if not re.fullmatch(r'\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}', window):
     raise SystemExit(f"Episode window must be YYYY-MM-DD..YYYY-MM-DD: {path} (got: {window})")
-header, items = parse_episode_full(path, theme_name=detect_episode_theme(path))
-if len(items) != 3:
+document = parse_episode_full(path, theme_name=detect_episode_theme(path))
+if len(document.items) != 3:
     raise SystemExit(f"Episode must contain exactly 3 items: {path}")
-if not header['title'].strip():
+if not document.header.title.strip():
     raise SystemExit(f"Episode title is empty: {path}")
-for idx, item in enumerate(items, start=1):
-    if not item['Headline'].strip():
+for idx, item in enumerate(document.items, start=1):
+    if not item.headline.strip():
         raise SystemExit(f"Item {idx} headline is empty: {path}")
-    if not item['Summary'].strip():
+    if not item.summary.strip():
         raise SystemExit(f"Item {idx} summary is empty: {path}")
-    if not item['SourceName'].strip() or not item['SourceURL'].strip():
+    if not item.source_name.strip() or not item.source_url.strip():
         raise SystemExit(f"Item {idx} source is incomplete: {path}")
 PY
 
@@ -94,11 +99,12 @@ PY
   done < <(python3 - "$source" <<'PY'
 from pathlib import Path
 import sys
-from scripts.episode_utils import parse_episode_full
+sys.path.insert(0, str(Path.cwd() / 'scripts'))
+from episode_utils import parse_episode_full
 
 path = Path(sys.argv[1])
-header, _items = parse_episode_full(path)
-title = ' '.join(header['title'].split())
+document = parse_episode_full(path)
+title = ' '.join(document.header.title.split())
 topics = [part.strip() for part in title.split('・') if part.strip()]
 if len(title) > 28:
     print(f"{path.name}: title is {len(title)} chars; OGP may trim it")
