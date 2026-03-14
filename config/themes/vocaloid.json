@@ -56,6 +56,12 @@
       {"label": "製品", "keywords": ["v6", "software", "engine", "release", "demo", "voicebank", "英語歌唱", "新ビジュアル"]},
       {"label": "企画", "keywords": ["20周年", "anniversary", "衣装", "公募", "project", "collabo", "コラボ"]},
       {"label": "イベント", "keywords": ["magical mirai", "マジカルミライ", "live", "expo", "concert", "生配信", "開催"]}
+    ],
+    "tag_rules": [
+      {"label": "初音ミク", "keywords": ["初音ミク", "hatsune miku", "miku"]},
+      {"label": "歌声合成", "keywords": ["v6", "voicebank", "engine", "歌声", "demo"]},
+      {"label": "周年", "keywords": ["20周年", "anniversary"]},
+      {"label": "ライブ", "keywords": ["magical mirai", "live", "concert", "開催"]}
     ]
   },
   "categories": {

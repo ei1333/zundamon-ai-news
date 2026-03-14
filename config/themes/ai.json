@@ -55,6 +55,12 @@
       {"label": "透明性", "keywords": ["policy", "regulation", "law", "govern", "transparency", "disclosure", "copyright", "safety", "trust"]},
       {"label": "研究", "keywords": ["research", "study", "paper", "model", "benchmark", "science", "university", "lab"]},
       {"label": "インフラ", "keywords": ["chip", "gpu", "datacenter", "data center", "cloud", "semiconductor", "infra", "infrastructure", "network", "server"]}
+    ],
+    "tag_rules": [
+      {"label": "AI", "keywords": ["ai", "model", "llm", "machine learning", "生成ai"]},
+      {"label": "規制", "keywords": ["policy", "regulation", "law", "govern"]},
+      {"label": "研究", "keywords": ["research", "study", "paper", "benchmark", "lab"]},
+      {"label": "GPU", "keywords": ["gpu", "chip", "semiconductor", "datacenter", "cloud"]}
     ]
   },
   "categories": {

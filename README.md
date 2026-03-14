@@ -104,15 +104,16 @@ python3 scripts/draft_from_urls.py --theme shogi --stdout 2026-03-13 \
 ```
 
 この段階では、見出し整形は保守的にとどめます。
-最終的な `headline / summary / script` の自然な言い換えは生成AIで仕上げる前提です。
+また、下書きは `### Tags` を優先して出力し、各テーマ設定の `tag_rules` から自動タグ候補を添えます。
+最終的な `headline / summary / script / tags` の自然な言い換えは生成AIで仕上げる前提です。
 
 `draft_from_urls.py` は主に次を集めます。
 
 - 記事タイトル（媒体名ノイズをできるだけ除去）
 - 説明文候補（長すぎる文を短く整形）
 - 媒体名
-- カテゴリ仮推定
-- カテゴリベースの episode タイトル案
+- 主タグの仮推定
+- タグベースの episode タイトル案
 - URL 取得失敗時の slug ベース簡易フォールバック
 
 ### 2. LLM 用 prompt を組み立てる

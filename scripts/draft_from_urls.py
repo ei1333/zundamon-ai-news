@@ -43,6 +43,7 @@ def fallback_from_url(url: str, fallback_category: str, reason: str, draft_theme
         'source_name': site_name,
         'url': url,
         'category': fallback_category,
+        'tags': [fallback_category],
     }
 
 
@@ -211,6 +212,26 @@ def infer_category(title: str, description: str, fallback: str, category_rules: 
 
 
 
+def infer_tags(title: str, description: str, primary_tag: str, tag_rules: list[tuple[str, list[str]]]) -> list[str]:
+    haystack = f'{title} {description}'.lower()
+    tags: list[str] = []
+    seen: set[str] = set()
+
+    def add(tag: str) -> None:
+        tag = tag.strip()
+        if not tag or tag in seen:
+            return
+        seen.add(tag)
+        tags.append(tag)
+
+    add(primary_tag)
+    for tag, keywords in tag_rules:
+        if any(keyword in haystack for keyword in keywords):
+            add(tag)
+    return tags
+
+
+
 def pick_episode_title(items: list[dict[str, str]], draft_theme: dict[str, object]) -> str:
     keywords = []
     seen = set()
@@ -266,8 +287,8 @@ def build_episode_text(date: str, items: list[dict[str, str]], draft_theme: dict
             '### Summary',
             item['summary'],
             '',
-            '### Category',
-            item['category'],
+            '### Tags',
+            *item['tags'],
             '',
             '### Source',
             f'[{item["source_name"]}]({item["url"]})',
@@ -318,6 +339,10 @@ def main() -> None:
         (str(rule['label']), list(rule.get('keywords', [])))
         for rule in draft_theme.get('category_rules', [])
     ]
+    tag_rules = [
+        (str(rule['label']), list(rule.get('keywords', [])))
+        for rule in draft_theme.get('tag_rules', [])
+    ]
 
     items: list[dict[str, str]] = []
     for idx, url in enumerate(args.urls, start=1):
@@ -326,15 +351,17 @@ def main() -> None:
             html_text = fetch_url(url)
             raw_title = extract_title(html_text)
             description = extract_description(html_text)
-            title = finalize_headline(raw_title, args.theme, description=description)
+            title = finalize_headline(raw_title, theme_name, description=description)
             site_name = extract_site_name(html_text, url)
+            primary_tag = infer_category(title, description, fallback_category, category_rules)
             items.append(
                 {
                     'headline': title,
                     'summary': description,
                     'source_name': site_name,
                     'url': url,
-                    'category': infer_category(title, description, fallback_category, category_rules),
+                    'category': primary_tag,
+                    'tags': infer_tags(title, description, primary_tag, tag_rules),
                 }
             )
         except (urllib.error.URLError, TimeoutError, socket.timeout) as exc:
@@ -352,7 +379,7 @@ def main() -> None:
     out_path.write_text(draft, encoding='utf-8')
 
     print(f'Created: episodes/{args.date}.md')
-    print('Review the generated summaries and categories before rendering.')
+    print('Review the generated summaries and tags before rendering.')
     print(json.dumps(items, ensure_ascii=False, indent=2))
 
 
