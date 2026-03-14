@@ -11,6 +11,28 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def validate_theme_config(theme: dict, *, theme_name: str = 'ai') -> dict:
+    required_top_level = ['site_name', 'site_url', 'hero', 'index', 'day', 'ogp', 'episode_template', 'draft', 'categories']
+    for key in required_top_level:
+        if key not in theme:
+            raise SystemExit(f'Theme `{theme_name}` is missing required key: {key}')
+
+    required_draft_keys = ['default_categories', 'intro', 'script_intro', 'script_closing', 'closing', 'title_fallback', 'category_rules']
+    draft = theme.get('draft', {})
+    for key in required_draft_keys:
+        if key not in draft:
+            raise SystemExit(f'Theme `{theme_name}` draft is missing required key: {key}')
+
+    if not isinstance(draft.get('default_categories'), list):
+        raise SystemExit(f'Theme `{theme_name}` draft.default_categories must be a list')
+    if not isinstance(draft.get('category_rules'), list):
+        raise SystemExit(f'Theme `{theme_name}` draft.category_rules must be a list')
+    if 'tag_rules' in draft and not isinstance(draft.get('tag_rules'), list):
+        raise SystemExit(f'Theme `{theme_name}` draft.tag_rules must be a list when present')
+
+    return theme
+
+
 @lru_cache(maxsize=None)
 def load_theme(theme_name: str = 'ai') -> dict:
     normalized_theme = {'default': 'ai'}.get(theme_name, theme_name)
@@ -23,7 +45,7 @@ def load_theme(theme_name: str = 'ai') -> dict:
 
     for path in candidates:
         if path.exists():
-            return json.loads(path.read_text(encoding='utf-8'))
+            return validate_theme_config(json.loads(path.read_text(encoding='utf-8')), theme_name=normalized_theme)
 
     searched = ', '.join(str(path) for path in candidates)
     raise SystemExit(f'Theme config not found. Searched: {searched}')

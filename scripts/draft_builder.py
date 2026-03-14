@@ -3,11 +3,12 @@ from __future__ import annotations
 
 from episode_utils import default_window_for
 from draft_fetch import clean_title, finalize_headline
+from draft_models import DraftItem
 import re
 import urllib.parse
 
 
-def fallback_from_url(url: str, fallback_category: str, reason: str, draft_theme: dict[str, object], *, theme_name: str = 'ai') -> dict[str, object]:
+def fallback_from_url(url: str, fallback_category: str, reason: str, draft_theme: dict[str, object], *, theme_name: str = 'ai') -> DraftItem:
     parsed = urllib.parse.urlparse(url)
     slug = parsed.path.rstrip('/').split('/')[-1] or parsed.netloc
     slug = urllib.parse.unquote(slug)
@@ -16,17 +17,17 @@ def fallback_from_url(url: str, fallback_category: str, reason: str, draft_theme
     slug = re.sub(r'\s+', ' ', slug).strip(' /')
     headline = finalize_headline(clean_title(slug.title()), theme_name, description='') if slug else '記事タイトル未取得'
     site_name = parsed.netloc.removeprefix('www.') or 'source'
-    return {
-        'headline': headline,
-        'summary': str(draft_theme.get('fallback_summary', 'URL からの自動取得に失敗したため、元記事を開いて要約を補ってください。({reason})')).format(reason=reason),
-        'source_name': site_name,
-        'url': url,
-        'category': fallback_category,
-        'tags': [fallback_category],
-    }
+    return DraftItem(
+        headline=headline,
+        summary=str(draft_theme.get('fallback_summary', 'URL からの自動取得に失敗したため、元記事を開いて要約を補ってください。({reason})')).format(reason=reason),
+        source_name=site_name,
+        url=url,
+        category=fallback_category,
+        tags=[fallback_category],
+    )
 
 
-def build_episode_text(date: str, items: list[dict[str, object]], draft_theme: dict[str, object], *, theme_name: str = 'ai', coverage: str = 'weekly', window: str | None = None, title: str | None = None, pick_title=None) -> str:
+def build_episode_text(date: str, items: list[DraftItem], draft_theme: dict[str, object], *, theme_name: str = 'ai', coverage: str = 'weekly', window: str | None = None, title: str | None = None, pick_title=None) -> str:
     resolved_title = title or (pick_title(items, draft_theme) if pick_title else str(draft_theme.get('title_fallback', '新しいAIニュース回')))
     resolved_window = window or default_window_for(date, coverage)
     summary = f'{resolved_window} の公開情報から、' + '、'.join(str(item['headline']) for item in items[:3]) + 'の3本を掲載しています。'

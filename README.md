@@ -34,7 +34,8 @@ LLM は **自然な編集**、
 - `scripts/draft_tagging.py` - 主タグ / 補助タグ / タイトル候補の推定
 - `scripts/draft_builder.py` - draft Markdown の組み立てと fallback item 生成
 - `scripts/build_rewrite_prompt.py` - 下書き Markdown から生成AI投入用の prompt 文を組み立てる
-- `scripts/prepare_llm_episode.sh` - URL 3本から draft と prompt をまとめて用意する。URL を省くと schedule 由来の source 候補を表示
+- `scripts/prepare_llm_episode.py` - URL 3本から draft と prompt をまとめて用意する。URL を省くと schedule 由来の source 候補を表示
+- `scripts/prepare_llm_episode.sh` - 上記 Python スクリプトの薄い wrapper
 - `prompts/episode_rewrite_prompt.txt` - 機械が読む prompt テンプレート本体
 - `prompts/episode_rewrite_prompt.md` - prompt の説明と運用メモ
 - `examples/shogi_rewrite_example.md` - 将棋ニュース下書き → 生成AI整形の最小サンプル
