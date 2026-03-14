@@ -42,6 +42,10 @@ LLM は **自然な編集**、
 - `scripts/render_audio.sh` - 上記 Python スクリプトの薄い wrapper
 - `scripts/schedule_models.py` - schedule 解決結果の dataclass 定義
 - `scripts/index_models.py` - index 生成用 view model の dataclass 定義
+- `scripts/episode_models.py` - episode header/item/document の dataclass 定義
+- `scripts/validate_config.py` - theme / schedule 設定の静的検証
+- `scripts/episode_models.py` - episode header / item / tag / document の dataclass 定義
+- `scripts/validate_config.py` - themes / schedule 設定の構造チェック
 - `prompts/episode_rewrite_prompt.txt` - 機械が読む prompt テンプレート本体
 - `prompts/episode_rewrite_prompt.md` - prompt の説明と運用メモ
 - `examples/shogi_rewrite_example.md` - 将棋ニュース下書き → 生成AI整形の最小サンプル
@@ -63,7 +67,7 @@ LLM は **自然な編集**、
 - `scripts/build_episode.sh` - 上記 Python スクリプトの薄い wrapper
 - `scripts/show_schedule.py` - 日付から曜日ルールを引いて、その日の theme / coverage / speaker / site theme を表示
 - `scripts/render_ogp.py` - Pillow でトップ OGP と日別 OGP を生成
-- `scripts/validate.sh` - テンプレ置換漏れ、生成物欠落、空ファイル、導線ずれなどを確認
+- `scripts/validate.sh` - config 検証、テンプレ置換漏れ、生成物欠落、空ファイル、導線ずれなどを確認
 - `scripts/publish.sh` - `main` の公開物を `gh-pages` に反映するローカル用スクリプト
 
 ### Themes / Templates / Site

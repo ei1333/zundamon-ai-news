@@ -8,6 +8,8 @@ from datetime import datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
 
+from episode_models import EpisodeDocument, EpisodeHeader, EpisodeItem, EpisodeTag
+
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -117,21 +119,15 @@ def extract_subsection(text: str, heading: str, required: bool = True) -> str:
 
 
 
-def parse_source_block(text: str) -> dict[str, str]:
+def parse_source_block(text: str) -> tuple[str, str]:
     markdown_link = re.search(r'\[([^\]]+)\]\((https?://[^\)]+)\)', text)
     if markdown_link:
-        return {
-            'SourceName': markdown_link.group(1).strip(),
-            'SourceURL': markdown_link.group(2).strip(),
-        }
+        return markdown_link.group(1).strip(), markdown_link.group(2).strip()
 
     name_match = re.search(r'^- Name:\s*(.+)$', text, flags=re.MULTILINE)
     url_match = re.search(r'^- URL:\s*(.+)$', text, flags=re.MULTILINE)
     if name_match and url_match:
-        return {
-            'SourceName': name_match.group(1).strip(),
-            'SourceURL': url_match.group(1).strip(),
-        }
+        return name_match.group(1).strip(), url_match.group(1).strip()
 
     raise SystemExit('Source section must contain [Name](URL) or - Name: / - URL:')
 
@@ -155,11 +151,11 @@ def normalize_category(label: str, idx: int | None = None, *, theme_name: str = 
     return (label.strip() or 'AI', 'category-general')
 
 
-def parse_tags_block(text: str, *, idx: int | None = None, theme_name: str = 'ai') -> list[dict[str, str]]:
+def parse_tags_block(text: str, *, idx: int | None = None, theme_name: str = 'ai') -> list[EpisodeTag]:
     raw = text.strip()
     if not raw:
         label, css_class = normalize_category('', idx, theme_name=theme_name)
-        return [{'label': label, 'class': css_class}]
+        return [EpisodeTag(label=label, css_class=css_class)]
 
     lines = [line.strip() for line in raw.splitlines() if line.strip()]
     if len(lines) == 1:
@@ -176,13 +172,13 @@ def parse_tags_block(text: str, *, idx: int | None = None, theme_name: str = 'ai
         if key in seen:
             continue
         seen.add(key)
-        tags.append({'label': label, 'class': css_class})
+        tags.append(EpisodeTag(label=label, css_class=css_class))
 
     if tags:
         return tags
 
     label, css_class = normalize_category('', idx, theme_name=theme_name)
-    return [{'label': label, 'class': css_class}]
+    return [EpisodeTag(label=label, css_class=css_class)]
 
 
 def parse_iso_date(value: str) -> datetime:
@@ -224,26 +220,26 @@ def detect_episode_theme(path: Path) -> str:
 
 
 
-def parse_episode_full(path: Path, *, theme_name: str = 'ai') -> tuple[dict[str, str], list[dict[str, str]]]:
+def parse_episode_full(path: Path, *, theme_name: str = 'ai') -> EpisodeDocument:
     text = path.read_text(encoding='utf-8').strip()
     first_line = text.splitlines()[0].strip() if text.splitlines() else ''
     if not first_line.startswith('# '):
         raise SystemExit('Episode file must start with a # title')
 
     metadata = parse_episode_metadata(path)
-    header = {
-        'title': first_line[2:].strip(),
-        'theme': metadata['theme'],
-        'coverage': metadata['coverage'],
-        'window': metadata['window'],
-        'summary': extract_section(text, 'Summary'),
-        'intro': extract_section(text, 'Intro'),
-        'script_intro': extract_section(text, 'Script Intro'),
-        'script_closing': extract_section(text, 'Script Closing'),
-        'closing': extract_section(text, 'Closing'),
-    }
+    header = EpisodeHeader(
+        title=first_line[2:].strip(),
+        theme=metadata['theme'],
+        coverage=metadata['coverage'],
+        window=metadata['window'],
+        summary=extract_section(text, 'Summary'),
+        intro=extract_section(text, 'Intro'),
+        script_intro=extract_section(text, 'Script Intro'),
+        script_closing=extract_section(text, 'Script Closing'),
+        closing=extract_section(text, 'Closing'),
+    )
 
-    items: list[dict[str, str]] = []
+    items: list[EpisodeItem] = []
     for idx in range(1, 4):
         item_block = extract_section(text, f'Item {idx}')
         headline = extract_subsection(item_block, 'Headline')
@@ -254,20 +250,21 @@ def parse_episode_full(path: Path, *, theme_name: str = 'ai') -> tuple[dict[str,
             tags = parse_tags_block(tags_text, idx=idx, theme_name=theme_name)
         else:
             category_label, category_class = normalize_category(category, idx, theme_name=theme_name)
-            tags = [{'label': category_label, 'class': category_class}]
+            tags = [EpisodeTag(label=category_label, css_class=category_class)]
         script = extract_subsection(item_block, 'Script', required=False)
-        item = {
-            'Headline': headline,
-            'Summary': summary,
-            'Category': tags[0]['label'],
-            'CategoryClass': tags[0]['class'],
-            'Tags': tags,
-            'Script': script or auto_script(headline, summary, idx),
-        }
-        item.update(parse_source_block(extract_subsection(item_block, 'Source')))
-        items.append(item)
+        source_name, source_url = parse_source_block(extract_subsection(item_block, 'Source'))
+        items.append(EpisodeItem(
+            headline=headline,
+            summary=summary,
+            source_name=source_name,
+            source_url=source_url,
+            category=tags[0].label,
+            category_class=tags[0].css_class,
+            tags=tags,
+            script=script or auto_script(headline, summary, idx),
+        ))
 
-    return header, items
+    return EpisodeDocument(header=header, items=items)
 
 
 
@@ -320,63 +317,76 @@ def build_head_html(*, title: str, description: str, url: str, stylesheet_href: 
 
 
 
-def build_tag_spans(items: list[dict[str, object]], *, indent: str, category_key: str, class_key: str) -> str:
+def build_tag_spans(items: list[object], *, indent: str, category_key: str, class_key: str) -> str:
     template = load_template('partial_tag.html')
     spans: list[str] = []
     for item in items:
-        tags = item.get('Tags')
+        tags = getattr(item, 'tags', None)
+        if tags is None and isinstance(item, dict):
+            tags = item.get('Tags') or item.get('tags')
         if isinstance(tags, list) and tags:
             for tag in tags:
+                if isinstance(tag, dict):
+                    tag_class = tag.get('css_class') or tag.get('class', 'category-general')
+                    tag_label = tag.get('label', '')
+                else:
+                    tag_class = getattr(tag, 'css_class', 'category-general')
+                    tag_label = getattr(tag, 'label', '')
                 spans.append(
                     template.format(
                         indent=indent,
-                        tag_class=escape_attr(tag.get('class', 'category-general')),
-                        tag_label=escape_text(tag.get('label', '')),
+                        tag_class=escape_attr(tag_class),
+                        tag_label=escape_text(tag_label),
                     )
                 )
         else:
+            if isinstance(item, dict):
+                tag_class = item[class_key]
+                tag_label = item[category_key]
+            else:
+                tag_class = getattr(item, class_key)
+                tag_label = getattr(item, category_key)
             spans.append(
                 template.format(
                     indent=indent,
-                    tag_class=escape_attr(item[class_key]),
-                    tag_label=escape_text(item[category_key]),
+                    tag_class=escape_attr(tag_class),
+                    tag_label=escape_text(tag_label),
                 )
             )
     return ''.join(spans).rstrip()
 
 
 
-def build_headline_items(items: list[dict[str, object]], *, indent: str, headline_key: str) -> str:
+def build_headline_items(items: list[object], *, indent: str, headline_key: str) -> str:
     template = load_template('partial_headline_item.html')
-    return ''.join(
-        template.format(
-            indent=indent,
-            headline=escape_text(item[headline_key]),
-        )
-        for item in items
-    ).rstrip()
+    rendered: list[str] = []
+    for item in items:
+        headline = item[headline_key] if isinstance(item, dict) else getattr(item, headline_key)
+        rendered.append(template.format(indent=indent, headline=escape_text(headline)))
+    return ''.join(rendered).rstrip()
 
 
 
 def parse_episode_summary(path: Path, *, theme_name: str = 'ai') -> dict[str, object]:
     episode_theme_name = detect_episode_theme(path)
-    header, items = parse_episode_full(path, theme_name=episode_theme_name)
+    document = parse_episode_full(path, theme_name=episode_theme_name)
     theme = load_theme(episode_theme_name)
     return {
         'date': path.stem,
-        'title': header['title'],
-        'summary': header['summary'],
-        'coverage': header['coverage'],
-        'window': header['window'],
+        'title': document.header.title,
+        'summary': document.header.summary,
+        'coverage': document.header.coverage,
+        'window': document.header.window,
         'theme_name': episode_theme_name,
         'theme_label': theme.get('theme_label', theme.get('site_name', '')),
         'items': [
             {
-                'headline': item['Headline'],
-                'category_label': item['Category'],
-                'category_class': item['CategoryClass'],
+                'headline': item.headline,
+                'category_label': item.category,
+                'category_class': item.category_class,
+                'tags': [{'label': tag.label, 'css_class': tag.css_class} for tag in item.tags],
             }
-            for item in items
+            for item in document.items
         ],
     }
 
