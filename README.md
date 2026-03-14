@@ -36,6 +36,9 @@ LLM は **自然な編集**、
 - `scripts/build_rewrite_prompt.py` - 下書き Markdown から生成AI投入用の prompt 文を組み立てる
 - `scripts/prepare_llm_episode.py` - URL 3本から draft と prompt をまとめて用意する。URL を省くと schedule 由来の source 候補を表示
 - `scripts/prepare_llm_episode.sh` - 上記 Python スクリプトの薄い wrapper
+- `scripts/build_episode.py` - 日別ビルド本体。schedule 解決・render/index/audio/validate を担当
+- `scripts/build_episode.sh` - 上記 Python スクリプトの薄い wrapper
+- `scripts/schedule_models.py` - schedule 解決結果の dataclass 定義
 - `prompts/episode_rewrite_prompt.txt` - 機械が読む prompt テンプレート本体
 - `prompts/episode_rewrite_prompt.md` - prompt の説明と運用メモ
 - `examples/shogi_rewrite_example.md` - 将棋ニュース下書き → 生成AI整形の最小サンプル
@@ -53,7 +56,8 @@ LLM は **自然な編集**、
 - `scripts/render_episode.py` - 原稿から HTML / 台本 / 日別 OGP を生成
 - `scripts/update_index.py` - episode 一覧から `index.html` を再構築
 - `scripts/render_audio.sh` - 生成済み台本テキストから音声を生成
-- `scripts/build_episode.sh` - 日別ビルドを一発で回す（HTML / 台本 / index / 音声 / validate）
+- `scripts/build_episode.py` - 日別ビルド本体（HTML / 台本 / index / 音声 / validate）
+- `scripts/build_episode.sh` - 上記 Python スクリプトの薄い wrapper
 - `scripts/show_schedule.py` - 日付から曜日ルールを引いて、その日の theme / coverage / speaker / site theme を表示
 - `scripts/render_ogp.py` - Pillow でトップ OGP と日別 OGP を生成
 - `scripts/validate.sh` - テンプレ置換漏れ、生成物欠落、空ファイル、導線ずれなどを確認

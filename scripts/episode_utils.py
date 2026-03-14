@@ -17,6 +17,10 @@ def validate_theme_config(theme: dict, *, theme_name: str = 'ai') -> dict:
         if key not in theme:
             raise SystemExit(f'Theme `{theme_name}` is missing required key: {key}')
 
+    for key in ['hero', 'index', 'day', 'ogp', 'episode_template', 'draft', 'categories']:
+        if not isinstance(theme.get(key), dict):
+            raise SystemExit(f'Theme `{theme_name}` key `{key}` must be an object')
+
     required_draft_keys = ['default_categories', 'intro', 'script_intro', 'script_closing', 'closing', 'title_fallback', 'category_rules']
     draft = theme.get('draft', {})
     for key in required_draft_keys:
@@ -29,6 +33,24 @@ def validate_theme_config(theme: dict, *, theme_name: str = 'ai') -> dict:
         raise SystemExit(f'Theme `{theme_name}` draft.category_rules must be a list')
     if 'tag_rules' in draft and not isinstance(draft.get('tag_rules'), list):
         raise SystemExit(f'Theme `{theme_name}` draft.tag_rules must be a list when present')
+
+    for idx, rule in enumerate(draft.get('category_rules', []), start=1):
+        if not isinstance(rule, dict) or 'label' not in rule or 'keywords' not in rule:
+            raise SystemExit(f'Theme `{theme_name}` draft.category_rules[{idx}] must contain label and keywords')
+        if not isinstance(rule.get('keywords'), list):
+            raise SystemExit(f'Theme `{theme_name}` draft.category_rules[{idx}].keywords must be a list')
+
+    for idx, rule in enumerate(draft.get('tag_rules', []), start=1):
+        if not isinstance(rule, dict) or 'label' not in rule or 'keywords' not in rule:
+            raise SystemExit(f'Theme `{theme_name}` draft.tag_rules[{idx}] must contain label and keywords')
+        if not isinstance(rule.get('keywords'), list):
+            raise SystemExit(f'Theme `{theme_name}` draft.tag_rules[{idx}].keywords must be a list')
+
+    for name, meta in theme.get('categories', {}).items():
+        if not isinstance(meta, dict):
+            raise SystemExit(f'Theme `{theme_name}` categories.{name} must be an object')
+        if 'label' not in meta or 'class' not in meta:
+            raise SystemExit(f'Theme `{theme_name}` categories.{name} must contain label and class')
 
     return theme
 
