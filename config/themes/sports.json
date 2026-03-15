@@ -1,0 +1,74 @@
+{
+  "site_name": "ずんだもん1分スポーツニュース",
+  "site_url": "https://ei1333.github.io/zundamon-ai-news/",
+  "og_image_url": "https://ei1333.github.io/zundamon-ai-news/assets/ogp.png",
+  "theme_label": "スポーツニュース",
+  "hero": {
+    "eyebrow": "1分で聴く音声ニュース",
+    "title": "ずんだもん1分ニュース",
+    "lead": "公開情報をもとに、今週のスポーツ界の注目トピックを1分前後へぎゅっと要約。ずんだもんの声でさっと聴けます。"
+  },
+  "index": {
+    "recent_heading": "最近の回",
+    "backnumber_heading": "バックナンバー",
+    "credits_heading": "クレジット",
+    "credits_voice": "音声：VOICEVOX:ずんだもん"
+  },
+  "day": {
+    "back_link": "← トップページへ戻る",
+    "eyebrow": "今週のエピソード",
+    "page_heading": "{date} のスポーツニュース",
+    "page_heading_weekly": "{date} 公開のスポーツニュース",
+    "audio_heading": "音声で聴く",
+    "content_heading": "この回の内容",
+    "source_prefix": "出典:"
+  },
+  "ogp": {
+    "site_name": "ずんだもん1分スポーツニュース",
+    "site_image_alt": "ずんだもん1分スポーツニュースのOGP画像",
+    "default_text_nodes": [
+      ["Weekly Sports Audio Brief", [160, 186], 26, true, [233, 255, 240, 255], "la"],
+      ["ずんだもん", [160, 264], 64, true, [255, 255, 255, 255], "la"],
+      ["1分スポーツニュース", [160, 327], 56, true, [255, 255, 255, 255], "la"],
+      ["今週のスポーツ界を、ずんだもんの声で", [160, 424], 28, true, [243, 255, 246, 255], "la"],
+      ["1分前後にまとめてお届け", [160, 462], 28, true, [243, 255, 246, 255], "la"]
+    ],
+    "episode_badge": "Weekly Episode",
+    "episode_brand": "ずんだもん1分スポーツニュース"
+  },
+  "episode_template": {
+    "default_title": "今週のスポーツニュース3本",
+    "summary": "YYYY-MM-DD 時点のスポーツニュース3本をまとめた回です。",
+    "intro": "YYYY-MM-DD 時点の公開情報をもとに構成した、今週のスポーツニュース回です。競技横断で大きな話題を3本に絞ってまとめています。",
+    "script_intro": "今週のスポーツニュース3本なのだ。",
+    "script_closing": "以上、今週のスポーツニュースまとめなのだ。",
+    "closing": "※ この記事は公開情報をもとにした短い要約です。詳細は各出典をご確認ください。"
+  },
+  "draft": {
+    "default_categories": ["サッカー", "野球", "大会"],
+    "fallback_summary": "URL からの自動取得に失敗したため、元記事を開いて要約を補ってください。({reason})",
+    "intro": "{date} 時点の公開情報をもとに構成した、今週のスポーツニュース下書きです。内容を確認して整えてください。",
+    "script_intro": "今週のスポーツニュース3本なのだ。",
+    "script_closing": "以上、今週のスポーツニュースまとめなのだ。",
+    "closing": "※ この記事は公開情報をもとにした短い要約です。詳細は各出典をご確認ください。",
+    "title_fallback": "今週のスポーツニュース3本",
+    "category_rules": [
+      {"label": "サッカー", "keywords": ["football", "soccer", "premier league", "champions league", "fifa", "uefa", "arsenal", "barcelona", "goal"]},
+      {"label": "野球", "keywords": ["baseball", "mlb", "npb", "world baseball classic", "wbc", "大谷", "村上", "home run"]},
+      {"label": "大会", "keywords": ["tournament", "open", "grand slam", "playoff", "championship", "final", "ncaa", "masters"]}
+    ],
+    "tag_rules": [
+      {"label": "サッカー", "keywords": ["football", "soccer", "premier league", "champions league", "fifa", "uefa"]},
+      {"label": "野球", "keywords": ["baseball", "mlb", "npb", "wbc", "world baseball classic"]},
+      {"label": "テニス", "keywords": ["tennis", "indian wells", "miami open", "atp", "wta"]},
+      {"label": "バスケットボール", "keywords": ["basketball", "nba", "ncaa", "acc", "big ten"]}
+    ]
+  },
+  "categories": {
+    "サッカー": {"label": "サッカー", "class": "category-market", "aliases": ["football", "soccer"]},
+    "野球": {"label": "野球", "class": "category-infra", "aliases": ["baseball"]},
+    "大会": {"label": "大会", "class": "category-research", "aliases": ["tournament", "event"]},
+    "テニス": {"label": "テニス", "class": "category-transparency", "aliases": ["tennis"]},
+    "バスケットボール": {"label": "バスケットボール", "class": "category-safety", "aliases": ["basketball"]}
+  }
+}

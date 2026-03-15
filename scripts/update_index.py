@@ -100,7 +100,7 @@ def build_index_view_model(target_date: str | None = None, *, site_theme_name: s
         featured = matched[0]
 
     available = {episode.theme_name for episode in episodes}
-    ordered = [('all', 'すべて'), ('ai', 'AI'), ('shogi', '将棋'), ('vocaloid', 'ボーカロイド')]
+    ordered = [('all', 'すべて'), ('ai', 'AI'), ('shogi', '将棋'), ('vocaloid', 'ボーカロイド'), ('sports', 'スポーツ')]
     filters = [IndexThemeFilter(theme_name=name, label=label) for name, label in ordered if name == 'all' or name in available]
 
     return IndexViewModel(
