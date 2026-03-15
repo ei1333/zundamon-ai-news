@@ -43,7 +43,7 @@ def build_featured_html(episode: IndexEpisodeSummary) -> str:
 def build_recent_html(episodes: list[IndexEpisodeSummary]) -> str:
     cards = []
     template = load_template('index_recent_card.html')
-    for episode in episodes[1:4]:
+    for episode in episodes[:4]:
         cards.append(
             template.format(
                 date=escape_text(episode.date),
@@ -113,7 +113,7 @@ def build_index_view_model(target_date: str | None = None, *, site_theme_name: s
         credits_heading=str(theme['index']['credits_heading']),
         credits_voice=str(theme['index']['credits_voice']),
         featured_episode=featured,
-        recent_episodes=episodes[1:4],
+        recent_episodes=episodes[:4],
         all_episodes=episodes,
         theme_filters=filters,
     )
