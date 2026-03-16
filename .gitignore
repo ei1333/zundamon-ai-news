@@ -2,3 +2,6 @@
 *.tmp
 __pycache__/
 *.pyc
+
+drafts/*.draft.md
+prompts/generated/*.prompt.txt
