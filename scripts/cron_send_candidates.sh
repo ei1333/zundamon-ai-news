@@ -55,6 +55,7 @@ PY
 )"
 
 "$OPENCLAW_BIN" agent \
+  --agent main \
   --message "$MESSAGE_TEXT" \
   --deliver \
   --reply-channel discord \
