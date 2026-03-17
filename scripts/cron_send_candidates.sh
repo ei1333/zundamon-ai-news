@@ -2,7 +2,8 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-OPENCLAW_BIN="${OPENCLAW_BIN:-/home/ei1333hobby/.npm-global/bin/openclaw}"
+OPENCLAW_BIN="${OPENCLAW_BIN:-$(command -v openclaw || true)}"
+: "${OPENCLAW_BIN:?openclaw not found; set OPENCLAW_BIN or ensure openclaw is on PATH}"
 cd "$REPO_ROOT"
 
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
