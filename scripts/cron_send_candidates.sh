@@ -2,6 +2,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+OPENCLAW_BIN="${OPENCLAW_BIN:-/home/ei1333hobby/.npm-global/bin/openclaw}"
 cd "$REPO_ROOT"
 
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
@@ -52,7 +53,7 @@ print('\n'.join(lines))
 PY
 )"
 
-openclaw agent \
+"$OPENCLAW_BIN" agent \
   --message "$MESSAGE_TEXT" \
   --deliver \
   --reply-channel discord \
