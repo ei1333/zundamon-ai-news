@@ -5,12 +5,17 @@
   </head>
   <body>
     <main class="container">
-      <header class="hero">
-        <p class="eyebrow">{hero_eyebrow}</p>
-        <h1>{hero_title}</h1>
-        <p class="lead">
-          {hero_lead}
-        </p>
+      <header class="hero hero-with-character">
+        <div class="hero-copy">
+          <p class="eyebrow">{hero_eyebrow}</p>
+          <h1>{hero_title}</h1>
+          <p class="lead">
+            {hero_lead}
+          </p>
+        </div>
+        <div class="hero-character">
+          <img src="assets/characters/zundamon-standing.png" alt="ずんだもんの立ち絵" />
+        </div>
       </header>
 
       {featured_html}
@@ -23,15 +28,15 @@
       </section>
 
       <section class="card" data-filter-section="recent">
-        <h2>{recent_heading}</h2>
-        <div class="episode-grid">
+        <h2 data-recent-heading>{recent_heading}</h2>
+        <div class="episode-grid" data-recent-grid>
 {recent_html}
         </div>
       </section>
 
       <section class="card" data-filter-section="backnumber">
-        <h2>{backnumber_heading}</h2>
-        <ul class="backnumber-list">
+        <h2 data-backnumber-heading>{backnumber_heading}</h2>
+        <ul class="backnumber-list" data-backnumber-list>
 {backnumber_html}
         </ul>
       </section>
@@ -45,8 +50,24 @@
     <script>
       (() => {{
         const buttons = [...document.querySelectorAll('[data-theme-filter]')];
-        const cards = [...document.querySelectorAll('[data-episode-theme]')];
-        if (!buttons.length || !cards.length) return;
+        const recentCards = [...document.querySelectorAll('[data-recent-grid] .episode-card')];
+        const backnumberItems = [...document.querySelectorAll('[data-backnumber-list] > li')];
+        const recentHeading = document.querySelector('[data-recent-heading]');
+        const backnumberHeading = document.querySelector('[data-backnumber-heading]');
+        const recentLimit = 4;
+        if (!buttons.length || !recentCards.length || !backnumberItems.length) return;
+
+        const headingLabel = (theme) => {{
+          if (theme === 'all') return '最近の回';
+          const button = buttons.find((item) => item.dataset.themeFilter === theme);
+          return button ? `${{button.textContent}}の最近の回` : '最近の回';
+        }};
+
+        const backnumberLabel = (theme) => {{
+          if (theme === 'all') return 'バックナンバー';
+          const button = buttons.find((item) => item.dataset.themeFilter === theme);
+          return button ? `${{button.textContent}}のバックナンバー` : 'バックナンバー';
+        }};
 
         const applyFilter = (theme) => {{
           for (const button of buttons) {{
@@ -54,10 +75,31 @@
             button.setAttribute('aria-pressed', active ? 'true' : 'false');
             button.classList.toggle('is-active', active);
           }}
-          for (const card of cards) {{
-            const visible = theme === 'all' || card.dataset.episodeTheme === theme;
+
+          let shownRecent = 0;
+          for (const card of recentCards) {{
+            const match = theme === 'all' || card.dataset.episodeTheme === theme;
+            const visible = match && shownRecent < recentLimit;
             card.hidden = !visible;
+            if (visible) shownRecent += 1;
           }}
+
+          let skippedRecent = 0;
+          for (const item of backnumberItems) {{
+            const match = theme === 'all' || item.dataset.episodeTheme === theme;
+            let visible = false;
+            if (match) {{
+              if (skippedRecent < recentLimit) {{
+                skippedRecent += 1;
+              }} else {{
+                visible = true;
+              }}
+            }}
+            item.hidden = !visible;
+          }}
+
+          if (recentHeading) recentHeading.textContent = headingLabel(theme);
+          if (backnumberHeading) backnumberHeading.textContent = backnumberLabel(theme);
         }};
 
         for (const button of buttons) {{
