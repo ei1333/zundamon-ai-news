@@ -39,6 +39,35 @@ body {
   margin-bottom: 20px;
 }
 
+.hero-with-character {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: end;
+  background:
+    radial-gradient(circle at top right, rgba(47, 158, 68, 0.12), rgba(47, 158, 68, 0) 35%),
+    linear-gradient(180deg, #ffffff 0%, #f8fff8 100%);
+}
+
+.hero-copy > *:last-child {
+  margin-bottom: 0;
+}
+
+.hero-character {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  min-width: 92px;
+}
+
+.hero-character img {
+  display: block;
+  width: min(120px, 100%);
+  height: auto;
+  image-rendering: auto;
+  filter: drop-shadow(0 10px 20px rgba(31, 36, 48, 0.14));
+}
+
 .eyebrow {
   margin: 0 0 8px;
   color: var(--accent);
@@ -457,9 +486,20 @@ a {
     padding: 22px;
   }
 
+  .hero-with-character,
   .featured-card {
     grid-template-columns: 1fr;
     gap: 16px;
+  }
+
+  .hero-character {
+    order: -1;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+
+  .hero-character img {
+    width: min(110px, 32vw);
   }
 
   .featured-copy {
