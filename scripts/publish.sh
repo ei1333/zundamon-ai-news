@@ -3,7 +3,10 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TMP_DIR="$(mktemp -d)"
+WORKTREE_DIR="$TMP_DIR/site"
 cleanup() {
+  git -C "$REPO_ROOT" worktree remove --force "$WORKTREE_DIR" 2>/dev/null || true
+  git -C "$REPO_ROOT" worktree prune 2>/dev/null || true
   rm -rf "$TMP_DIR"
 }
 trap cleanup EXIT
@@ -14,18 +17,18 @@ cd "$REPO_ROOT"
 
 git fetch origin "$PUBLIC_BRANCH"
 
-git worktree add "$TMP_DIR/site" "$PUBLIC_BRANCH"
+git worktree add "$WORKTREE_DIR" "$PUBLIC_BRANCH"
 
-find "$TMP_DIR/site" -mindepth 1 -maxdepth 1 \
+find "$WORKTREE_DIR" -mindepth 1 -maxdepth 1 \
   ! -name '.git' \
   -exec rm -rf {} +
 
-cp -R "$REPO_ROOT/index.html" "$TMP_DIR/site/index.html"
-cp -R "$REPO_ROOT/assets" "$TMP_DIR/site/assets"
-cp -R "$REPO_ROOT/days" "$TMP_DIR/site/days"
-rm -f "$TMP_DIR/site/days/_template.html"
+cp -R "$REPO_ROOT/index.html" "$WORKTREE_DIR/index.html"
+cp -R "$REPO_ROOT/assets" "$WORKTREE_DIR/assets"
+cp -R "$REPO_ROOT/days" "$WORKTREE_DIR/days"
+rm -f "$WORKTREE_DIR/days/_template.html"
 
-cd "$TMP_DIR/site"
+cd "$WORKTREE_DIR"
 git add -A
 
 if git diff --cached --quiet; then
