@@ -62,7 +62,7 @@ body {
 
 .hero-character img {
   display: block;
-  width: min(120px, 100%);
+  width: min(96px, 100%);
   height: auto;
   image-rendering: auto;
   filter: drop-shadow(0 10px 20px rgba(31, 36, 48, 0.14));
@@ -499,7 +499,7 @@ a {
   }
 
   .hero-character img {
-    width: min(110px, 32vw);
+    width: min(78px, 24vw);
   }
 
   .featured-copy {
