@@ -84,6 +84,26 @@ h3 {
   margin-top: 0;
 }
 
+h1 {
+  margin-bottom: 14px;
+  font-size: clamp(2rem, 3.8vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+}
+
+h2 {
+  margin-bottom: 12px;
+}
+
+.hero-copy {
+  max-width: 34rem;
+}
+
+.lead {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
 .lead,
 .meta,
 .note {
@@ -492,14 +512,44 @@ a {
     gap: 16px;
   }
 
+  .hero-with-character {
+    position: relative;
+    overflow: hidden;
+    padding-right: 108px;
+    align-items: start;
+  }
+
+  .hero-copy {
+    max-width: none;
+  }
+
+  .hero-copy h1 {
+    margin-bottom: 12px;
+    font-size: clamp(2rem, 9vw, 2.6rem);
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  .hero-copy .lead {
+    font-size: 1rem;
+    line-height: 1.75;
+    max-width: 18rem;
+  }
+
   .hero-character {
-    order: -1;
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    order: 0;
     justify-content: flex-end;
     min-width: 0;
+    align-items: flex-end;
+    pointer-events: none;
   }
 
   .hero-character img {
-    width: min(78px, 24vw);
+    width: min(84px, 22vw);
+    opacity: 0.92;
   }
 
   .featured-copy {
@@ -588,5 +638,19 @@ a {
 
   .featured-wave {
     height: 30px;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-with-character {
+    padding-right: 92px;
+  }
+
+  .hero-copy .lead {
+    max-width: 15rem;
+  }
+
+  .hero-character img {
+    width: min(72px, 20vw);
   }
 }
