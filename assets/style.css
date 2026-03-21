@@ -101,6 +101,7 @@ h2 {
 
 .hero-copy {
   max-width: 34rem;
+  min-width: 0;
 }
 
 .lead {
@@ -499,7 +500,7 @@ a {
   margin-bottom: 20px;
 }
 
-@media (max-width: 720px) {
+ (max-width: 760px) {
   .container {
     width: min(100%, calc(100% - 20px));
   }
