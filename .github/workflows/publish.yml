@@ -54,6 +54,7 @@ jobs:
             -exec rm -rf {} +
 
           cp index.html /tmp/gh-pages/index.html
+          cp about.html /tmp/gh-pages/about.html
           cp -R assets /tmp/gh-pages/assets
           cp -R days /tmp/gh-pages/days
           rm -f /tmp/gh-pages/days/_template.html
