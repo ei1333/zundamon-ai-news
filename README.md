@@ -355,6 +355,7 @@ python3 scripts/show_schedule.py --json 2026-03-14
 `build_episode.sh` を **speaker 省略** で呼ぶと、その日の schedule から speaker / site theme を拾います。
 `new_episode.py` / `draft_from_urls.py` も、theme / coverage / window を省略すると schedule を参照します。
 `prepare_llm_episode.sh YYYY-MM-DD` のように URL なしで呼ぶと、その日の source 候補一覧を表示します。
+`cron_send_candidates.sh` は **定時通知専用** です。候補URLの自動収集は行わず、Discord に「候補選定の時間」を通知して、その後は人手で候補を集めて3本を選定する運用を想定しています。
 
 ## Recommended Minimal Flow
 

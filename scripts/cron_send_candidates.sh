@@ -11,6 +11,11 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
 Usage:
   ./scripts/cron_send_candidates.sh [YYYY-MM-DD] channel:<CHANNEL_ID> <USER_ID>
 
+Behavior:
+  - Sends a Discord reminder only.
+  - Does NOT auto-collect article candidates.
+  - Human/manual candidate gathering happens after this notification.
+
 Examples:
   ./scripts/cron_send_candidates.sh 2026-03-17 channel:1234567890 9876543210
   ./scripts/cron_send_candidates.sh "$(date -u -d '+1 day' +%F)" channel:1234567890 9876543210
@@ -27,34 +32,21 @@ if [[ "$DISCORD_TARGET" == channel:* ]]; then
   DISCORD_TARGET="${DISCORD_TARGET#channel:}"
 fi
 
-JSON_OUT="$(python3 "$REPO_ROOT/scripts/collect_candidate_urls.py" "$TARGET_DATE" --json)"
-JSON_PATH="$(mktemp)"
-printf '%s\n' "$JSON_OUT" > "$JSON_PATH"
-
-MESSAGE_TEXT="$(python3 - "$JSON_PATH" "$MENTION_USER" <<'PY'
-import json
+MESSAGE_TEXT="$(python3 - "$TARGET_DATE" "$MENTION_USER" <<'PY'
 import sys
-from pathlib import Path
+from schedule_utils import resolve_schedule
 
-payload = json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+payload = resolve_schedule(sys.argv[1]).to_dict()
 mention_user = sys.argv[2]
-items = payload.get('items', [])
-if not items:
-    print(f"<@{mention_user}> わっふー！ {payload['date']} の {payload['theme']} 候補を拾えなかっためう… source 候補の確認を頼みたいめうっ☆")
-    raise SystemExit(0)
 
 lines = [
-    f"<@{mention_user}> わっふー！ {payload['date']} の **{payload['theme']}** 候補を3本集めためうっ！！",
+    f"<@{mention_user}> わっふー！ {payload['date']} の **{payload['theme']}** 回、候補選定の時間めうっ！！",
     f"coverage: {payload['coverage']} / window: {payload['window']}",
     '',
+    '今回は **自動候補収集はしない** めうっ☆',
+    '候補はめうが集め直して3本を選定してから、Discord に投げるめう〜っ♪',
+    'その後、お主の **「はい」** が出たら push まで進めるめうっ！',
 ]
-for idx, item in enumerate(items[:3], start=1):
-    lines.append(f"{idx}. {item['title']}")
-    lines.append(f"<{item['url']}>")
-    if item.get('summary'):
-        lines.append(f"- {item['summary']}")
-    lines.append('')
-lines.append('この3本でよければ **「はい」** って返してほしいめうっ☆')
 print('\n'.join(lines))
 PY
 )"
@@ -63,5 +55,3 @@ PY
   --channel discord \
   --target "$DISCORD_TARGET" \
   --message "$MESSAGE_TEXT"
-
-rm -f "$JSON_PATH"
