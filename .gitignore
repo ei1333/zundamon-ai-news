@@ -5,3 +5,4 @@ __pycache__/
 
 drafts/*.draft.md
 prompts/generated/*.prompt.txt
+logs/*.log
