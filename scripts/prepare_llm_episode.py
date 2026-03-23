@@ -41,9 +41,8 @@ def main() -> None:
         print(f'- coverage: {rule.get("coverage", "weekly")}', file=sys.stderr)
         print(f'- window: {rule.get("window", "") or "auto"}', file=sys.stderr)
         print('', file=sys.stderr)
-        print('Source suggestions:', file=sys.stderr)
-        for url in rule.get('source_suggestions', []):
-            print(f'- {url}', file=sys.stderr)
+        print('Auto candidate collection is disabled.', file=sys.stderr)
+        print('Gather and choose 3 article URLs manually, then pass them here.', file=sys.stderr)
         print('', file=sys.stderr)
         print('Pass 3 article URLs to continue.', file=sys.stderr)
         raise SystemExit(1)

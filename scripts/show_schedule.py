@@ -23,8 +23,6 @@ def main() -> None:
     for key in ['theme', 'coverage', 'window', 'speaker', 'site_theme']:
         if key in result:
             print(f"{key}: {result[key]}")
-    for url in result.get('source_suggestions', []):
-        print(f"source: {url}")
 
 
 if __name__ == '__main__':

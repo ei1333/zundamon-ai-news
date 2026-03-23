@@ -27,8 +27,6 @@ def validate_schedule_config(data: dict) -> dict:
             raise SystemExit(f'schedule.json has unknown weekday: {weekday}')
         if not isinstance(rule, dict):
             raise SystemExit(f'schedule.json weekday_rules.{weekday} must be an object')
-        if 'source_suggestions' in rule and not isinstance(rule.get('source_suggestions'), list):
-            raise SystemExit(f'schedule.json weekday_rules.{weekday}.source_suggestions must be a list')
     return data
 
 
@@ -52,7 +50,6 @@ def resolve_schedule(date_text: str) -> ResolvedSchedule:
         window=rule.get('window') or default_window_for(date_text, coverage),
         speaker=str(rule.get('speaker', 'zundamon')),
         site_theme=str(rule.get('site_theme', 'ai')),
-        source_suggestions=[str(url) for url in rule.get('source_suggestions', [])],
     )
 
 

@@ -8,66 +8,31 @@
   "weekday_rules": {
     "monday": {
       "theme": "tech",
-      "coverage": "daily",
-      "source_suggestions": [
-        "https://blog.google/technology/",
-        "https://www.theverge.com/tech",
-        "https://techcrunch.com/category/startups/"
-      ]
+      "coverage": "daily"
     },
     "tuesday": {
       "theme": "business",
-      "coverage": "daily",
-      "source_suggestions": [
-        "https://www.reuters.com/business/",
-        "https://www.cnbc.com/business/",
-        "https://www.bloomberg.com/markets"
-      ]
+      "coverage": "daily"
     },
     "wednesday": {
       "theme": "ai",
-      "coverage": "daily",
-      "source_suggestions": [
-        "https://openai.com/news/",
-        "https://blog.google/technology/ai/",
-        "https://www.anthropic.com/news"
-      ]
+      "coverage": "daily"
     },
     "thursday": {
       "theme": "game",
-      "coverage": "daily",
-      "source_suggestions": [
-        "https://www.gematsu.com/",
-        "https://www.4gamer.net/",
-        "https://www.famitsu.com/"
-      ]
+      "coverage": "daily"
     },
     "friday": {
       "theme": "shogi",
-      "coverage": "weekly",
-      "source_suggestions": [
-        "https://www.shogi.or.jp/news/",
-        "https://www.shogi.or.jp/match/",
-        "https://www.shogi.or.jp/match_news/"
-      ]
+      "coverage": "weekly"
     },
     "saturday": {
       "theme": "vocaloid",
-      "coverage": "weekly",
-      "source_suggestions": [
-        "https://blog.piapro.net/",
-        "https://sonicwire.com/news",
-        "https://magicalmirai.com/2026/"
-      ]
+      "coverage": "weekly"
     },
     "sunday": {
       "theme": "sports",
-      "coverage": "weekly",
-      "source_suggestions": [
-        "https://www.espn.com/",
-        "https://www.reuters.com/world/sport/",
-        "https://apnews.com/sports"
-      ]
+      "coverage": "weekly"
     }
   }
 }
