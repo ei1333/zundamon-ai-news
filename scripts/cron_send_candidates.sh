@@ -14,7 +14,7 @@ Usage:
 Behavior:
   - Sends a Discord reminder only.
   - Does NOT auto-collect article candidates.
-  - Human/manual candidate gathering happens after this notification.
+  - The AI gathers and selects candidates after this notification.
 
 Examples:
   ./scripts/cron_send_candidates.sh 2026-03-17 channel:1234567890 9876543210

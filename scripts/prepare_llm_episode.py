@@ -42,7 +42,7 @@ def main() -> None:
         print(f'- window: {rule.get("window", "") or "auto"}', file=sys.stderr)
         print('', file=sys.stderr)
         print('Auto candidate collection is disabled.', file=sys.stderr)
-        print('Gather and choose 3 article URLs manually, then pass them here.', file=sys.stderr)
+        print('Have the AI gather and choose 3 article URLs, then pass them here.', file=sys.stderr)
         print('', file=sys.stderr)
         print('Pass 3 article URLs to continue.', file=sys.stderr)
         raise SystemExit(1)

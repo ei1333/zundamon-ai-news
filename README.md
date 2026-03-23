@@ -363,7 +363,7 @@ python3 scripts/show_schedule.py --json 2026-03-14
 
 ```bash
 ./scripts/prepare_llm_episode.sh 2026-03-13
-# ↑ その日の schedule を確認（候補URLは手動で集める）
+# ↑ その日の schedule を確認（候補URLは生成AIが収集・選定する）
 
 ./scripts/prepare_llm_episode.sh 2026-03-13 \
   "https://example.com/a" \

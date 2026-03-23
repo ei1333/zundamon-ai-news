@@ -15,7 +15,7 @@ Usage:
 Behavior:
   - If no date is passed, defaults to tomorrow in UTC.
   - If 3 URLs are passed, prepares draft + prompt files.
-  - If no URLs are passed, prints the resolved schedule and source suggestions.
+  - If no URLs are passed, prints the resolved schedule only.
 
 Examples:
   ./scripts/cron_prepare_episode.sh
