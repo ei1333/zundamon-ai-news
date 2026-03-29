@@ -76,8 +76,18 @@
 
 
       <section class="card filter-card">
-        <h2>テーマで絞り込み</h2>
-        <div class="theme-filters" role="group" aria-label="テーマで絞り込み">
+        <h2>探す・絞り込む</h2>
+        <div class="search-panel">
+          <label class="search-label" for="episode-search">キーワード検索</label>
+          <div class="search-input-wrap">
+            <input id="episode-search" class="search-input" type="search" placeholder="日付・テーマ・タグ・見出しで検索" autocomplete="off" data-episode-search />
+            <button class="search-clear-button" type="button" data-search-clear>クリア</button>
+          </div>
+          <p class="search-help">例: AI / 将棋 / 初音ミク / 2026-03-25 / OpenAI</p>
+        </div>
+        <div>
+          <h3 class="filter-subheading">テーマで絞り込み</h3>
+          <div class="theme-filters" role="group" aria-label="テーマで絞り込み">
           <button class="theme-filter-button" type="button" data-theme-filter="all" aria-pressed="false">すべて</button>
           <button class="theme-filter-button" type="button" data-theme-filter="ai" aria-pressed="false">AI</button>
           <button class="theme-filter-button" type="button" data-theme-filter="tech" aria-pressed="false">Tech</button>
@@ -86,7 +96,13 @@
           <button class="theme-filter-button" type="button" data-theme-filter="shogi" aria-pressed="false">将棋</button>
           <button class="theme-filter-button" type="button" data-theme-filter="vocaloid" aria-pressed="false">ボーカロイド</button>
           <button class="theme-filter-button" type="button" data-theme-filter="sports" aria-pressed="false">スポーツ</button>
+          </div>
         </div>
+      </section>
+
+      <section class="card source-card">
+        <h2>出典について</h2>
+        <p class="note">各回の詳細ページでは、各トピックごとに参照した公開情報への出典リンクを掲載しています。気になる話題は「詳細を見る」から確認できます。</p>
       </section>
 
       <section class="card" data-filter-section="recent">
@@ -508,59 +524,104 @@
         const backnumberItems = [...document.querySelectorAll('[data-backnumber-list] > li')];
         const recentHeading = document.querySelector('[data-recent-heading]');
         const backnumberHeading = document.querySelector('[data-backnumber-heading]');
+        const searchInput = document.querySelector('[data-episode-search]');
+        const clearButton = document.querySelector('[data-search-clear]');
+        const recentSection = document.querySelector('[data-filter-section="recent"]');
+        const backnumberSection = document.querySelector('[data-filter-section="backnumber"]');
         const recentLimit = 6;
         if (!buttons.length || !recentCards.length || !backnumberItems.length) return;
 
-        const headingLabel = (theme) => {
-          if (theme === 'all') return '最近の回';
+        const emptyState = document.createElement('p');
+        emptyState.className = 'filter-empty-state';
+        emptyState.hidden = true;
+        emptyState.textContent = '条件に合う回が見つからなかったのだ。キーワードやテーマを変えてみてください。';
+        backnumberSection?.appendChild(emptyState);
+
+        const buildSearchText = (element) =>
+          [
+            element.dataset.episodeTheme || '',
+            element.textContent || '',
+          ]
+            .join(' ')
+            .replace(/\s+/g, ' ')
+            .toLowerCase();
+
+        const recentSearchIndex = new Map(recentCards.map((card) => [card, buildSearchText(card)]));
+        const backnumberSearchIndex = new Map(backnumberItems.map((item) => [item, buildSearchText(item)]));
+        let currentTheme = 'all';
+        let currentQuery = '';
+
+        const headingLabel = (theme, query) => {
+          const suffix = query ? 'の検索結果' : 'の最近の回';
+          if (theme === 'all') return query ? '検索結果' : '最近の回';
           const button = buttons.find((item) => item.dataset.themeFilter === theme);
-          return button ? `${button.textContent}の最近の回` : '最近の回';
+          return button ? `${button.textContent}${suffix}` : (query ? '検索結果' : '最近の回');
         };
 
-        const backnumberLabel = (theme) => {
+        const backnumberLabel = (theme, query) => {
+          if (query) return 'その他の一致した回';
           if (theme === 'all') return 'バックナンバー';
           const button = buttons.find((item) => item.dataset.themeFilter === theme);
           return button ? `${button.textContent}のバックナンバー` : 'バックナンバー';
         };
 
-        const applyFilter = (theme) => {
+        const matches = (elementTheme, searchText) => {
+          const themeMatch = currentTheme === 'all' || elementTheme === currentTheme;
+          const queryMatch = !currentQuery || searchText.includes(currentQuery);
+          return themeMatch && queryMatch;
+        };
+
+        const render = () => {
           for (const button of buttons) {
-            const active = button.dataset.themeFilter === theme;
+            const active = button.dataset.themeFilter === currentTheme;
             button.setAttribute('aria-pressed', active ? 'true' : 'false');
             button.classList.toggle('is-active', active);
           }
 
-          let shownRecent = 0;
-          for (const card of recentCards) {
-            const match = theme === 'all' || card.dataset.episodeTheme === theme;
-            const visible = match && shownRecent < recentLimit;
-            card.hidden = !visible;
-            if (visible) shownRecent += 1;
-          }
+          const matchingRecent = recentCards.filter((card) =>
+            matches(card.dataset.episodeTheme || '', recentSearchIndex.get(card) || '')
+          );
+          const matchingBacknumbers = backnumberItems.filter((item) =>
+            matches(item.dataset.episodeTheme || '', backnumberSearchIndex.get(item) || '')
+          );
 
-          let skippedRecent = 0;
-          for (const item of backnumberItems) {
-            const match = theme === 'all' || item.dataset.episodeTheme === theme;
-            let visible = false;
-            if (match) {
-              if (skippedRecent < recentLimit) {
-                skippedRecent += 1;
-              } else {
-                visible = true;
-              }
-            }
-            item.hidden = !visible;
-          }
+          const combined = [...matchingRecent, ...matchingBacknumbers];
+          const recentSet = new Set(combined.slice(0, recentLimit));
+          const backnumberSet = new Set(combined.slice(recentLimit));
 
-          if (recentHeading) recentHeading.textContent = headingLabel(theme);
-          if (backnumberHeading) backnumberHeading.textContent = backnumberLabel(theme);
+          for (const card of recentCards) card.hidden = !recentSet.has(card);
+          for (const item of backnumberItems) item.hidden = !backnumberSet.has(item);
+
+          const hasAnyResults = recentSet.size !== 0 || backnumberSet.size !== 0;
+
+          if (recentHeading) recentHeading.textContent = headingLabel(currentTheme, currentQuery);
+          if (backnumberHeading) backnumberHeading.textContent = backnumberLabel(currentTheme, currentQuery);
+          if (recentSection) recentSection.hidden = recentSet.size === 0;
+          if (backnumberSection) backnumberSection.hidden = hasAnyResults ? backnumberSet.size === 0 : false;
+          if (emptyState) emptyState.hidden = hasAnyResults;
         };
 
         for (const button of buttons) {
-          button.addEventListener('click', () => applyFilter(button.dataset.themeFilter || 'all'));
+          button.addEventListener('click', () => {
+            currentTheme = button.dataset.themeFilter || 'all';
+            render();
+          });
         }
 
-        applyFilter('all');
+        searchInput?.addEventListener('input', (event) => {
+          currentQuery = (event.target.value || '').trim().toLowerCase();
+          render();
+        });
+
+        clearButton?.addEventListener('click', () => {
+          if (searchInput) searchInput.value = '';
+          currentQuery = '';
+          currentTheme = 'all';
+          render();
+          searchInput?.focus();
+        });
+
+        render();
       })();
     </script>
   </body>
