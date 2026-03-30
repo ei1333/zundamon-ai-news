@@ -105,7 +105,7 @@
           const suffix = query ? 'の検索結果' : 'の最近の回';
           if (theme === 'all') return query ? '検索結果' : '最近の回';
           const button = buttons.find((item) => item.dataset.themeFilter === theme);
-          return button ? `${{button.textContent}}${{suffix}}` : (query ? '検索結果' : '最近の回');
+          return button ? (button.textContent + suffix) : (query ? '検索結果' : '最近の回');
         }};
 
         const backnumberLabel = (theme, query) => {{
