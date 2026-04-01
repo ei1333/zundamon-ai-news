@@ -42,9 +42,10 @@ def render_html(date: str, document: EpisodeDocument, *, theme_name: str = 'ai')
         )
 
     site_url = theme.get('site_url', 'https://example.com/').rstrip('/')
+    page_title = f'{date} の{theme.get("theme_label", "ニュース")}まとめ | {theme.get("site_name", "Site")}'
     return load_template('day.html').format(
         head_html=build_head_html(
-            title=f'{date} | {theme.get("site_name", "Site")}',
+            title=page_title,
             description=header.summary,
             url=f'{site_url}/days/{date}.html',
             stylesheet_href='../assets/style.css',
