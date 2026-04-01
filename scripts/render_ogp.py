@@ -223,6 +223,37 @@ def split_title_lines(title: str, font, max_width: int) -> list[str]:
 
 
 
+def measure_multiline(lines: list[str], font, line_gap: int = 10) -> tuple[int, int]:
+    probe = ImageDraw.Draw(Image.new('RGB', (1, 1)))
+    widths = []
+    total_height = 0
+    for idx, line in enumerate(lines):
+        bbox = text_bbox(probe, line, font)
+        widths.append(bbox[2] - bbox[0])
+        total_height += bbox[3] - bbox[1]
+        if idx < len(lines) - 1:
+            total_height += line_gap
+    return max(widths, default=0), total_height
+
+
+
+def fit_episode_title_layout(title: str, *, preferred_size: int = 40, min_size: int = 30, max_width: int = 410, max_height: int = 120, line_gap: int = 10) -> tuple[list[str], int]:
+    cleaned = trim_text(title, 40)
+    for size in range(preferred_size, min_size - 1, -2):
+        font = load_font(size, bold=True)
+        lines = split_title_lines(cleaned, font, max_width=max_width)
+        if len(lines) > 2:
+            lines = lines[:2]
+        width, height = measure_multiline(lines, font, line_gap=line_gap)
+        if width <= max_width and height <= max_height:
+            return lines, size
+
+    fallback_font = load_font(min_size, bold=True)
+    fallback_title = fit_text(cleaned, len(cleaned), max_width, fallback_font)
+    return [fallback_title], min_size
+
+
+
 def render_ogp(*, out_path: Path, text_nodes: list[tuple], multiline_blocks: list[tuple] | None = None, chips=CHIPS):
     image = linear_gradient((WIDTH, HEIGHT), *BG_GRADIENT).convert('RGBA')
     draw = ImageDraw.Draw(image, 'RGBA')
@@ -273,9 +304,7 @@ def main() -> None:
 
     if args.date:
         date = args.date
-        title_font_size = 40
-        title_font = load_font(title_font_size, bold=True)
-        title_lines = split_title_lines(trim_text(args.title or theme.get('site_name', 'ずんだもん1分AIニュース'), 28), title_font, max_width=410)
+        title_lines, title_font_size = fit_episode_title_layout(args.title or theme.get('site_name', 'ずんだもん1分AIニュース'))
         text_nodes = [
             (theme.get('ogp', {}).get('episode_badge', 'Daily Episode'), (160, 186), 26, True, (233, 255, 240, 255), 'la'),
             (date, (160, 262), 44, True, (255, 255, 255, 255), 'la'),

@@ -27,6 +27,7 @@ def main() -> None:
     import sys
     sys.path.insert(0, str(ROOT / 'scripts'))
     from episode_utils import detect_episode_theme, extract_section, parse_episode_full
+    from render_ogp import fit_episode_title_layout
     from validate_config import main as validate_config_main
 
     validate_config_main()
@@ -98,8 +99,9 @@ def main() -> None:
 
         title = ' '.join(document.header.title.split())
         topics = [part.strip() for part in title.split('・') if part.strip()]
-        if len(title) > 28:
-            warn(f'{source.name}: title is {len(title)} chars; OGP may trim it')
+        title_lines, title_font_size = fit_episode_title_layout(title)
+        if title_font_size <= 34:
+            warn(f'{source.name}: title requires OGP font shrink to {title_font_size}pt')
         if len(topics) >= 4:
             warn(f'{source.name}: title has {len(topics)} topics; OGP may drop trailing topics')
         for idx, topic in enumerate(topics, start=1):
