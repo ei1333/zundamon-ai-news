@@ -302,6 +302,7 @@ def build_head_html(*, title: str, description: str, url: str, stylesheet_href: 
         '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
         f'    <title>{title_text}</title>',
         f'    <meta name="description" content="{desc_attr}" />',
+        f'    <link rel="canonical" href="{url_attr}" />',
         f'    <meta property="og:type" content="{og_type_attr}" />',
         f'    <meta property="og:title" content="{title_text}" />',
         f'    <meta property="og:description" content="{desc_attr}" />',

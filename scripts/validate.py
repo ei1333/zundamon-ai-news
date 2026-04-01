@@ -39,6 +39,9 @@ def main() -> None:
             fail(f'{directory} not found')
     if not (ROOT / 'assets' / 'ogp.png').exists():
         fail('assets/ogp.png not found')
+    for path in ['sitemap.xml', 'robots.txt']:
+        if not (ROOT / path).exists():
+            fail(f'{path} not found')
 
     if grep_check('YYYY-MM-DD', 'episodes', 'days', 'index.html'):
         fail('Unreplaced template marker YYYY-MM-DD found')
@@ -115,6 +118,8 @@ def main() -> None:
             fail(f'days/{date}.html does not reference sample-news-{date}.wav')
         if f'assets/ogp-{date}.png' not in day_html and f'/assets/ogp-{date}.png' not in day_html:
             fail(f'days/{date}.html does not reference ogp-{date}.png')
+        if f'<link rel="canonical" href="https://ei1333.github.io/zundamon-ai-news/days/{date}.html"' not in day_html:
+            fail(f'days/{date}.html missing canonical link')
         if '<meta property="og:type" content="article"' not in day_html:
             fail(f'days/{date}.html missing article og:type')
         if '<audio class="audio" controls' not in day_html:
@@ -122,8 +127,26 @@ def main() -> None:
 
     if '<meta property="og:type" content="website"' not in index_text:
         fail('index.html missing website og:type')
+    if '<link rel="canonical" href="https://ei1333.github.io/zundamon-ai-news/"' not in index_text:
+        fail('index.html missing canonical link')
     if 'sample-news-' not in index_text:
         fail('index.html does not reference any episode audio')
+
+    about_text = (ROOT / 'about.html').read_text(encoding='utf-8')
+    if '<link rel="canonical" href="https://ei1333.github.io/zundamon-ai-news/about.html"' not in about_text:
+        fail('about.html missing canonical link')
+
+    sitemap_text = (ROOT / 'sitemap.xml').read_text(encoding='utf-8')
+    if '<loc>https://ei1333.github.io/zundamon-ai-news/</loc>' not in sitemap_text:
+        fail('sitemap.xml missing site root entry')
+    if '<loc>https://ei1333.github.io/zundamon-ai-news/about.html</loc>' not in sitemap_text:
+        fail('sitemap.xml missing about.html entry')
+    if f'<loc>https://ei1333.github.io/zundamon-ai-news/days/{latest_date}.html</loc>' not in sitemap_text:
+        fail(f'sitemap.xml missing latest episode {latest_date}')
+
+    robots_text = (ROOT / 'robots.txt').read_text(encoding='utf-8')
+    if 'Sitemap: https://ei1333.github.io/zundamon-ai-news/sitemap.xml' not in robots_text:
+        fail('robots.txt missing sitemap reference')
 
     print('Validation OK')
 

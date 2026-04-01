@@ -15,6 +15,7 @@ from episode_utils import (
     load_theme,
     parse_episode_summary,
 )
+from generate_seo_files import main as generate_seo_files_main
 
 
 def list_episodes(*, site_theme_name: str = 'ai') -> list[IndexEpisodeSummary]:
@@ -147,6 +148,7 @@ def update_index(target_date: str | None = None, *, site_theme_name: str = 'ai')
         credits_voice=escape_text(view.credits_voice),
     )
     index_path.write_text(html_text, encoding='utf-8')
+    generate_seo_files_main()
 
 
 if __name__ == '__main__':

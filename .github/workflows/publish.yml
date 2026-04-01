@@ -66,6 +66,8 @@ jobs:
 
           cp index.html /tmp/gh-pages/index.html
           cp about.html /tmp/gh-pages/about.html
+          cp sitemap.xml /tmp/gh-pages/sitemap.xml
+          cp robots.txt /tmp/gh-pages/robots.txt
           cp -R assets /tmp/gh-pages/assets
           cp -R days /tmp/gh-pages/days
           rm -f /tmp/gh-pages/days/_template.html
