@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>このページについて | ずんだもん1分AIニュース</title>
+    <meta name="description" content="ずんだもん1分AIニュースの制作背景、OpenClawを使った更新フロー、GitHub リポジトリなどをまとめた紹介ページです。" />
+    <link rel="canonical" href="https://ei1333.github.io/zundamon-ai-news/about.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="このページについて | ずんだもん1分AIニュース" />
+    <meta property="og:description" content="OpenClawを使った更新フローやGitHub リポジトリなどを紹介しています。" />
+    <meta property="og:url" content="https://ei1333.github.io/zundamon-ai-news/about.html" />
+    <meta property="og:site_name" content="ずんだもん1分AIニュース" />
+    <meta property="og:image" content="https://ei1333.github.io/zundamon-ai-news/assets/ogp.png" />
+    <meta property="og:image:alt" content="ずんだもん1分AIニュースのOGP画像" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="このページについて | ずんだもん1分AIニュース" />
+    <meta name="twitter:description" content="OpenClawを使った更新フローやGitHub リポジトリなどを紹介しています。" />
+    <meta name="twitter:image" content="https://ei1333.github.io/zundamon-ai-news/assets/ogp.png" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <a class="back-link" href="./index.html">← トップへ戻る</a>
+
+      <header class="hero">
+        <p class="eyebrow">About</p>
+        <h1>このページについて</h1>
+        <p class="lead">
+          「ずんだもん1分AIニュース」は、公開情報をもとに注目トピックを短く整理し、音声でもさっと確認できるようにまとめたニュースページです。
+        </p>
+      </header>
+
+      <section class="card">
+        <h2>なにをしているページか</h2>
+        <p>
+          毎回ひとつのテーマを選び、公開情報から3本前後の話題に絞って要点をまとめています。長文を追わなくても、トップページと音声だけでその日の流れを掴みやすい構成を目指しています。
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>どうやって作っているか</h2>
+        <div class="about-flow">
+          <div class="about-step">
+            <strong>1. 公開情報を収集</strong>
+            <p>各テーマごとに公開されているニュースや告知を確認し、取り上げる候補を絞ります。</p>
+          </div>
+          <div class="about-step">
+            <strong>2. OpenClaw で整形・更新</strong>
+            <p>OpenClaw を使ってページの文面調整、構成変更、更新作業を進めています。</p>
+          </div>
+          <div class="about-step">
+            <strong>3. GitHub へ push</strong>
+            <p>HTML / CSS や各日のページを GitHub リポジトリへ反映します。</p>
+          </div>
+          <div class="about-step">
+            <strong>4. GitHub Pages で公開</strong>
+            <p>push 後に GitHub Pages 側へ反映され、ブラウザから閲覧できるようになります。</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>アーキテクチャ概要</h2>
+        <ul class="about-list">
+          <li>フロントエンドは静的な HTML / CSS ベースです。</li>
+          <li>更新フローには OpenClaw を利用しています。</li>
+          <li>ソース管理は GitHub、公開は GitHub Pages です。</li>
+          <li>各回の詳細ページとトップページを行き来しやすい構成にしています。</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>リンク</h2>
+        <ul class="about-links">
+          <li><a href="https://github.com/ei1333/zundamon-ai-news" target="_blank" rel="noreferrer">GitHub リポジトリ</a></li>
+          <li><a href="https://github.com/openclaw/openclaw" target="_blank" rel="noreferrer">OpenClaw</a></li>
+          <li><a href="https://docs.openclaw.ai" target="_blank" rel="noreferrer">OpenClaw Docs</a></li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>出典の見方</h2>
+        <p>
+          各日の詳細ページでは、3本前後のトピックごとに参照した公開情報へのリンクを「出典」として掲載しています。気になる話題はトップページの「詳細を見る」から移動し、元記事や公式発表をたどれるようにしています。
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>補足</h2>
+        <p class="note">
+          内容は公開情報をもとに整理しています。ページ構成や表現は継続的に調整することがあります。
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
