@@ -35,10 +35,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Validate site contents
+      - name: Validate config
         run: |
-          chmod +x scripts/validate.sh
-          ./scripts/validate.sh
+          python scripts/validate_config.py
+
+      - name: Render HTML / OGP / index from episode sources
+        run: |
+          set -euo pipefail
+
+          for episode in $(find episodes -maxdepth 1 -type f -name '*.md' ! -name '_template.md' | sort); do
+            date="$(basename "$episode" .md)"
+            python scripts/render_episode.py "$date"
+          done
+
+          python scripts/update_index.py
+          python scripts/generate_seo_files.py
 
       - name: Prepare gh-pages worktree
         run: |
