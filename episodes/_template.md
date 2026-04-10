@@ -3,6 +3,12 @@
 ## Theme
 ai
 
+## Coverage
+daily
+
+## Window
+YYYY-MM-DD..YYYY-MM-DD
+
 ## Summary
 YYYY-MM-DD の回です。
 
