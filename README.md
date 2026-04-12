@@ -16,6 +16,11 @@
 運用上の原則として、`main` は **source of truth（原稿・台本・設定などの再生成元）** を置く場所、`gh-pages` は **public artifacts（HTML / 音声 / OGP などの公開物）** を置く場所として分けます。
 そのため、通常は `days/*.html` `assets/audio/*` `assets/ogp-*.png` のような生成物を `main` に常駐させず、episode 原稿と台本から GitHub Actions / publish 処理で再生成して公開します。
 
+> [!IMPORTANT]
+> 通常運用では **`main` に push すれば公開処理は GitHub Actions（`.github/workflows/publish.yml`）が自動で実行** します。
+> そのため、**普段は `scripts/publish.sh` を手動で叩く必要はありません**。
+> `scripts/publish.sh` はローカルで公開物を即確認したいときや、Actions を使わずに `gh-pages` を直接更新したい特殊ケース向けです。
+
 ## Current Workflow
 
 現在の基本方針は次です。
