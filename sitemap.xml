@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ei1333.github.io/zundamon-ai-news/</loc>
-    <lastmod>2026-04-16</lastmod>
+    <lastmod>2026-04-17</lastmod>
   </url>
   <url>
     <loc>https://ei1333.github.io/zundamon-ai-news/about.html</loc>
@@ -159,5 +159,9 @@
   <url>
     <loc>https://ei1333.github.io/zundamon-ai-news/days/2026-04-16.html</loc>
     <lastmod>2026-04-16</lastmod>
+  </url>
+  <url>
+    <loc>https://ei1333.github.io/zundamon-ai-news/days/2026-04-17.html</loc>
+    <lastmod>2026-04-17</lastmod>
   </url>
 </urlset>
