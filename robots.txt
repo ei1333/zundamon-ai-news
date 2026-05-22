@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ei1333.github.io/zundamon-ai-news/sitemap.xml
