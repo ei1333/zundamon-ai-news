@@ -24,6 +24,9 @@ find "$WORKTREE_DIR" -mindepth 1 -maxdepth 1 \
   -exec rm -rf {} +
 
 cp -R "$REPO_ROOT/index.html" "$WORKTREE_DIR/index.html"
+cp -R "$REPO_ROOT/about.html" "$WORKTREE_DIR/about.html"
+cp -R "$REPO_ROOT/robots.txt" "$WORKTREE_DIR/robots.txt"
+cp -R "$REPO_ROOT/sitemap.xml" "$WORKTREE_DIR/sitemap.xml"
 cp -R "$REPO_ROOT/assets" "$WORKTREE_DIR/assets"
 cp -R "$REPO_ROOT/days" "$WORKTREE_DIR/days"
 rm -f "$WORKTREE_DIR/days/_template.html"
