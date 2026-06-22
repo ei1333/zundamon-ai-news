@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2026-06-22 のTechニュースまとめ | ずんだもん1分Techニュース</title>
+    <meta name="description" content="2026-06-22 の公開情報から、systemd 261の新機能、AIコーディングエージェント向けのAgent Beacon、暗号化DNSのメタデータ漏れを扱う研究の3本をまとめています。" />
+    <link rel="canonical" href="https://ei1333.github.io/zundamon-ai-news/days/2026-06-22.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="2026-06-22 のTechニュースまとめ | ずんだもん1分Techニュース" />
+    <meta property="og:description" content="2026-06-22 の公開情報から、systemd 261の新機能、AIコーディングエージェント向けのAgent Beacon、暗号化DNSのメタデータ漏れを扱う研究の3本をまとめています。" />
+    <meta property="og:url" content="https://ei1333.github.io/zundamon-ai-news/days/2026-06-22.html" />
+    <meta property="og:site_name" content="ずんだもん1分Techニュース" />
+    <meta property="og:image" content="https://ei1333.github.io/zundamon-ai-news/assets/ogp-2026-06-22.png" />
+    <meta property="og:image:alt" content="ずんだもん1分TechニュースのOGP画像" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="2026-06-22 のTechニュースまとめ | ずんだもん1分Techニュース" />
+    <meta name="twitter:description" content="2026-06-22 の公開情報から、systemd 261の新機能、AIコーディングエージェント向けのAgent Beacon、暗号化DNSのメタデータ漏れを扱う研究の3本をまとめています。" />
+    <meta name="twitter:image" content="https://ei1333.github.io/zundamon-ai-news/assets/ogp-2026-06-22.png" />
+    <link rel="stylesheet" href="../assets/style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <a class="back-link" href="../index.html">← トップページへ戻る</a>
+
+      <article class="article">
+        <p class="eyebrow">今日のエピソード</p>
+        <h1>2026-06-22 のTechニュース</h1>
+        <div class="meta-badges">
+          <p class="theme-label">テーマ: Techニュース</p>
+          <p class="theme-label">対象: 当日</p>
+          <p class="theme-label">期間: 2026-06-22..2026-06-22</p>
+        </div>
+        <p class="meta">2026-06-22 時点の公開情報をもとに構成したTechニュース回です。今日は、Linux基盤、開発現場のエージェント可観測性、ネットワークプライバシーの3本を取り上げます。</p>
+
+        <h2>音声で聴く</h2>
+        <audio class="audio" controls>
+          <source src="../assets/audio/sample-news-2026-06-22.wav" type="audio/wav" />
+          お使いのブラウザは audio 要素に対応していません。
+        </audio>
+
+        <h2>この回の内容</h2>
+        <p>2026-06-22 の公開情報から、systemd 261の新機能、AIコーディングエージェント向けのAgent Beacon、暗号化DNSのメタデータ漏れを扱う研究の3本をまとめています。</p>
+        <ol class="news-list">
+          <li>
+            <div class="episode-tags">
+              <span class="episode-tag category-general">OS</span>
+              <span class="episode-tag category-general">クラウド</span>
+              <span class="episode-tag category-research">インフラ</span>
+            </div>
+            <h3>systemd 261、クラウドメタデータとソフトウェアTPMを追加</h3>
+            <p>systemd 261では、クラウドインスタンスのメタデータをローカルのVarlink APIで扱うIMDSサブシステム、kexec再起動時の状態引き継ぎ、ソフトウェアTPMサービス、テキストベースのOSインストーラなどが追加されました。systemd-sysupdateは実験段階を離れ、systemd-networkdにはDHCPリレー関連の追加も入っています。</p>
+            <p>出典: <a href="https://www.helpnetsecurity.com/2026/06/22/systemd-261-released/">Help Net Security </a></p>
+          </li>
+          <li>
+            <div class="episode-tags">
+              <span class="episode-tag category-transparency">開発</span>
+              <span class="episode-tag category-general">可観測性</span>
+              <span class="episode-tag category-general">セキュリティ</span>
+            </div>
+            <h3>Agent Beacon、AIエージェントの作業を記録するOSSとして登場</h3>
+            <p>Asymptote LabsのAgent Beaconは、Claude Code、Codex CLI、CursorなどのローカルAIコーディングエージェントが行う操作を、OpenTelemetryやフック経由で正規化されたJSONイベントとして記録するオープンソースツールです。ローカルダッシュボードやSIEM連携を想定し、プロンプトやコマンド出力などの保持範囲を選べるモードも用意されています。</p>
+            <p>出典: <a href="https://www.helpnetsecurity.com/2026/06/22/agent-beacon-open-source-telemetry-layer-ai-agents/">Help Net Security </a></p>
+          </li>
+          <li>
+            <div class="episode-tags">
+              <span class="episode-tag category-general">ネットワーク</span>
+              <span class="episode-tag category-general">プライバシー</span>
+              <span class="episode-tag category-general">IoT</span>
+            </div>
+            <h3>暗号化DNSにも通信パターン漏れ、ヘッダー削減で対策を提案</h3>
+            <p>暗号化DNSは問い合わせ内容を守りますが、IPアドレス、ポート、シーケンス番号などの平文ヘッダーからDNSフローだと推測される可能性があります。研究チームはDNS over CoAP、ブロック転送、SCHCによるヘッダー削減を組み合わせ、IoT環境で識別精度を下げる手法を示しました。</p>
+            <p>出典: <a href="https://www.helpnetsecurity.com/2026/06/22/research-encrypted-dns-privacy/">Help Net Security </a></p>
+          </li>
+        </ol>
+
+        <p class="note">※ この記事は公開情報をもとにした短い要約です。詳細は各出典をご確認ください。</p>
+        <a class="back-link" href="../index.html">← トップページへ戻る</a>
+      </article>
+    </main>
+  </body>
+</html>
